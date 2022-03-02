@@ -1,13 +1,20 @@
 package com.qrhunter;
 
 import android.Manifest;
+import android.app.Activity;
 import android.app.AlertDialog;
+import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
 import android.os.Bundle;
+import android.provider.MediaStore;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.widget.ImageView;
 import android.widget.Toast;
 
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
@@ -19,26 +26,10 @@ import com.journeyapps.barcodescanner.DecoratedBarcodeView;
 
 import java.util.List;
 
-/*
- * IMPORTANT NOTES FOR WHEN INTEGRATING INTO PROJECT:
- * - register project into the firebase 
- * - include the google-services.json file under project\app
- *
- * - under the project level build.gradle:
- *       make sure [google()] is under [buildscript { repositories { ...]
- *       make sure [google()] is under [allprojects { repositories { ...]
- *       add [classpath 'com.google.gms:google-services:4.3.10'] in [dependencies { ...]
- *
- * - under the module level build.gradle:
- *       add [apply plugin: 'com.google.gms.google-services'] under the line
- *       [apply plugin: 'com.android.application']. If both lines are missing,
- *       add them in the correct order above [dependencies { ...]
- */
-
 public class MainActivity extends AppCompatActivity {
 
     DecoratedBarcodeView scanner;
-    FirebaseFirestore db;
+    Collectable scanned;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -56,26 +47,55 @@ public class MainActivity extends AppCompatActivity {
             ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.CAMERA}, 0);
         }
 
+        /*
+         * The results from the camera activity. We use this to grab the BitMap and store it into
+         * the Collectable.
+         */
+        ActivityResultLauncher<Intent> cameraResult = registerForActivityResult(
+                new ActivityResultContracts.StartActivityForResult(),
+                camera_result -> {
+
+                    // Results other than OK we can just ignore, the photo already defaults to null.
+                    if (camera_result.getResultCode() == Activity.RESULT_OK) {
+                        Intent data = camera_result.getData();
+                        assert(data != null);
+                        scanned.setPhoto((Bitmap)data.getExtras().get("data"));
+                    }
+                }
+        );
+
+        // Grab the scanner within the activity.
         scanner = findViewById(R.id.main_scanner);
         scanner.decodeContinuous(new BarcodeCallback() {
             @Override
             public void barcodeResult(BarcodeResult result) {
 
+                // Create/Overwrite the collectable.
+                scanned = new Collectable();
+
                 // Pause the scanner so it doesn't make an infinite amount of popups.
                 scanner.pause();
 
-                // Load the context menu.
+                // Create the popup.
                 LayoutInflater layoutInflater = LayoutInflater.from(MainActivity.this);
                 View context_view = layoutInflater.inflate(R.layout.context_scanned, null);
-
-                // Build the dialog.
                 AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(MainActivity.this);
-
-                // On dismiss/cancel, we need to re-enable the scanner.
-                alertDialogBuilder.setOnCancelListener(dialogInterface -> scanner.resume());
+                alertDialogBuilder.setOnCancelListener(
+                        // Upload the Collectable to the database.
+                        dialogInterface -> scanner.resume()
+                );
 
                 alertDialogBuilder.setView(context_view);
                 AlertDialog alert = alertDialogBuilder.create();
+
+                // When we hit add picture, spawn a camera instance and get the BitMap taken.
+                context_view.findViewById(R.id.context_scanned_add_picture).setOnClickListener(v -> {
+                    Intent cameraIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+                    cameraResult.launch(cameraIntent);
+                });
+
+                // Set the ID (and add the score later on)
+                scanned.setId(result.getText());
                 alert.show();
             }
             @Override public void possibleResultPoints(List<ResultPoint> resultPoints) {}
