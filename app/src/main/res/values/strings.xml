@@ -7,4 +7,5 @@
     <string name="context_scanned_add_picture_text">Add Picture?</string>
     <string name="context_scanned_total_text">Total Codes Scanned: 0</string>
     <string name="context_scanned_score_text">Score of Scanned QR: 0</string>
+    <string name="context_scanned_save_location_text">Save Location</string>
 </resources>
