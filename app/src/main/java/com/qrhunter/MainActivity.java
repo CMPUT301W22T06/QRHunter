@@ -23,17 +23,28 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.storage.FirebaseStorage;
 import com.google.zxing.ResultPoint;
 import com.journeyapps.barcodescanner.BarcodeCallback;
 import com.journeyapps.barcodescanner.BarcodeResult;
 import com.journeyapps.barcodescanner.DecoratedBarcodeView;
 
+import java.io.ByteArrayOutputStream;
+import java.math.BigInteger;
+import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.util.HashMap;
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
 
     DecoratedBarcodeView scanner;
     Collectable scanned;
+    FirebaseFirestore database;
+    FirebaseStorage storage;
+    MessageDigest digest;
 
 
     /**
@@ -69,8 +80,37 @@ public class MainActivity extends AppCompatActivity {
      * This function helps for avoiding async issues with location permission when creating the
      * Collectable.
      */
-    private void upload() {
-        // TODO Upload the Collectable to the database.
+    private void upload()  {
+
+        // Our hashmap to upload basic information.
+        HashMap<String, Object> pack = new HashMap<>();
+
+        // Photos are special, we use Storage rather than Firestore
+        if (scanned.getPhoto() != null) {
+
+            // Create a binary stream from the bitmap
+            ByteArrayOutputStream output = new ByteArrayOutputStream();
+            scanned.getPhoto().compress(Bitmap.CompressFormat.JPEG, 50, output);
+
+            // Write it. Since its detached from the main base, use the ID to associate it.
+            storage
+                    .getReference(scanned.getId())
+                    .putBytes(output.toByteArray())
+                    .addOnFailureListener(e -> Toast.makeText(getApplicationContext(), "Network Error: " + e.getMessage(), Toast.LENGTH_SHORT).show());
+        }
+
+        // Pack all the rest of the information into the hashmap.
+        pack.put("ID", scanned.getId());
+        pack.put("Score", scanned.getScore());
+        pack.put("Location", scanned.getLocation());
+
+        // Upload our pack into the Firestore.
+        database.collection("Scanned")
+                .document("Test")
+                .set(pack)
+                .addOnFailureListener(e -> Toast.makeText(getApplicationContext(), "Network Error: " + e.getMessage(), Toast.LENGTH_SHORT).show());
+
+        // Resume the scanner.
         scanner.resume();
     }
 
@@ -78,6 +118,16 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        database = FirebaseFirestore.getInstance();
+        storage = FirebaseStorage.getInstance();
+
+
+        try {
+            digest = MessageDigest.getInstance("SHA-256");
+        } catch (NoSuchAlgorithmException e) {
+            Toast.makeText(getApplicationContext(), "Cannot find hashing instance!", Toast.LENGTH_SHORT).show();
+        }
 
         // Request Camera Permission (Needed for the scanner)
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED)
@@ -103,7 +153,15 @@ public class MainActivity extends AppCompatActivity {
             // When we successfully scan a code.
             @Override public void barcodeResult(BarcodeResult result) {
                 scanned = new Collectable();
-                scanned.setId(result.getText());
+
+                /*
+                 * We need to transform the ID so it doesn't contains '/', so I've just hashed it
+                 * so that it will always be unique. I would assume, once the scoring system
+                 * is implemented, we can move this work onto those functions.
+                 */
+                byte[] hash = digest.digest(result.getText().getBytes(StandardCharsets.UTF_8));
+                scanned.setId(new BigInteger(1, hash).toString(16));
+
                 // TODO Store the score of the code.
 
                 // Pause the scanner so it doesn't make an infinite amount of popups.

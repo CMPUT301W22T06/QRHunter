@@ -31,6 +31,5 @@ public class Collectable {
     public void viewPhoto(ImageView view) {
         view.setImageBitmap(photo);
     }
-
 }
 
