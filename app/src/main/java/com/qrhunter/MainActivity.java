@@ -100,13 +100,12 @@ public class MainActivity extends AppCompatActivity {
         }
 
         // Pack all the rest of the information into the hashmap.
-        pack.put("ID", scanned.getId());
         pack.put("Score", scanned.getScore());
         pack.put("Location", scanned.getLocation());
 
         // Upload our pack into the Firestore.
         database.collection("Scanned")
-                .document("Test")
+                .document(scanned.getId())
                 .set(pack)
                 .addOnFailureListener(e -> Toast.makeText(getApplicationContext(), "Network Error: " + e.getMessage(), Toast.LENGTH_SHORT).show());
 
