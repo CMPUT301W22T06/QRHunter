@@ -19,10 +19,12 @@ import android.widget.Toast;
 
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.zxing.ResultPoint;
@@ -45,6 +47,38 @@ public class MainActivity extends AppCompatActivity {
     FirebaseFirestore database;
     FirebaseStorage storage;
     MessageDigest digest;
+
+    /*
+     * Taking a Photo when a QR is scanned is an intent, which means onResume will be called when
+     * the activity returns, this would resume the scanner while the popup is still open.
+     *
+     * When assembleScanned is called, this is turned on, and the boolean is turned back off
+     * when the Collectable has been uploaded.
+     */
+    boolean building = false;
+
+
+    // Register for the callback when the camera activity returns.
+    ActivityResultLauncher<Intent> cameraResult = registerForActivityResult(
+            new ActivityResultContracts.StartActivityForResult(),
+            camera_result -> {
+                // Results other than OK we can just ignore, the photo already defaults to null.
+                if (camera_result.getResultCode() == Activity.RESULT_OK) {
+                    Intent data = camera_result.getData();
+                    assert(data != null);
+                    scanned.setPhoto((Bitmap)data.getExtras().get("data"));
+                }
+            }
+    );
+
+
+    /**
+     * Creates a short toast, saving some code redundancy
+     * @param message The message to toast.
+     */
+    private void toast(String message) {
+        Toast.makeText(getApplicationContext(), message, Toast.LENGTH_SHORT).show();
+    }
 
 
     /**
@@ -69,10 +103,42 @@ public class MainActivity extends AppCompatActivity {
         Location locationGPS = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
             if (locationGPS != null)
                 scanned.setLocation(new Pair<>(locationGPS.getLatitude(), locationGPS.getLongitude()));
-            else
-                Toast.makeText(getApplicationContext(), "Unable to find location.", Toast.LENGTH_SHORT).show();
+            else toast("Unable to find location.");
         upload();
     }
+
+
+    /**
+     * Assembles a scanned QR code, waiting for the user to enter photo/geolocation, then uploading
+     * it.
+     */
+    private void assembleScanned() {
+
+        // Prevent the scanner from turning back on when returning from the CAPTURE intent.
+        building = true;
+
+        // Create the popup.
+        LayoutInflater layoutInflater = LayoutInflater.from(MainActivity.this);
+        View context_view = layoutInflater.inflate(R.layout.context_scanned, null);
+        AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(MainActivity.this);
+
+        // When the dialog is canceled (IE clicked off of it), save our information.
+        alertDialogBuilder.setOnCancelListener(dialog -> {
+            if (((CheckBox)context_view.findViewById(R.id.context_scanned_save_location)).isChecked())
+                storeLocation();
+            else upload();
+        });
+
+        // When we hit add picture, spawn a camera instance and get the BitMap taken.
+        context_view.findViewById(R.id.context_scanned_add_picture).setOnClickListener(v -> {
+            cameraResult.launch(new Intent(MediaStore.ACTION_IMAGE_CAPTURE));
+        });
+
+        // Create and show the dialog.
+        alertDialogBuilder.setView(context_view);
+        alertDialogBuilder.create().show();
+    }
+
 
     /**
      * Uploads the Collectable, and resumes the scanner.
@@ -87,16 +153,15 @@ public class MainActivity extends AppCompatActivity {
 
         // Photos are special, we use Storage rather than Firestore
         if (scanned.getPhoto() != null) {
-
-            // Create a binary stream from the bitmap
             ByteArrayOutputStream output = new ByteArrayOutputStream();
-            scanned.getPhoto().compress(Bitmap.CompressFormat.JPEG, 50, output);
+
+            // TODO We can change the quality attribute to solve US 09.01.01
+            scanned.getPhoto().compress(Bitmap.CompressFormat.JPEG, 100, output);
 
             // Write it. Since its detached from the main base, use the ID to associate it.
-            storage
-                    .getReference(scanned.getId())
+            storage.getReference(scanned.getId())
                     .putBytes(output.toByteArray())
-                    .addOnFailureListener(e -> Toast.makeText(getApplicationContext(), "Network Error: " + e.getMessage(), Toast.LENGTH_SHORT).show());
+                    .addOnFailureListener(e -> toast("Network Error: " + e.getMessage()));
         }
 
         // Pack all the rest of the information into the hashmap.
@@ -107,11 +172,13 @@ public class MainActivity extends AppCompatActivity {
         database.collection("Scanned")
                 .document(scanned.getId())
                 .set(pack)
-                .addOnFailureListener(e -> Toast.makeText(getApplicationContext(), "Network Error: " + e.getMessage(), Toast.LENGTH_SHORT).show());
+                .addOnFailureListener(e -> toast("Network Error: " + e.getMessage()));
 
         // Resume the scanner.
         scanner.resume();
+        building = false;
     }
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -121,29 +188,12 @@ public class MainActivity extends AppCompatActivity {
         database = FirebaseFirestore.getInstance();
         storage = FirebaseStorage.getInstance();
 
-
-        try {
-            digest = MessageDigest.getInstance("SHA-256");
-        } catch (NoSuchAlgorithmException e) {
-            Toast.makeText(getApplicationContext(), "Cannot find hashing instance!", Toast.LENGTH_SHORT).show();
-        }
+        try {digest = MessageDigest.getInstance("SHA-256");}
+        catch (NoSuchAlgorithmException e) {toast("Cannot find hashing instance!");}
 
         // Request Camera Permission (Needed for the scanner)
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED)
             ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.CAMERA}, 0);
-
-        // Register for the callback when the camera activity returns (It has to be here.)
-        ActivityResultLauncher<Intent> cameraResult = registerForActivityResult(
-            new ActivityResultContracts.StartActivityForResult(),
-            camera_result -> {
-                // Results other than OK we can just ignore, the photo already defaults to null.
-                if (camera_result.getResultCode() == Activity.RESULT_OK) {
-                    Intent data = camera_result.getData();
-                    assert(data != null);
-                    scanned.setPhoto((Bitmap)data.getExtras().get("data"));
-                }
-            }
-        );
 
         // Grab the scanner within the activity.
         scanner = findViewById(R.id.main_scanner);
@@ -166,56 +216,54 @@ public class MainActivity extends AppCompatActivity {
                 // Pause the scanner so it doesn't make an infinite amount of popups.
                 scanner.pause();
 
-                // Create the popup.
-                LayoutInflater layoutInflater = LayoutInflater.from(MainActivity.this);
-                View context_view = layoutInflater.inflate(R.layout.context_scanned, null);
-                AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(MainActivity.this);
+                // Check if the Code already exists within the Firebase, prompt accordingly.
+                database.collection("Scanned").document(scanned.getId()).get().addOnCompleteListener(task -> {
+                    if (task.isSuccessful()) {
+                        DocumentSnapshot document = task.getResult();
 
-                // When the dialog is canceled (IE clicked off of it), save our information.
-                alertDialogBuilder.setOnCancelListener(dialog -> {
-
-                    // Geolocation is optional, so make sure the checkbox was explicitly checked before adding it.
-                    if (((CheckBox)context_view.findViewById(R.id.context_scanned_save_location)).isChecked())
-                        storeLocation();
-                    else {
-                        upload();
+                        // Not sure why this happens, but we need to check for it.
+                        if (document == null) toast("Unknown error");
+                        else {
+                            // If it exists, we shouldn't overwrite.
+                            if (document.exists()) {
+                                toast("Already been scanned!");
+                                scanner.resume();
+                            }
+                            else assembleScanned();
+                        }
                     }
+                    else toast("Network Error: " + task.getException());
                 });
-
-                // When we hit add picture, spawn a camera instance and get the BitMap taken.
-                context_view.findViewById(R.id.context_scanned_add_picture).setOnClickListener(v -> {
-                    Intent cameraIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-                    cameraResult.launch(cameraIntent);
-                });
-
-                // Create and show the dialog.
-                alertDialogBuilder.setView(context_view);
-                alertDialogBuilder.create().show();
             }
             @Override public void possibleResultPoints(List<ResultPoint> resultPoints) {}
         });
     }
 
-    @Override protected void onResume() {super.onResume(); if (!scanner.isActivated()) scanner.resume();}
+    @Override protected void onResume() {
+        super.onResume();
+        if (!scanner.isActivated() && !building)
+            scanner.resume();
+    }
+
 
     @Override protected void onPause() {super.onPause(); scanner.pause();}
 
+
     @Override
-    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         for (int x = 0; x < permissions.length; ++x) {
 
             // Camera isn't a big deal, just toast them to let them know it's kinda important.
             if (permissions[x].equals(Manifest.permission.CAMERA) && requestCode == 0 && grantResults[x] != PackageManager.PERMISSION_GRANTED) {
-                Toast.makeText(getApplicationContext(), "The camera is needed to scan QR codes!", Toast.LENGTH_SHORT).show();
+                toast("The camera is needed to scan QR codes!");
             }
-
             // If the user grants location, we should add that location to the Collectable.
             // ! NOTE: This assumes that the only time this permission is checked is when the checkbox is selected in the popup!
             else if (permissions[x].equals(Manifest.permission.ACCESS_COARSE_LOCATION) && requestCode == 1) {
                 if (grantResults[x] == PackageManager.PERMISSION_GRANTED) storeLocation();
                 else {
-                    Toast.makeText(getApplicationContext(), "Location permission is required to save location!", Toast.LENGTH_SHORT).show();
+                    toast("Location permission is required to save location!");
                     upload();
                 }
             }
