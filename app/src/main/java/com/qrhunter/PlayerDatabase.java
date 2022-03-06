@@ -1,4 +1,3 @@
-//Barebones initial implementation for developing related activities
 package com.example.qrhunter;
 
 import java.util.ArrayList;
@@ -11,8 +10,6 @@ import java.util.Set;
  */
 public class PlayerDatabase {
     private ArrayList<Player> allPlayers = new ArrayList<>();
-    //Unclear what type the qrCode will have, left as int for now
-    private HashMap<Integer, Set<String>> claimedCodes = new HashMap<>();
 
     /**
      * This adds a player to the list. If the player's username already exits, then it throws IllegalArgumentException
@@ -43,26 +40,5 @@ public class PlayerDatabase {
 
     public void deletePlayer(Player playerToDelete) {
         allPlayers.remove(playerToDelete);
-    }
-
-    /**
-     * If the qrCode has never been claimed before, this adds in a new qrCode & username key pair
-     * Else adds the username who's claimed the code to the existing list
-     *
-     * @param qrCode This is the qrCode being claimed
-     * @param username This is the username of the player claiming the qrCode
-     *
-     */
-    public void claimCode(int qrCode, String username) {
-        if (claimedCodes.containsKey((Integer) qrCode)) {
-            Set<String> players = claimedCodes.get((Integer) qrCode);
-            players.add(username);
-            claimedCodes.put((Integer) qrCode, players);
-        }
-        else {
-            Set<String> players = new HashSet<String>();
-            players.add(username);
-            claimedCodes.put((Integer) qrCode, players);
-        }
     }
 }
