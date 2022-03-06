@@ -150,6 +150,7 @@ public class MainActivity extends AppCompatActivity {
 
         // Our hashmap to upload basic information.
         HashMap<String, Object> pack = new HashMap<>();
+        HashMap<String, Object> comment_stub = new HashMap<>();
 
         // Photos are special, we use Storage rather than Firestore
         if (scanned.getPhoto() != null) {
@@ -172,6 +173,21 @@ public class MainActivity extends AppCompatActivity {
         database.collection("Scanned")
                 .document(scanned.getId())
                 .set(pack)
+                .addOnFailureListener(e -> toast("Network Error: " + e.getMessage()));
+
+        /*
+         * Because the comments are going to be a collection of String, String entries,
+         * we cannot embed it directly within the structure of the Firebase (Still in the class,
+         * though).
+         *
+         * However, when a new item is scanned, it isn't going to have any comments, but
+         * apparently you can't make a blank document, as Firebase will delete it. Therefore,
+         * we'll just make a stub.
+         */
+        comment_stub.put("exists", true);
+        database.collection("Comments")
+                .document(scanned.getId())
+                .set(comment_stub)
                 .addOnFailureListener(e -> toast("Network Error: " + e.getMessage()));
 
         // Resume the scanner.
