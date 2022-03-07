@@ -19,9 +19,26 @@ import com.journeyapps.barcodescanner.DecoratedBarcodeView;
 
 import java.util.List;
 
+/*
+ * IMPORTANT NOTES FOR WHEN INTEGRATING INTO PROJECT:
+ * - register project into the firebase 
+ * - include the google-services.json file under project\app
+ *
+ * - under the project level build.gradle:
+ *       make sure [google()] is under [buildscript { repositories { ...]
+ *       make sure [google()] is under [allprojects { repositories { ...]
+ *       add [classpath 'com.google.gms:google-services:4.3.10'] in [dependencies { ...]
+ *
+ * - under the module level build.gradle:
+ *       add [apply plugin: 'com.google.gms.google-services'] under the line
+ *       [apply plugin: 'com.android.application']. If both lines are missing,
+ *       add them in the correct order above [dependencies { ...]
+ */
+
 public class MainActivity extends AppCompatActivity {
 
     DecoratedBarcodeView scanner;
+    FirebaseFirestore db;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
