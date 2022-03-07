@@ -2,10 +2,12 @@ package com.qrhunter;
 
 import android.Manifest;
 import android.app.AlertDialog;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.widget.Button;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -62,6 +64,16 @@ public class MainActivity extends AppCompatActivity {
                 alert.show();
             }
             @Override public void possibleResultPoints(List<ResultPoint> resultPoints) {}
+        });
+
+        // Set up button to go to Search Menu activity
+        Button scoreboardButton = findViewById(R.id.main_scoreboard);
+        scoreboardButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(MainActivity.this, SearchMenuActivity.class);
+                startActivity(intent);
+            }
         });
     }
 

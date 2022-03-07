@@ -3,6 +3,7 @@
     xmlns:tools="http://schemas.android.com/tools">
 
     <uses-feature android:name="android.hardware.camera.any" />
+
     <uses-permission android:name="android.permission.CAMERA" />
 
     <application
@@ -15,6 +16,12 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.QRHunter"
         tools:targetApi="31">
+        <activity
+            android:name="com.qrhunter.QRViewActivity"
+            android:exported="false" />
+        <activity
+            android:name="com.qrhunter.SearchMenuActivity"
+            android:exported="false" />
         <activity
             android:name=".MainActivity"
             android:exported="true">
