@@ -1,6 +1,7 @@
 package com.qrhunter;
 
 import android.Manifest;
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
@@ -23,28 +24,24 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 
 import com.google.firebase.firestore.DocumentSnapshot;
-import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.storage.FirebaseStorage;
 import com.google.zxing.ResultPoint;
 import com.journeyapps.barcodescanner.BarcodeCallback;
 import com.journeyapps.barcodescanner.BarcodeResult;
 import com.journeyapps.barcodescanner.DecoratedBarcodeView;
 
-import java.io.ByteArrayOutputStream;
 import java.math.BigInteger;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.util.HashMap;
 import java.util.List;
 
 public class HomeActivity extends AppCompatActivity {
 
     DecoratedBarcodeView scanner;
     Collectable scanned;
-    FirebaseFirestore database;
-    FirebaseStorage storage;
+
     MessageDigest digest;
+    CollectableDatabase collectables = new CollectableDatabase();
 
     /*
      * Taking a Photo when a QR is scanned is an intent, which means onResume will be called when
@@ -89,11 +86,11 @@ public class HomeActivity extends AppCompatActivity {
 
         // If permission is already granted, append the location information and upload.
         LocationManager locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
-        Location locationGPS = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
+        @SuppressLint("MissingPermission") Location locationGPS = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
         if (locationGPS != null)
             scanned.setLocation(new Pair<>(locationGPS.getLatitude(), locationGPS.getLongitude()));
         else MainActivity.toast(getApplicationContext(), "Unable to find location.");
-        upload();
+        collectables.add(scanned, this);
     }
 
 
@@ -102,10 +99,6 @@ public class HomeActivity extends AppCompatActivity {
      * it.
      */
     private void assembleScanned() {
-
-        // Prevent the scanner from turning back on when returning from the CAPTURE intent.
-        building = true;
-
         // Create the popup.
         LayoutInflater layoutInflater = LayoutInflater.from(HomeActivity.this);
         View context_view = layoutInflater.inflate(R.layout.context_scanned, null);
@@ -115,13 +108,11 @@ public class HomeActivity extends AppCompatActivity {
         alertDialogBuilder.setOnCancelListener(dialog -> {
             if (((CheckBox)context_view.findViewById(R.id.context_scanned_save_location)).isChecked())
                 storeLocation();
-            else upload();
+            else collectables.add(scanned, this);
         });
 
         // When we hit add picture, spawn a camera instance and get the BitMap taken.
-        context_view.findViewById(R.id.context_scanned_add_picture).setOnClickListener(v -> {
-            cameraResult.launch(new Intent(MediaStore.ACTION_IMAGE_CAPTURE));
-        });
+        context_view.findViewById(R.id.context_scanned_add_picture).setOnClickListener(v -> cameraResult.launch(new Intent(MediaStore.ACTION_IMAGE_CAPTURE)));
 
         // Create and show the dialog.
         alertDialogBuilder.setView(context_view);
@@ -129,74 +120,21 @@ public class HomeActivity extends AppCompatActivity {
     }
 
 
-    /**
-     * Uploads the Collectable, and resumes the scanner.
-     *
-     * This function helps for avoiding async issues with location permission when creating the
-     * Collectable.
-     */
-    private void upload()  {
-
-        // Our hashmap to upload basic information.
-        HashMap<String, Object> pack = new HashMap<>();
-        HashMap<String, Object> comment_stub = new HashMap<>();
-
-        // Photos are special, we use Storage rather than Firestore
-        if (scanned.getPhoto() != null) {
-            ByteArrayOutputStream output = new ByteArrayOutputStream();
-
-            // TODO We can change the quality attribute to solve US 09.01.01
-            scanned.getPhoto().compress(Bitmap.CompressFormat.JPEG, 100, output);
-
-            // Write it. Since its detached from the main base, use the ID to associate it.
-            storage.getReference(scanned.getId())
-                    .putBytes(output.toByteArray())
-                    .addOnFailureListener(e -> MainActivity.toast(getApplicationContext(), "Network Error: " + e.getMessage()));
+    public void resume(String error) {
+        if (!error.isEmpty()) {
+            MainActivity.toast(getApplicationContext(), "Could not upload QR Code: " + error);
         }
-
-        // Pack all the rest of the information into the hashmap.
-        pack.put("Score", scanned.getScore());
-        pack.put("Location", scanned.getLocation());
-
-        // Upload our pack into the Firestore.
-        database.collection("Scanned")
-                .document(scanned.getId())
-                .set(pack)
-                .addOnFailureListener(e -> MainActivity.toast(getApplicationContext(), "Network Error: " + e.getMessage()));
-
-        /*
-         * Because the comments are going to be a collection of String, String entries,
-         * we cannot embed it directly within the structure of the Firebase (Still in the class,
-         * though).
-         *
-         * However, when a new item is scanned, it isn't going to have any comments, but
-         * apparently you can't make a blank document, as Firebase will delete it. Therefore,
-         * we'll just make a stub.
-         */
-        comment_stub.put("exists", true);
-        database.collection("Comments")
-                .document(scanned.getId())
-                .set(comment_stub)
-                .addOnFailureListener(e -> MainActivity.toast(getApplicationContext(), "Network Error: " + e.getMessage()));
-
-        // Resume the scanner.
         scanner.resume();
         building = false;
     }
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_home);
 
-        database = FirebaseFirestore.getInstance();
-        storage = FirebaseStorage.getInstance();
-
         try {digest = MessageDigest.getInstance("SHA-256");}
         catch (NoSuchAlgorithmException e) {MainActivity.toast(getApplicationContext(), "Cannot find hashing instance!");}
-
-
 
         // Grab the scanner within the activity.
         scanner = findViewById(R.id.home_scanner);
@@ -204,6 +142,7 @@ public class HomeActivity extends AppCompatActivity {
 
             // When we successfully scan a code.
             @Override public void barcodeResult(BarcodeResult result) {
+                building = true;
                 scanned = new Collectable();
 
                 /*
@@ -215,12 +154,14 @@ public class HomeActivity extends AppCompatActivity {
                 scanned.setId(new BigInteger(1, hash).toString(16));
 
                 // TODO Store the score of the code.
+                scanned.setScore(0L);
 
                 // Pause the scanner so it doesn't make an infinite amount of popups.
                 scanner.pause();
 
+
                 // Check if the Code already exists within the Firebase, prompt accordingly.
-                database.collection("Scanned").document(scanned.getId()).get().addOnCompleteListener(task -> {
+                collectables.getStore().collection("Scanned").document(scanned.getId()).get().addOnCompleteListener(task -> {
                     if (task.isSuccessful()) {
                         DocumentSnapshot document = task.getResult();
 
@@ -235,7 +176,9 @@ public class HomeActivity extends AppCompatActivity {
                             else assembleScanned();
                         }
                     }
-                    else MainActivity.toast(getApplicationContext(), "Network Error: " + task.getException());
+
+                    // This happens when the database is empty.
+                    else assembleScanned();
                 });
             }
             @Override public void possibleResultPoints(List<ResultPoint> resultPoints) {}
@@ -249,7 +192,10 @@ public class HomeActivity extends AppCompatActivity {
     }
 
 
-    @Override protected void onPause() {super.onPause(); scanner.pause();}
+    @Override protected void onPause() {
+        super.onPause();
+        scanner.pause();
+    }
 
 
     @Override
@@ -261,7 +207,7 @@ public class HomeActivity extends AppCompatActivity {
                 if (grantResults[x] == PackageManager.PERMISSION_GRANTED) storeLocation();
                 else {
                     MainActivity.toast(getApplicationContext(), "Location permission is required to save location!");
-                    upload();
+                    collectables.add(scanned, this);
                 }
             }
         }
