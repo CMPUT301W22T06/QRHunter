@@ -4,6 +4,7 @@ import java.math.BigInteger;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.ArrayList;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -42,16 +43,36 @@ public class ScoringSystem {
 	 * @param hashedQR: The QR code's SHA-256 sum
 	 * @return totalScore: The score of the QR code
 	 */
-	public long Score(String hashedQR) {
+	public long score(String hashedQR) {
+		ArrayList<String> dupes = new ArrayList<String>();
 		//regular expression to find duplicate characters
 		Pattern p = Pattern.compile("([0-9a-f])(\\1+)");
 		Matcher m = p.matcher(hashedQR);
 		while(m.find()) {
-			System.out.println("Duplicate Character " + m.group());
+			System.out.println("Duplicate Character " + m.group()); //REMOVE BEFORE MERGE
+			dupes.add(m.group());
 		}
 		//TODO: add duplicate character strings to an array and calculate their individual scores
+		System.out.println(dupes.toString());
 		
-		return 0;
+		long totalScore = 0;
+		String dupe;
+		int hexValue;
+		for(int i = 0; i < dupes.size(); i++) {
+			//obtain value of the duplicated character
+			dupe = dupes.get(i);
+			String firstChar = dupe.substring(0,1);
+			hexValue = Integer.parseInt(firstChar, 16);
+			
+			if(hexValue == 0) {
+				totalScore += 20 ^ (dupe.length() - 1);
+			}
+			else {
+				totalScore += hexValue ^ (dupe.length() - 1);
+			}
+		}
+		
+		return totalScore;
 	}
 	
 	
@@ -62,8 +83,11 @@ public class ScoringSystem {
     public static void main(String[] args) {
         ScoringSystem score = new ScoringSystem();
         String hashedQR = score.hashQR("BFG5DGW54");
-        score.Score(hashedQR);
+        score.score(hashedQR);
+        score.score("777888899999aaa");
         
+        Integer i = Integer.parseInt("f", 16);
+        System.out.println(i);
         
     }
 
