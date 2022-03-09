@@ -1,11 +1,12 @@
 <resources>
     <string name="app_name">QRHunter</string>
-    <string name="main_score_text">Total Score: 0</string>
-    <string name="main_map_text">QR Map</string>
-    <string name="main_scoreboard_text">Scoreboard</string>
+    <string name="home_score_text">Total Score: 0</string>
+    <string name="home_map_text">QR Map</string>
+    <string name="home_scoreboard_text">Scoreboard</string>
 
     <string name="context_scanned_add_picture_text">Add Picture?</string>
     <string name="context_scanned_total_text">Total Codes Scanned: 0</string>
     <string name="context_scanned_score_text">Score of Scanned QR: 0</string>
     <string name="context_scanned_save_location_text">Save Location</string>
+    <string name="main_home_button_text">Home</string>
 </resources>
