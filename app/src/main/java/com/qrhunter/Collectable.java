@@ -6,6 +6,9 @@ import android.widget.ImageView;
 
 import java.util.ArrayList;
 
+/**
+ * A QR code scanned alongside an optional photo and location.
+ */
 public class Collectable {
     private String id;
     private Long score;
