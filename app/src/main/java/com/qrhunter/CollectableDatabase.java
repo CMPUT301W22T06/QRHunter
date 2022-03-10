@@ -10,6 +10,7 @@ import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 
 import java.io.ByteArrayOutputStream;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Objects;
 
@@ -29,7 +30,10 @@ public class CollectableDatabase {
     // We need to specific a size, and no image should exceed a megabyte.
     final long ONE_MEGABYTE = 1024 * 1024;
 
+
     /**
+     * @throws RuntimeException if the database cannot be accessed (Network issues)
+     *
      * This function updates the local database. It only downloads those that aren't present, and
      * downloads the entirety of the collectable (Including the photo).
      *
@@ -50,10 +54,10 @@ public class CollectableDatabase {
         database.collection("Scanned").get().addOnCompleteListener(task -> {
             if (task.isSuccessful()) {
                 for (QueryDocumentSnapshot document : Objects.requireNonNull(task.getResult())) {
+                    Collectable current = new Collectable();
 
                     // This allows us to not have to re-download the whole thing after each change.
                     if (!collectables.containsKey(document.getId())) {
-                        Collectable current = new Collectable();
                         current.setId(document.getId());
 
                         // The object will NEVER be null, but it prevents the IDE from complaining.
@@ -72,6 +76,11 @@ public class CollectableDatabase {
                             current.setScore((Long) score_object);
                         }
 
+                        Object comments_object = document.get("Comments");
+                        if (comments_object != null) {
+                            current.setComments((ArrayList<String>)comments_object);
+                        }
+
                         // Import the image.
                         StorageReference image = storage.getReference(current.getId());
                         image.getBytes(ONE_MEGABYTE).addOnSuccessListener(bytes -> {
@@ -80,6 +89,15 @@ public class CollectableDatabase {
 
                         // Put the collectable into the local database.
                         collectables.put(document.getId(), current);
+                    }
+                    // If
+                    else {
+                        Object comments_object = document.get("Comments");
+                        if (comments_object != null) {
+                            ArrayList<String> comments = (ArrayList<String>)comments_object;
+                            if (current.getComments().size() != comments.size())
+                            current.setComments(comments);
+                        }
                     }
                 }
             }
@@ -131,7 +149,6 @@ public class CollectableDatabase {
 
         // Our hashmap to upload basic information.
         HashMap<String, Object> pack = new HashMap<>();
-        HashMap<String, Object> comment_stub = new HashMap<>();
 
         // Photos are special, we use Storage rather than Firestore
         if (scanned.getPhoto() != null) {
@@ -149,30 +166,34 @@ public class CollectableDatabase {
         // Pack all the rest of the information into the hashmap.
         pack.put("Score", scanned.getScore());
         pack.put("Location", scanned.getLocation());
+        pack.put("Comments", scanned.getComments());
 
         // Upload our pack into the Firestore.
         database.collection("Scanned")
                 .document(scanned.getId())
                 .set(pack)
-                .addOnFailureListener(e -> {callback.resume("Could not upload collectable!");});
-
-        /*
-         * Because the comments are going to be a collection of String, String entries,
-         * we cannot embed it directly within the structure of the Firebase (Still in the class,
-         * though).
-         *
-         * However, when a new item is scanned, it isn't going to have any comments, but
-         * apparently you can't make a blank document, as Firebase will delete it. Therefore,
-         * we'll just make a stub.
-         */
-        comment_stub.put("exists", true);
-        database.collection("Comments")
-                .document(scanned.getId())
-                .set(comment_stub)
-
-                // This is where we hand control back to the activity.
-                .addOnFailureListener(e -> {callback.resume("Could not create comment stub!");})
+                .addOnFailureListener(e -> {callback.resume("Could not upload collectable!");})
                 .addOnSuccessListener(e -> {callback.resume("");});
+
+    }
+
+    /**
+     * Adds comments to a collectable, updates firebase.
+     * @param id The id of the collectable.
+     * @param comments The comments to add.
+     * @throws RuntimeException If the database cannot be accessed (Network Error)
+     *
+     * This function will add comments to an existing collectable within the database.
+     */
+    public void addComment(String id, ArrayList<String> comments) {
+        Collectable selected = collectables.get(id);
+        if (selected != null) {
+            selected.getComments().addAll(comments);
+            database.collection("Scanned")
+                    .document(id)
+                    .update("Comments", selected.getComments())
+                    .addOnFailureListener(e -> {throw new RuntimeException("Network Error.");});
+        }
     }
 
 }
