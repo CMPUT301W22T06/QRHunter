@@ -1,4 +1,4 @@
-package com.example.qrhunter;
+package com.qrhunter;
 
 import java.util.ArrayList;
 
@@ -12,7 +12,11 @@ public class Player {
     private int scoreSum;
     private ArrayList<String> claimedCollectibleIDs;
 
-    Player(String username) {
+    public Player() {
+
+    }
+
+    public Player(String username) {
         this.username = username;
         this.highestScore = 0;
         this.totalCodesScanned = 0;

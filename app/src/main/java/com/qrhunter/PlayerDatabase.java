@@ -1,4 +1,4 @@
-package com.example.qrhunter;
+package com.qrhunter;
 
 import java.util.ArrayList;
 import java.util.HashMap;
