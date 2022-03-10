@@ -16,6 +16,7 @@ import android.util.Pair;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.CheckBox;
+import android.widget.TextView;
 
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
@@ -98,6 +99,7 @@ public class HomeActivity extends AppCompatActivity {
      * Assembles a scanned QR code, waiting for the user to enter photo/geolocation, then uploading
      * it.
      */
+    @SuppressLint("SetTextI18n")
     private void assembleScanned() {
         // Create the popup.
         LayoutInflater layoutInflater = LayoutInflater.from(HomeActivity.this);
@@ -113,6 +115,7 @@ public class HomeActivity extends AppCompatActivity {
 
         // When we hit add picture, spawn a camera instance and get the BitMap taken.
         context_view.findViewById(R.id.context_scanned_add_picture).setOnClickListener(v -> cameraResult.launch(new Intent(MediaStore.ACTION_IMAGE_CAPTURE)));
+        ((TextView)context_view.findViewById(R.id.context_scanned_score)).setText("Score of Scanned QR: " + scanned.getScore());
 
         // Create and show the dialog.
         alertDialogBuilder.setView(context_view);
@@ -133,9 +136,6 @@ public class HomeActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_home);
 
-        try {digest = MessageDigest.getInstance("SHA-256");}
-        catch (NoSuchAlgorithmException e) {MainActivity.toast(getApplicationContext(), "Cannot find hashing instance!");}
-
         // Grab the scanner within the activity.
         scanner = findViewById(R.id.home_scanner);
         scanner.decodeContinuous(new BarcodeCallback() {
@@ -145,16 +145,10 @@ public class HomeActivity extends AppCompatActivity {
                 building = true;
                 scanned = new Collectable();
 
-                /*
-                 * We need to transform the ID so it doesn't contains '/', so I've just hashed it
-                 * so that it will always be unique. I would assume, once the scoring system
-                 * is implemented, we can move this work onto those functions.
-                 */
-                byte[] hash = digest.digest(result.getText().getBytes(StandardCharsets.UTF_8));
-                scanned.setId(new BigInteger(1, hash).toString(16));
-
-                // TODO Store the score of the code.
-                scanned.setScore(0L);
+                // Create the ID, along with the score.
+                String id = ScoringSystem.hashQR(result.getText());
+                scanned.setId(id);
+                scanned.setScore(ScoringSystem.score(id));
 
                 // Pause the scanner so it doesn't make an infinite amount of popups.
                 scanner.pause();
