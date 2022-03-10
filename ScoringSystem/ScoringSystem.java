@@ -17,14 +17,17 @@ import java.util.regex.Pattern;
  *
  */
 public class ScoringSystem {
-	
-	
 	/**
-	 * Converts the QR code into a SHA-256 string
-	 * @param qrCode
-	 * @return
+	 * Calculates the SHA-256 hash of the QR code contents
+	 * @param qrCode The QR code's string contents
+	 * @return hashedCode The QR code converted into a SHA-256 Hash 
 	 */
-	public String hashQR(String qrCode) {
+	public static String hashQR(String qrCode) {
+		//check for bad input
+		if (qrCode == null)
+			throw new IllegalArgumentException("Null input");
+		
+		//hash the string
 		MessageDigest md = null;
 		try {
 			md = MessageDigest.getInstance("SHA-256");
@@ -32,29 +35,41 @@ public class ScoringSystem {
 			e.printStackTrace();
 		}
 		byte[] hash = md.digest(qrCode.getBytes(StandardCharsets.UTF_8));
+		
+		//convert byte array back into a string
 		String hashedCode = new BigInteger(1, hash).toString(16);
-		System.out.println("SHA-256 Hash: " + hashedCode); //REMOVE BEFORE MERGE
+		
 		return hashedCode;
 	}
-	
+
+
 	/**
-	 * Calculates the score of a qr code that has already been converted
-	 * to a SHA-256 Hash
-	 * @param hashedQR: The QR code's SHA-256 sum
-	 * @return totalScore: The score of the QR code
+	 * Calculates the score of a qr code using its SHA-256 sum
+	 * The score is based on how many repeats of a specific character there are
+	 * Repeated 0s in a row are worth 20^(n-1) points
+	 * For other repeated "m" hex values, they are worth m^(n-1) points 
+	 * @param hashedQR The QR code's SHA-256 sum
+	 * @return totalScore The score of the QR code
 	 */
-	public long score(String hashedQR) {
+	public static long score(String hashedQR) {
+		if(hashedQR == null)
+			throw new IllegalArgumentException("Null input");
+		else if(hashedQR == "")
+			throw new IllegalArgumentException("Empty String");
+		
+		//https://stackoverflow.com/questions/5317320/regex-to-check-string-contains-only-hex-characters
+		else if(hashedQR.matches("[0-9a-f]+") == false)
+			throw new IllegalArgumentException("String contains non-hex characters");
+		
+		//use a regular expression to find duplicate substrings of characters
 		ArrayList<String> dupes = new ArrayList<String>();
-		//regular expression to find duplicate characters
 		Pattern p = Pattern.compile("([0-9a-f])(\\1+)");
 		Matcher m = p.matcher(hashedQR);
 		while(m.find()) {
-			System.out.println("Duplicate Character " + m.group()); //REMOVE BEFORE MERGE
 			dupes.add(m.group());
 		}
-		//TODO: add duplicate character strings to an array and calculate their individual scores
-		System.out.println(dupes.toString());
 		
+		//use found substrings to calculate a total score
 		long totalScore = 0;
 		String dupe;
 		int hexValue;
@@ -64,31 +79,14 @@ public class ScoringSystem {
 			String firstChar = dupe.substring(0,1);
 			hexValue = Integer.parseInt(firstChar, 16);
 			
+			//calculate point value for the substring
 			if(hexValue == 0) {
-				totalScore += 20 ^ (dupe.length() - 1);
+				totalScore += Math.pow(20, dupe.length() - 1);
 			}
 			else {
-				totalScore += hexValue ^ (dupe.length() - 1);
+				totalScore += Math.pow(hexValue, dupe.length() - 1);
 			}
-		}
-		
+		}	
 		return totalScore;
 	}
-	
-	
-	/**
-	 * Test method, remove before merge
-	 * @param args
-	 */
-    public static void main(String[] args) {
-        ScoringSystem score = new ScoringSystem();
-        String hashedQR = score.hashQR("BFG5DGW54");
-        score.score(hashedQR);
-        score.score("777888899999aaa");
-        
-        Integer i = Integer.parseInt("f", 16);
-        System.out.println(i);
-        
-    }
-
 }
