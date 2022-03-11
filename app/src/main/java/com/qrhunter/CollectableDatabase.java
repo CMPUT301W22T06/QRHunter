@@ -14,6 +14,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Objects;
 
+import javax.annotation.Nullable;
+
 /**
  * A database of all Collectables stored by all users. This also facilitates talking to the
  * Firestore.
@@ -140,9 +142,10 @@ public class CollectableDatabase {
     /**
      * Adds the provided collectable into the local and firestore databases.
      * @param scanned The scanned collectable.
-     * @param callback A callback to the HomeActivity, to resume scanning once everything is good.
+     * @param callback A callback to the HomeActivity, to resume scanning. This can be null, in
+     *                 which case no callback will be called.
      */
-    public void add(Collectable scanned, HomeActivity callback) {
+    public void add(Collectable scanned, @Nullable HomeActivity callback) {
 
         // Put it into the local database.
         collectables.put(scanned.getId(), scanned);
@@ -160,7 +163,10 @@ public class CollectableDatabase {
             // Write it. Since its detached from the main base, use the ID to associate it.
             storage.getReference(scanned.getId())
                     .putBytes(output.toByteArray())
-                    .addOnFailureListener(e -> {callback.resume("Could not upload image!");});
+                    .addOnFailureListener(e -> {
+                        if (callback != null)
+                            callback.resume("Could not upload image!");
+                    });
         }
 
         // Pack all the rest of the information into the hashmap.
@@ -172,28 +178,75 @@ public class CollectableDatabase {
         database.collection("Scanned")
                 .document(scanned.getId())
                 .set(pack)
-                .addOnFailureListener(e -> {callback.resume("Could not upload collectable!");})
-                .addOnSuccessListener(e -> {callback.resume("");});
+                .addOnFailureListener(e -> {
+                    if (callback != null)
+                        callback.resume("Could not upload collectable!");
+                })
+                .addOnSuccessListener(e -> {
+                    if (callback != null)
+                        callback.resume("");
+                });
 
     }
 
     /**
      * Adds comments to a collectable, updates firebase.
      * @param id The id of the collectable.
-     * @param comments The comments to add.
+     * @param comment The comments to add.
      * @throws RuntimeException If the database cannot be accessed (Network Error)
      *
      * This function will add comments to an existing collectable within the database.
      */
-    public void addComment(String id, ArrayList<String> comments) {
+    public void addComment(String id, String comment) {
         Collectable selected = collectables.get(id);
         if (selected != null) {
-            selected.getComments().addAll(comments);
+            selected.getComments().add(comment);
             database.collection("Scanned")
                     .document(id)
                     .update("Comments", selected.getComments())
                     .addOnFailureListener(e -> {throw new RuntimeException("Network Error.");});
         }
+    }
+
+    /**
+     * Deletes a collectable from the database.
+     * @param id The id of the collectable.
+     * @throws RuntimeException if there was a network error.
+     *
+     * This function deletes a collectable from the database. It does not throw an exception
+     * if the element is not present.
+     */
+    public void deleteCollectable(String id) {
+        collectables.remove(id);
+        Collectable selected = collectables.get(id);
+        if (selected != null) {
+            database.collection("Scanned")
+                    .document(id)
+                    .delete()
+                    .addOnFailureListener(e -> {throw new RuntimeException("Network Error.");});
+        }
+    }
+
+    /**
+     * Checks if a particular QR code exists within the database.
+     * @param id The id of the code.
+     * @return Whether it is present within the database
+     */
+    public boolean exists(String id) {
+        return collectables.containsKey(id);
+    }
+
+    /**
+     * Returns the collectable associated with the provided ID.
+     * @param id The id of the collectable.
+     * @return The id
+     * @throws RuntimeException If the collectable does not exist.
+     */
+    public Collectable get(String id) {
+        if (exists(id)) {
+            return collectables.get(id);
+        }
+        else throw new RuntimeException("ID not in database");
     }
 
 }
