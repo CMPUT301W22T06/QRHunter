@@ -1,11 +1,12 @@
 package com.qrhunter;
 
 import java.lang.reflect.Array;
+import java.util.ArrayList;
 
 public class Player {
 
     private String password;
-    private Array claimedCollectibleIDs;
+    private ArrayList<String> claimedCollectibleIDs;
     private int highestScore;
     private int scoreSum;
     private int totalCodesScanned;
@@ -15,7 +16,7 @@ public class Player {
     }
 
     // constructor for the player object
-    public Player(String password, Array claimedCollectibleIDs,
+    public Player(String password, ArrayList<String> claimedCollectibleIDs,
                   int highestScore, int scoreSum, int totalCodesScanned) {
         this.password = password;
         this.claimedCollectibleIDs = claimedCollectibleIDs;
@@ -38,7 +39,7 @@ public class Player {
      * returns an array of scannables the player has collected
      * @return array of scannable IDs
      */
-    public Array getClaimedCollectiveIDs() {
+    public ArrayList<String> getClaimedCollectiveIDs() {
         return claimedCollectibleIDs;
     }
 
