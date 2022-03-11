@@ -52,6 +52,7 @@ public class MainActivity extends AppCompatActivity {
             String username = usernameText.getText().toString();
             String password = passwordText.getText().toString();
 
+            // if the fields are filled
             if(!username.equals("") && !password.equals("")){
                 // pull the player object with the desired username from database
                 // if the account exists, log them in (pass this into homeActivity in the future,
@@ -59,7 +60,7 @@ public class MainActivity extends AppCompatActivity {
                 PlayerDatabse currPlayer = new PlayerDatabse();
                 Player thisPlayer = currPlayer.getPlayer(username);
 
-                // checks if the player actually exists
+                // checks if the player actually exists, if not toast the user to let them know
                 if (thisPlayer == null){
                     Toast.makeText(context, "User does not exist!", Toast.LENGTH_SHORT).show();
                 }
@@ -86,6 +87,7 @@ public class MainActivity extends AppCompatActivity {
                     }
                 }
             }
+            // toast the user to let them know there are empty fields
             else{
                 Toast.makeText(context, "Empty Fields!", Toast.LENGTH_SHORT).show();
             }
@@ -94,8 +96,8 @@ public class MainActivity extends AppCompatActivity {
         // when the create account button is pressed, creates a dialog fragment for the
         // user to register a new account into the player database.
         createAccountButton.setOnClickListener(v -> {
-
-
+            createAccount createAcc = new createAccount();
+            createAcc.show(getSupportFragmentManager(),"myFragment");
         });
 
     }
