@@ -10,8 +10,8 @@ import java.util.ArrayList;
  * A QR code scanned alongside an optional photo and location.
  */
 public class Collectable {
-    private String id;
-    private Long score;
+    private String id = "";
+    private Long score = 0L;
     private Bitmap photo;
     private Pair<Double, Double> location = new Pair<>(0.0, 0.0);      // lat, long
     private ArrayList<String> comments = new ArrayList<>();
