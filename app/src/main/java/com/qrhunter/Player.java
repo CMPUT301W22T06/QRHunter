@@ -1,9 +1,9 @@
 package com.qrhunter;
 
-import java.lang.reflect.Array;
+import java.io.Serializable;
 import java.util.ArrayList;
 
-public class Player {
+public class Player implements Serializable {
 
     private String password;
     private ArrayList<String> claimedCollectibleIDs;
@@ -12,7 +12,7 @@ public class Player {
     private int totalCodesScanned;
 
     public Player(){
-        // Default constructor required for calls to DataSnapshot.getValue(Player.class)
+        // Default constructor
     }
 
     // constructor for the player object

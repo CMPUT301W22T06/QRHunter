@@ -15,6 +15,8 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
+import java.io.Serializable;
+
 public class MainActivity extends AppCompatActivity {
 
     private static final String TAG = "MainActivity";
@@ -44,7 +46,7 @@ public class MainActivity extends AppCompatActivity {
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED)
             ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.CAMERA}, 0);
 
-        // Quick & dirty implementation of a login button, currently just confirming stuff is in the DB before
+        // Quick & dirty implementation of a login button, just confirming stuff is in the DB before
         // going into the home activity.
         // If the user does not exist or password doesn't match what is in the DB, displays a
         // little toast saying "user does not exist!" or "wrong password!" respectively
@@ -54,9 +56,9 @@ public class MainActivity extends AppCompatActivity {
 
             // if the fields are filled
             if(!username.equals("") && !password.equals("")){
+
                 // pull the player object with the desired username from database
-                // if the account exists, log them in (pass this into homeActivity in the future,
-                // perhaps we pass this in as a static player object from main)
+                // if the account exists, log them in (pass player into homeActivity)
                 PlayerDatabse currPlayer = new PlayerDatabse();
                 Player thisPlayer = currPlayer.getPlayer(username);
 
@@ -67,18 +69,15 @@ public class MainActivity extends AppCompatActivity {
                 else {
                     String thisPass = thisPlayer.getPassword();
 
-                    // temp declaration
-                    thisPass = "test";
-
-                    Log.d("user", "" + password);
-                    Log.d("fire", "" + thisPass);
-
                     // if the account credentials match what is on file
                     if (thisPass.equals(password)) {
                         // logs em into the main activity
                         Toast.makeText(context, "You are now signed in as "+username,
                                 Toast.LENGTH_SHORT).show();
                         Intent intent = new Intent(this, HomeActivity.class);
+
+                        // passes the player object into the intent
+                        intent.putExtra("Player", thisPlayer);
                         startActivity(intent);
                     }
                     // otherwise toast and tell them their credentials are not correct
