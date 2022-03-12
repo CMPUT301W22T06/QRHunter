@@ -143,7 +143,7 @@ public class HomeActivity extends AppCompatActivity {
         // retrieves the Player username from the intent
         String username = getIntent().getStringExtra("username");
         player = MainActivity.allPlayers.getPlayer(username);
-
+      
         // Grab the scanner within the activity.
         scanner = findViewById(R.id.home_scanner);
         scanner.decodeContinuous(new BarcodeCallback() {
@@ -215,5 +215,4 @@ public class HomeActivity extends AppCompatActivity {
         }
 
     }
-
 }

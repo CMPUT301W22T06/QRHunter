@@ -92,7 +92,7 @@ public class MainActivity extends AppCompatActivity {
                 Toast.makeText(context, "Empty Fields!", Toast.LENGTH_SHORT).show();
             }
         });
-
+      
         // when the create account button is pressed, creates a dialog fragment for the
         // user to register a new account into the player database.
         createAccountButton.setOnClickListener(v -> {
@@ -106,7 +106,6 @@ public class MainActivity extends AppCompatActivity {
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         for (int x = 0; x < permissions.length; ++x) {
-
             // Camera isn't a big deal, just toast them to let them know it's kinda important.
             if (permissions[x].equals(Manifest.permission.CAMERA) && requestCode == 0 && grantResults[x] != PackageManager.PERMISSION_GRANTED) {
                 toast(getApplicationContext(), "The camera is needed to scan QR codes!");
