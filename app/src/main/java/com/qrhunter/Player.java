@@ -7,7 +7,7 @@ public class Player implements Serializable {
 
     private String username;
     private String password;
-    private ArrayList<String> claimedCollectibleIDs;
+    private ArrayList<String> claimedCollectibleIDs = new ArrayList<String>();
     private Long highestScore;
     private Long scoreSum;
     private Long totalCodesScanned;

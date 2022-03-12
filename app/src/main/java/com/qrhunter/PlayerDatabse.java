@@ -36,6 +36,12 @@ public class PlayerDatabse {
 
                     // put the players into a local hashmap
                     if (!players.containsKey(document.getId())){
+
+                        Object username_object = document.get("username");
+                        if (username_object != null){
+                            current.setUsername((String) username_object);
+                        }
+
                         Object password_object = document.get("password");
                         if (password_object != null){
                             current.setPassword((String) password_object);
@@ -112,7 +118,7 @@ public class PlayerDatabse {
     }
 
     public void addClaimedID(String player, String id) {
-        Player selected = players.get(player);
+        Player selected = MainActivity.allPlayers.getPlayer(player);
         if (selected != null) {
             selected.getClaimedCollectibleIDs().add(id);
             database.collection("Players")
