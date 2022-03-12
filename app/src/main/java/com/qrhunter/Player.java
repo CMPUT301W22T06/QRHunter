@@ -7,9 +7,9 @@ public class Player implements Serializable {
 
     private String password;
     private ArrayList<String> claimedCollectibleIDs;
-    private int highestScore;
-    private int scoreSum;
-    private int totalCodesScanned;
+    private Long highestScore;
+    private Long scoreSum;
+    private Long totalCodesScanned;
 
     public Player(){
         // Default constructor
@@ -17,7 +17,7 @@ public class Player implements Serializable {
 
     // constructor for the player object
     public Player(String password, ArrayList<String> claimedCollectibleIDs,
-                  int highestScore, int scoreSum, int totalCodesScanned) {
+                  Long highestScore, Long scoreSum, Long totalCodesScanned) {
         this.password = password;
         this.claimedCollectibleIDs = claimedCollectibleIDs;
         this.highestScore = highestScore;
@@ -39,7 +39,7 @@ public class Player implements Serializable {
      * returns an array of scannables the player has collected
      * @return array of scannable IDs
      */
-    public ArrayList<String> getClaimedCollectiveIDs() {
+    public ArrayList<String> getClaimedCollectibleIDs() {
         return claimedCollectibleIDs;
     }
 
@@ -47,7 +47,7 @@ public class Player implements Serializable {
      * returns the highest score that the player has gotten on a single collectible
      * @return the player's highest score on one QR code
      */
-    public int getHighestScore(){
+    public Long getHighestScore(){
         return highestScore;
     }
 
@@ -55,7 +55,7 @@ public class Player implements Serializable {
      * returns the sum of scores that the player has in their lifetime
      * @return the player's current total score
      */
-    public int getScoreSum() {
+    public Long getScoreSum() {
         return scoreSum;
     }
 
@@ -63,8 +63,27 @@ public class Player implements Serializable {
      * returns the total number of QR codes that the player has scanned
      * @return the number of QR codes the player has scanned
      */
-    public int getTotalCodesScanned() {
+    public Long getTotalCodesScanned() {
         return totalCodesScanned;
     }
 
+    public void setPassword(String password) {
+        this.password = password;
+    }
+
+    public void setClaimedCollectibleIDs(ArrayList<String> claimedCollectibleIDs) {
+        this.claimedCollectibleIDs = claimedCollectibleIDs;
+    }
+
+    public void setHighestScore(Long highestScore) {
+        this.highestScore = highestScore;
+    }
+
+    public void setScoreSum(Long scoreSum) {
+        this.scoreSum = scoreSum;
+    }
+
+    public void setTotalCodesScanned(Long totalCodesScanned) {
+        this.totalCodesScanned = totalCodesScanned;
+    }
 }

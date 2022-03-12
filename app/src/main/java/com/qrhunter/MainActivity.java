@@ -41,6 +41,7 @@ public class MainActivity extends AppCompatActivity {
         EditText passwordText = findViewById(R.id.password);
         Button loginButton = findViewById(R.id.login_button);
         Button createAccountButton = findViewById(R.id.create_account_button);
+        PlayerDatabse currPlayer = new PlayerDatabse();
 
         // Request Camera Permission (Needed for the scanner)
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED)
@@ -59,7 +60,6 @@ public class MainActivity extends AppCompatActivity {
 
                 // pull the player object with the desired username from database
                 // if the account exists, log them in (pass player into homeActivity)
-                PlayerDatabse currPlayer = new PlayerDatabse();
                 Player thisPlayer = currPlayer.getPlayer(username);
 
                 // checks if the player actually exists, if not toast the user to let them know
