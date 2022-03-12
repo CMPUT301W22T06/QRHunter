@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".UserActivity">
+
+    <TextView
+        android:id="@+id/user_text"
+        android:layout_marginTop="50pt"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Player Login QR"
+        android:textSize="20dp"
+        android:layout_centerHorizontal="true"/>
+
+    <ImageView
+        android:id="@+id/user_qr"
+        android:layout_width="300dp"
+        android:layout_height="300dp"
+        android:layout_below="@+id/user_text"
+        android:layout_centerHorizontal="true"
+        android:src="@mipmap/user" />
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/user_score"
+        android:layout_width="wrap_content"
+        android:layout_height="80pt"
+        android:layout_below="@+id/user_qr"
+        android:layout_marginLeft="30pt"/>
+
+    <TextView
+        android:id="@+id/txv_total_score"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/user_score"
+        android:layout_centerHorizontal="true"
+        android:layout_above="@+id/btn_generate_status"
+
+        android:text="Total Score: "/>
+
+    <TextView
+        android:id="@+id/user_total_score"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_above="@+id/btn_generate_status"
+        android:layout_below="@id/user_score"
+        android:layout_centerHorizontal="true"
+        android:layout_toRightOf="@id/txv_total_score"
+        android:text="0" />
+
+    <Button
+        android:id="@+id/score_sort"
+        android:layout_toRightOf="@id/user_total_score"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_above="@+id/btn_generate_status"
+        android:layout_below="@id/user_score"
+        android:layout_marginLeft="10pt"
+        android:text="Sort Score"/>
+
+    <Button
+        android:id="@+id/btn_generate_user"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Generate User QR"
+
+        android:layout_marginLeft="10pt"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentBottom="true"
+        android:textSize="10dp"/>
+
+    <Button
+        android:id="@+id/btn_generate_status"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Genrate Game Status QR"
+        android:layout_alignParentRight="true"
+        android:layout_marginRight="10pt"
+        android:layout_alignParentBottom="true"
+        android:textSize="10dp"/>
+
+</RelativeLayout>
