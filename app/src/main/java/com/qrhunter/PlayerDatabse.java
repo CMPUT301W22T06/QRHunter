@@ -77,7 +77,6 @@ public class PlayerDatabse {
             }
             finishDownloading = true;
         });
-
     }
 
     public PlayerDatabse(){
@@ -92,7 +91,7 @@ public class PlayerDatabse {
     // adds a player with default fields
     public void addPlayer(String playerName,String playerPassword) {
         // passes in an initial arraylist of null for claimedCollectibleIDs and default values
-        Player player = new Player(playerPassword, null,0L,0L,0L);
+        Player player = new Player(playerName, playerPassword, null,0L,0L,0L);
         database.collection("Players").document(playerName).set(player);
     }
 
@@ -112,12 +111,15 @@ public class PlayerDatabse {
         else return null;
     }
 
-    /*
-    public void getPlayer(String playerName, MainActivity callback){
-        database.collection("Player").document(playerName).get().addOnCompleteListener(e -> {
-            callback.recievePlayer();
-        });
+    public void addClaimedID(String player, String id) {
+        Player selected = players.get(player);
+        if (selected != null) {
+            selected.getClaimedCollectibleIDs().add(id);
+            database.collection("Players")
+                    .document(player)
+                    .update("claimedCollectibleIDs", selected.getClaimedCollectibleIDs())
+                    .addOnFailureListener(e -> {throw new RuntimeException("Network Error.");});
+        }
     }
-    */
 
 }

@@ -5,6 +5,7 @@ import java.util.ArrayList;
 
 public class Player implements Serializable {
 
+    private String username;
     private String password;
     private ArrayList<String> claimedCollectibleIDs;
     private Long highestScore;
@@ -16,8 +17,9 @@ public class Player implements Serializable {
     }
 
     // constructor for the player object
-    public Player(String password, ArrayList<String> claimedCollectibleIDs,
+    public Player(String username, String password, ArrayList<String> claimedCollectibleIDs,
                   Long highestScore, Long scoreSum, Long totalCodesScanned) {
+        this.username = username;
         this.password = password;
         this.claimedCollectibleIDs = claimedCollectibleIDs;
         this.highestScore = highestScore;
@@ -26,6 +28,15 @@ public class Player implements Serializable {
     }
 
     // getters
+
+    /**
+     * returns the username of the player (same as object ID)
+     * @return the player's username
+     */
+
+    public String getUsername() {
+        return username;
+    }
 
     /**
      * returns the password of the player
@@ -65,6 +76,10 @@ public class Player implements Serializable {
      */
     public Long getTotalCodesScanned() {
         return totalCodesScanned;
+    }
+
+    public void setUsername(String username) {
+        this.username = username;
     }
 
     public void setPassword(String password) {
