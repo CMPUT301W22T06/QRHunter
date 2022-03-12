@@ -64,7 +64,7 @@ public class PlayerDatabse {
                         Object claimedIDs_object = document.get("claimedCollectibleIDs");
                         if (claimedIDs_object != null){
                             ArrayList<String> claimedIDs = (ArrayList<String>) claimedIDs_object;
-                            if (current.getClaimedCollectibleIDs().size() != claimedIDs.size()){
+                            if (current.getClaimedCollectibleIDs() == null || current.getClaimedCollectibleIDs().size() != claimedIDs.size()){
                                 current.setClaimedCollectibleIDs(claimedIDs);
                             }
                         }

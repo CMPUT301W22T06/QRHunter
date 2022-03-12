@@ -20,6 +20,7 @@ import java.io.Serializable;
 public class MainActivity extends AppCompatActivity {
 
     private static final String TAG = "MainActivity";
+    static PlayerDatabse allPlayers = new PlayerDatabse();
 
     /**
      * Creates a short toast, saving some code redundancy
@@ -36,12 +37,12 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         // the buttons and editTexts in the activity
+
         Context context = getApplicationContext();
         EditText usernameText = findViewById(R.id.username);
         EditText passwordText = findViewById(R.id.password);
         Button loginButton = findViewById(R.id.login_button);
         Button createAccountButton = findViewById(R.id.create_account_button);
-        PlayerDatabse currPlayer = new PlayerDatabse();
 
         // Request Camera Permission (Needed for the scanner)
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED)
@@ -60,7 +61,7 @@ public class MainActivity extends AppCompatActivity {
 
                 // pull the player object with the desired username from database
                 // if the account exists, log them in (pass player into homeActivity)
-                Player thisPlayer = currPlayer.getPlayer(username);
+                Player thisPlayer = allPlayers.getPlayer(username);
 
                 // checks if the player actually exists, if not toast the user to let them know
                 if (thisPlayer == null){
@@ -77,7 +78,7 @@ public class MainActivity extends AppCompatActivity {
                         Intent intent = new Intent(this, HomeActivity.class);
 
                         // passes the player object into the intent
-                        intent.putExtra("Player", thisPlayer);
+                        intent.putExtra("username",username);
                         startActivity(intent);
                     }
                     // otherwise toast and tell them their credentials are not correct

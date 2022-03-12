@@ -44,9 +44,6 @@ public class HomeActivity extends AppCompatActivity {
     MessageDigest digest;
     CollectableDatabase collectables = new CollectableDatabase();
 
-    // retrieves the Player object from the intent
-    Player player = (Player) getIntent().getSerializableExtra("Player");
-
     /*
      * Taking a Photo when a QR is scanned is an intent, which means onResume will be called when
      * the activity returns, this would resume the scanner while the popup is still open.
@@ -138,6 +135,10 @@ public class HomeActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_home);
+
+        // retrieves the Player username from the intent
+        String username = getIntent().getStringExtra("username");
+        Player player = MainActivity.allPlayers.getPlayer(username);
 
         // Grab the scanner within the activity.
         scanner = findViewById(R.id.home_scanner);
