@@ -3,7 +3,6 @@ package com.qrhunter;
 import android.graphics.Bitmap;
 import android.util.Pair;
 import android.widget.ImageView;
-
 import java.util.ArrayList;
 
 /**
@@ -13,7 +12,8 @@ public class Collectable {
     private String id = "";
     private Long score = 0L;
     private Bitmap photo;
-    private Pair<Double, Double> location = new Pair<>(0.0, 0.0);      // lat, long
+    //private Pair<Double, Double> location = new Pair<>(0.0, 0.0);      // lat, long
+    private GeoLocation location = new GeoLocation(0.0, 0.0);
     private ArrayList<String> comments = new ArrayList<>();
 
 
@@ -42,7 +42,7 @@ public class Collectable {
      * Returns the location as a Pair, lat first, long second.
      * @return The location.
      */
-    public Pair<Double, Double> getLocation() {return location;}
+    public Pair<Double, Double> getLocation() {return location.getCoordinates();}
 
 
     /**
@@ -83,7 +83,10 @@ public class Collectable {
      * Sets the location of the collectable.
      * @param new_location The new location.
      */
-    public void setLocation(Pair<Double, Double> new_location) {location = new_location;}
+    public void setLocation(Pair<Double, Double> new_location) {
+        location.setLatitude(new_location.first);
+        location.setLongitude(new_location.second);
+    }
 
 
     /**
