@@ -16,6 +16,7 @@ import android.util.Pair;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.CheckBox;
+import android.widget.MultiAutoCompleteTextView;
 import android.widget.TextView;
 
 import androidx.activity.result.ActivityResultLauncher;
@@ -40,8 +41,7 @@ public class HomeActivity extends AppCompatActivity {
 
     DecoratedBarcodeView scanner;
     Collectable scanned;
-
-    MessageDigest digest;
+    Player player;
     CollectableDatabase collectables = new CollectableDatabase();
 
     /*
@@ -110,7 +110,11 @@ public class HomeActivity extends AppCompatActivity {
         alertDialogBuilder.setOnCancelListener(dialog -> {
             if (((CheckBox)context_view.findViewById(R.id.context_scanned_save_location)).isChecked())
                 storeLocation();
-            else collectables.add(scanned, this);
+            else {
+                collectables.add(scanned, this);
+                MainActivity.allPlayers.addClaimedID(player.getUsername(), scanned.getId());
+                player.getClaimedCollectibleIDs().add(scanned.getId());
+            }
         });
 
         // When we hit add picture, spawn a camera instance and get the BitMap taken.
@@ -136,6 +140,10 @@ public class HomeActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_home);
 
+        // retrieves the Player username from the intent
+        String username = getIntent().getStringExtra("username");
+        player = MainActivity.allPlayers.getPlayer(username);
+      
         // Grab the scanner within the activity.
         scanner = findViewById(R.id.home_scanner);
         scanner.decodeContinuous(new BarcodeCallback() {
