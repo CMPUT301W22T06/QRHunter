@@ -49,8 +49,7 @@ public class QRViewActivity extends AppCompatActivity {
 
         // list view for QR image (optional)
         ImageView qrImage = findViewById(R.id.qr_image);
-        // TODO: set image
-        // qrImage.setImageBitmap();
+        if(collectable.getPhoto() != null) qrImage.setImageBitmap(collectable.getPhoto());
 
         // list header textView
         commentsOrPlayers = findViewById(R.id.comments_players);
