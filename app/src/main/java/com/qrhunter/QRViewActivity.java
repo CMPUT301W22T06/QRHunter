@@ -64,7 +64,7 @@ public class QRViewActivity extends AppCompatActivity {
                     changeListButton.setText("View Comments");
                     commentsOrPlayers.setText("Players");
 
-                    // DUMMY QRCODE (QRcode1) USED FOR NOW, ACTUAL CODE WILL BE PASSED IN INTENT
+                    // DUMMY QRCODE (23567bd73b88b311261673dda0856cca8a88b54bc4e338bc586b4eb8f99f4fad) USED FOR NOW, ACTUAL CODE WILL BE PASSED IN INTENT
                     // show all other players who've scanned the same code
                     db.collection("Players").get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
                         @Override
@@ -72,8 +72,10 @@ public class QRViewActivity extends AppCompatActivity {
                             if (task.isSuccessful()) {
                                 for (QueryDocumentSnapshot document : task.getResult()) {
                                     List<String> claimedCollectibleIDs = (List<String>) document.get("claimedCollectibleIDs");
-                                    if(claimedCollectibleIDs.contains("QRcode1")) {
-                                        commonPlayers.add(document.getId());
+                                    if(claimedCollectibleIDs != null) {
+                                        if (claimedCollectibleIDs.contains("23567bd73b88b311261673dda0856cca8a88b54bc4e338bc586b4eb8f99f4fad")) {
+                                            commonPlayers.add(document.getId());
+                                        }
                                     }
                                 }
                                 commentsOrPlayersList.setAdapter(commonPlayersAdapter);

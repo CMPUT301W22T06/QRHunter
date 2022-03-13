@@ -9,4 +9,6 @@
     <string name="context_scanned_score_text">Score of Scanned QR: 0</string>
     <string name="context_scanned_save_location_text">Save Location</string>
     <string name="main_home_button_text">Home</string>
+
+    <string name="my_collectibles">My Collectibles:</string>
 </resources>

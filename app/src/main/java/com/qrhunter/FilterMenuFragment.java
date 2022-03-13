@@ -20,8 +20,6 @@ public class FilterMenuFragment extends DialogFragment {
     private static final String FILTER_PARAM3 = "Total amount of QR codes scanned (Player)";
     private static final String FILTER_PARAM4 = "Total sum of scores (Player)";
 
-
-
     public FilterMenuFragment() {
         // Required empty public constructor
     }
