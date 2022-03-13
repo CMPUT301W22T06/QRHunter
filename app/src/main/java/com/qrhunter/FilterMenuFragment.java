@@ -3,14 +3,11 @@ package com.qrhunter;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.os.Bundle;
-
-import androidx.fragment.app.DialogFragment;
-import androidx.fragment.app.Fragment;
-
 import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.TextView;
+
+import androidx.fragment.app.DialogFragment;
 
 /**
  * Dialog Fragment for the filter button in the search menu activity.
@@ -22,8 +19,6 @@ public class FilterMenuFragment extends DialogFragment {
     private static final String FILTER_PARAM2 = "Highest Score of one QR code (Collectible)";
     private static final String FILTER_PARAM3 = "Total amount of QR codes scanned (Player)";
     private static final String FILTER_PARAM4 = "Total sum of scores (Player)";
-
-
 
     public FilterMenuFragment() {
         // Required empty public constructor

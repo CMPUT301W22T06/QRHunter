@@ -1,7 +1,5 @@
 package com.qrhunter;
 
-import androidx.appcompat.app.AppCompatActivity;
-
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
@@ -9,9 +7,9 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.Filter;
 import android.widget.ListView;
-import android.widget.TextView;
+
+import androidx.appcompat.app.AppCompatActivity;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -27,6 +25,8 @@ public class SearchMenuActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_search_menu);
 
+        String username = getIntent().getStringExtra("username");
+
         // search input editText
         EditText searchInput = findViewById(R.id.search_input);
 
@@ -38,6 +38,25 @@ public class SearchMenuActivity extends AppCompatActivity {
 
         // TODO: create XML for searched item list
         ListView searchedItemList = findViewById(R.id.search_items_list);
+
+        Button QRViewButton = findViewById(R.id.QR_view_button);
+        QRViewButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(SearchMenuActivity.this, QRViewActivity.class);
+                startActivity(intent);
+            }
+        });
+
+        Button myCollectiblesButton = findViewById(R.id.my_collectibles_button);
+        myCollectiblesButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(SearchMenuActivity.this, MyCollectiblesList.class);
+                intent.putExtra("username",username);
+                startActivity(intent);
+            }
+        });
 
         filterButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -66,7 +85,7 @@ public class SearchMenuActivity extends AppCompatActivity {
         });
 
         // temp testing list of players
-        Player []testPlayersList = new Player[20];
+        /*Player []testPlayersList = new Player[20];
         for(int i = 0; i<20;i++) {
             testPlayersList[i] = new Player("Test Player " + Integer.toString(i));
             String []testCollectiblesIDList = new String[20];
@@ -91,7 +110,7 @@ public class SearchMenuActivity extends AppCompatActivity {
                 // create fragment for player collectibles
                 new PlayerCollectiblesFragment(testPlayersList[i]).show(getSupportFragmentManager(),"PLAYER_FRAGMENT");
             }
-        });
+        });*/
 
     }
 }

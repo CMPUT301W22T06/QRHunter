@@ -146,7 +146,6 @@ public class CollectableDatabase {
      *                 which case no callback will be called.
      */
     public void add(Collectable scanned, @Nullable HomeActivity callback) {
-
         // Put it into the local database.
         collectables.put(scanned.getId(), scanned);
 
@@ -248,5 +247,4 @@ public class CollectableDatabase {
         }
         else throw new RuntimeException("ID not in database");
     }
-
 }

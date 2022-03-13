@@ -18,10 +18,16 @@
         android:theme="@style/Theme.QRHunter"
         tools:targetApi="31">
         <activity
-            android:name="com.qrhunter.QRViewActivity"
+            android:name="com.qrhunter.MyCollectiblesList"
             android:exported="false" />
         <activity
-            android:name="com.qrhunter.SearchMenuActivity"
+            android:name=".HomeActivity"
+            android:exported="false" />
+        <activity
+            android:name=".QRViewActivity"
+            android:exported="false" />
+        <activity
+            android:name=".SearchMenuActivity"
             android:exported="false" />
         <activity
             android:name=".MainActivity"
