@@ -43,7 +43,7 @@ public class HomeActivity extends AppCompatActivity {
     DecoratedBarcodeView scanner;
     Collectable scanned;
     Player player;
-    CollectableDatabase collectables = new CollectableDatabase();
+    static CollectableDatabase collectables = new CollectableDatabase();
 
     /*
      * Taking a Photo when a QR is scanned is an intent, which means onResume will be called when
