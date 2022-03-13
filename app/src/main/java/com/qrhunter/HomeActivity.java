@@ -15,6 +15,7 @@ import android.provider.MediaStore;
 import android.util.Pair;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.MultiAutoCompleteTextView;
 import android.widget.TextView;
@@ -143,7 +144,17 @@ public class HomeActivity extends AppCompatActivity {
         // retrieves the Player username from the intent
         String username = getIntent().getStringExtra("username");
         player = MainActivity.allPlayers.getPlayer(username);
-      
+
+        Button scoreboardButton = findViewById(R.id.home_scoreboard);
+        scoreboardButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(HomeActivity.this, SearchMenuActivity.class);
+                intent.putExtra("username",username);
+                startActivity(intent);
+            }
+        });
+
         // Grab the scanner within the activity.
         scanner = findViewById(R.id.home_scanner);
         scanner.decodeContinuous(new BarcodeCallback() {
