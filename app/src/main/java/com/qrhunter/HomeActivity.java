@@ -93,6 +93,8 @@ public class HomeActivity extends AppCompatActivity {
             scanned.setLocation(new Pair<>(locationGPS.getLatitude(), locationGPS.getLongitude()));
         else MainActivity.toast(getApplicationContext(), "Unable to find location.");
         collectables.add(scanned, this);
+        MainActivity.allPlayers.addClaimedID(player.getUsername(), scanned.getId());
+        player.getClaimedCollectibleIDs().add(scanned.getId());
     }
 
 
