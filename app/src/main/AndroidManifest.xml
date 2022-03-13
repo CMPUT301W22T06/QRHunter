@@ -31,6 +31,12 @@
             android:name=".SearchMenuActivity"
             android:exported="false" />
         <activity
+            android:name=".QRViewActivity"
+            android:exported="false" />
+        <activity
+            android:name=".SearchMenuActivity"
+            android:exported="false" />
+        <activity
             android:name=".MainActivity"
             android:exported="true">
             <intent-filter>
