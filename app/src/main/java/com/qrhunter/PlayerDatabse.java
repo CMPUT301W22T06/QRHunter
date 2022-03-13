@@ -128,4 +128,14 @@ public class PlayerDatabse {
         }
     }
 
+    public void removeClaimedID(String player, String id) {
+        Player selected = MainActivity.allPlayers.getPlayer(player);
+        if (selected != null) {
+            selected.getClaimedCollectibleIDs().remove(id);
+            database.collection("Players")
+                    .document(player)
+                    .update("claimedCollectibleIDs", selected.getClaimedCollectibleIDs())
+                    .addOnFailureListener(e -> {throw new RuntimeException("Network Error.");});
+        }
+    }
 }

@@ -19,7 +19,6 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.CheckBox;
-import android.widget.MultiAutoCompleteTextView;
 import android.widget.TextView;
 
 import androidx.activity.result.ActivityResultLauncher;
@@ -35,11 +34,6 @@ import com.journeyapps.barcodescanner.BarcodeCallback;
 import com.journeyapps.barcodescanner.BarcodeResult;
 import com.journeyapps.barcodescanner.DecoratedBarcodeView;
 
-import java.math.BigInteger;
-import java.nio.charset.StandardCharsets;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
-import java.util.ArrayList;
 import java.util.List;
 
 public class HomeActivity extends AppCompatActivity {
@@ -47,11 +41,7 @@ public class HomeActivity extends AppCompatActivity {
     DecoratedBarcodeView scanner;
     Collectable scanned;
     Player player;
-    CollectableDatabase collectables = new CollectableDatabase();
-
-    ArrayList<String> scannedIndexList = new ArrayList<>();
-    ArrayList<Long> scannedScoreList = new ArrayList<>();
-    ArrayList<String> scannedLocationList = new ArrayList<>();
+    static CollectableDatabase collectables = new CollectableDatabase();
 
     /*
      * Taking a Photo when a QR is scanned is an intent, which means onResume will be called when
@@ -102,7 +92,6 @@ public class HomeActivity extends AppCompatActivity {
         else MainActivity.toast(getApplicationContext(), "Unable to find location.");
         collectables.add(scanned, this);
         MainActivity.allPlayers.addClaimedID(player.getUsername(), scanned.getId());
-        player.getClaimedCollectibleIDs().add(scanned.getId());
     }
 
 
@@ -124,17 +113,12 @@ public class HomeActivity extends AppCompatActivity {
             else {
                 collectables.add(scanned, this);
                 MainActivity.allPlayers.addClaimedID(player.getUsername(), scanned.getId());
-                player.getClaimedCollectibleIDs().add(scanned.getId());
             }
         });
 
         // When we hit add picture, spawn a camera instance and get the BitMap taken.
         context_view.findViewById(R.id.context_scanned_add_picture).setOnClickListener(v -> cameraResult.launch(new Intent(MediaStore.ACTION_IMAGE_CAPTURE)));
         ((TextView)context_view.findViewById(R.id.context_scanned_score)).setText("Score of Scanned QR: " + scanned.getScore());
-
-        scannedIndexList.add(scanned.getId());
-        scannedScoreList.add(scanned.getScore());
-        scannedLocationList.add(scanned.getLocation().toString());
 
         // Create and show the dialog.
         alertDialogBuilder.setView(context_view);
@@ -155,7 +139,8 @@ public class HomeActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_home);
 
-        initView();
+        Toolbar toolbar = findViewById(R.id.player_menu);
+        setSupportActionBar(toolbar);
 
         // retrieves the Player username from the intent
         String username = getIntent().getStringExtra("username");
@@ -214,16 +199,9 @@ public class HomeActivity extends AppCompatActivity {
         });
     }
 
-    private void initView() {
-        Toolbar toolbar = findViewById(R.id.player_menu);
-        setSupportActionBar(toolbar);
-    }
-
     public void onClickUser(MenuItem mi) {
         Intent intent = new Intent(HomeActivity.this, UserActivity.class);
-        intent.putExtra("index_list", scannedIndexList);
-        intent.putExtra("score_list", scannedScoreList);
-        intent.putExtra("location_list", scannedLocationList);
+        intent.putExtra("username", player.getUsername());
         startActivity(intent);
     }
 
