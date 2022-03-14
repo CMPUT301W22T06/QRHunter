@@ -6,6 +6,7 @@ import androidx.annotation.NonNull;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
+import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -138,4 +139,9 @@ public class PlayerDatabse {
                     .addOnFailureListener(e -> {throw new RuntimeException("Network Error.");});
         }
     }
+
+    public HashMap<String, Player> getPlayers() {
+        return players;
+    }
+
 }
