@@ -113,6 +113,21 @@ public class QRViewActivity extends AppCompatActivity {
                     // make comment section visible
                     commentButton.setVisibility(View.VISIBLE);
                     commentInput.setVisibility(View.VISIBLE);
+
+                }
+            }
+        });
+        // create comment
+        commentButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                String comment = commentInput.getText().toString();
+                if(!comment.equals("")) {
+                    collectables.addComment(collectableID,comment);
+                    commentsAdapter.notifyDataSetChanged();
+                    commentInput.setText("");
+                } else {
+                    //
                 }
             }
         });
