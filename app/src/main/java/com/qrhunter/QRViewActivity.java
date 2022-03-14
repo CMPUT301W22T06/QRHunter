@@ -4,7 +4,6 @@ import static com.qrhunter.HomeActivity.collectables;
 import static com.qrhunter.MainActivity.allPlayers;
 
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
@@ -45,7 +44,6 @@ public class QRViewActivity extends AppCompatActivity {
         // get collectable
         String collectableID = getIntent().getStringExtra("collectableID");
         Collectable collectable = collectables.get(collectableID);
-        Log.e("TEST",collectable.getId());
 
         // list view for QR image (optional)
         ImageView qrImage = findViewById(R.id.qr_image);
@@ -64,21 +62,16 @@ public class QRViewActivity extends AppCompatActivity {
         // grab players list from Firestore db
         Map<String,Player> map = allPlayers.getPlayers();
         List<Player> players = new ArrayList<>(map.values());
-        Log.e("test",players.toString());
         commonPlayers = new ArrayList<String>();
         for(int i = 0; i<players.size();i++) {
             ArrayList<String> playerCollectibleIDs = players.get(i).getClaimedCollectibleIDs();
-            Log.d("player:",players.get(i).getUsername());
             for(int j = 0;j<playerCollectibleIDs.size(); j++) {
-                Log.d("collectable",playerCollectibleIDs.get(j));
-                Log.d("compared to", collectableID);
                 if (playerCollectibleIDs.get(j).equals(collectableID)) {
                     commonPlayers.add(players.get(i).getUsername());
                     break;
                 }
             }
         }
-        Log.d("test","teeeeeeeeeeeeest");
         // grab comments of the collectable
         db = FirebaseFirestore.getInstance();
         comments = collectable.getComments();
