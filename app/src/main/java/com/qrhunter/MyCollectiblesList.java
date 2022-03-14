@@ -3,8 +3,11 @@ package com.qrhunter;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
@@ -21,7 +24,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Activity to view a player's own collectables.
+ * Displays all of the collectibles the user has claimed
  */
 public class MyCollectiblesList extends AppCompatActivity {
     private final String TAG = "MyCollectiblesList";
@@ -42,6 +45,7 @@ public class MyCollectiblesList extends AppCompatActivity {
         myCollectibles = new ArrayList<String>();
         myCollectiblesAdapter = new ArrayAdapter<String>( this, android.R.layout.simple_list_item_1, myCollectibles);
 
+        // Get list of all of the user's collectibles from firebase and displays it
         DocumentReference docRef = db.collection("Players").document(username);
         docRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
             @Override
@@ -50,14 +54,26 @@ public class MyCollectiblesList extends AppCompatActivity {
                     DocumentSnapshot document = task.getResult();
                     if (document.exists()) {
                         List<String> temp = (List<String>) document.get("claimedCollectibleIDs");
-                        for(int i =0; i<temp.size();i++) {
-                            myCollectibles.add(temp.get(i));
+                        if(temp != null) {
+                            for (int i = 0; i < temp.size(); i++) {
+                                myCollectibles.add(temp.get(i));
+                            }
                         }
                         myCollectiblesList.setAdapter(myCollectiblesAdapter);
                     }
                 } else {
                     Log.d(TAG, "Error getting document", task.getException());
                 }
+            }
+        });
+
+        // Brings the user to the QRView activity
+        myCollectiblesList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+                Intent intent = new Intent(view.getContext(), QRViewActivity.class);
+                intent.putExtra("collectableID", myCollectibles.get(i));
+                startActivity(intent);
             }
         });
     }

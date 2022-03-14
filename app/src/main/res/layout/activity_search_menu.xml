@@ -44,15 +44,13 @@
         android:autofillHints=""
         android:ems="10"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toStartOf="@+id/search_button"
-        app:layout_constraintStart_toStartOf="parent"
         tools:ignore="SpeakableTextPresentCheck" />
 
     <Button
         android:id="@+id/my_collectibles_button"
         android:layout_width="64dp"
         android:layout_height="50dp"
-        android:layout_marginStart="30dp"
+        android:layout_marginStart="16dp"
         android:layout_marginTop="8dp"
         app:icon="@android:drawable/ic_menu_myplaces"
         app:layout_constraintStart_toStartOf="parent"

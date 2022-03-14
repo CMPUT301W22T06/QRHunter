@@ -63,6 +63,16 @@ public class SearchMenuActivity extends AppCompatActivity {
             }
         });
 
+        Button myCollectiblesButton = findViewById(R.id.my_collectibles_button);
+        myCollectiblesButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(SearchMenuActivity.this, MyCollectiblesList.class);
+                intent.putExtra("username",username);
+                startActivity(intent);
+            }
+        });
+
         // fragment that shows on click of player in the list
         searchedItemList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
@@ -81,16 +91,6 @@ public class SearchMenuActivity extends AppCompatActivity {
         Map<String,Player> map = allPlayers.getPlayers();
         List<Player> players = new ArrayList<>(map.values());
         playerDataList.addAll(players);
-
-        Button myCollectiblesButton = findViewById(R.id.my_collectibles_button);
-        myCollectiblesButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Intent intent = new Intent(SearchMenuActivity.this, MyCollectiblesList.class);
-                intent.putExtra("username",username);
-                startActivity(intent);
-            }
-        });
 
         // set up adapter
         playerAdapter = new PlayersList(this, playerDataList);
