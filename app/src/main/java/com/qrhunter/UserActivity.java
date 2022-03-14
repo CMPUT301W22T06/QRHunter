@@ -35,18 +35,24 @@ public class UserActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_user);
 
+        // Get the player.
         String username = getIntent().getStringExtra("username");
         player = MainActivity.allPlayers.getPlayer(username);
 
         scanned = findViewById(R.id.user_scanned);
         user_score = findViewById(R.id.user_score);
 
+        // The Player QR Code.
         ImageView qrcode = findViewById(R.id.user_qr);
         qrcode.setImageBitmap(generatePlayerQR());
 
+        // Setup the list of adapters
         adapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, player.getClaimedCollectibleIDs());
         scanned.setAdapter(adapter);
 
+        user_score.setText("Total Score: " + getTotalScore());
+
+        // Setup for what happens when a user clicks a code.
         scanned.setOnItemClickListener((parent, v, position, id) -> {
             Collectable selected = HomeActivity.collectables.get((String)scanned.getItemAtPosition(position));
 
@@ -55,8 +61,8 @@ public class UserActivity extends AppCompatActivity {
             View context_view = layoutInflater.inflate(R.layout.context_view, null);
             AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(UserActivity.this);
 
+            // Add the information.
             if (selected.getPhoto() != null) selected.viewPhoto(context_view.findViewById(R.id.context_view_image));
-
             ((TextView)context_view.findViewById(R.id.context_view_id)).setText("ID: " + selected.getId());
             ((TextView)context_view.findViewById(R.id.context_view_score)).setText("Score: " + selected.getScore());
             ((TextView)context_view.findViewById(R.id.context_view_location)).setText("Location: " + selected.getLocation().first + " " + selected.getLocation().second);
@@ -77,18 +83,23 @@ public class UserActivity extends AppCompatActivity {
 
         });
 
+        // Sorting button.
         findViewById(R.id.score_sort).setOnClickListener(v -> {
             player.getClaimedCollectibleIDs().sort(Comparator.naturalOrder());
             refresh();
         });
-
-        user_score.setText("Total Score: " + getTotalScore());
-
     }
 
+    /**
+     * Refreshes the list of QR Codes when a change is made.
+     */
     private void refresh() {
+
+        // Setup the adapter.
         adapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, player.getClaimedCollectibleIDs());
         scanned.setAdapter(adapter);
+
+        // Inform everything about the change.
         adapter.notifyDataSetChanged();
         scanned.invalidateViews();
         scanned.refreshDrawableState();
@@ -96,6 +107,10 @@ public class UserActivity extends AppCompatActivity {
     }
 
 
+    /**
+     * Gets the total score of all QR's scanned by the player.
+     * @return The score of the player.
+     */
     private Long getTotalScore() {
         long score = 0L;
         for (String scanned : player.getClaimedCollectibleIDs()) {
@@ -105,7 +120,13 @@ public class UserActivity extends AppCompatActivity {
     }
 
 
+    /**
+     * Generates a QR Code from the player's username.
+     * @return The QR Bitmap.
+     */
     private Bitmap generatePlayerQR()  {
+
+        // Creates the matrix.
         BitMatrix bitMatrix;
         try {
             bitMatrix = new MultiFormatWriter().encode(player.getUsername(), BarcodeFormat.QR_CODE,
@@ -121,14 +142,16 @@ public class UserActivity extends AppCompatActivity {
         int colorWhite = 0xFFFFFFFF;
         int colorBlack = 0xFF000000;
 
+        // Fills
         for (int y = 0; y < bitMatrixHeight; y++) {
             int offset = y * bitMatrixWidth;
             for (int x = 0; x < bitMatrixWidth; x++) {
                 pixels[offset + x] = bitMatrix.get(x, y) ? colorBlack : colorWhite;
             }
         }
-        Bitmap bitmap = Bitmap.createBitmap(bitMatrixWidth, bitMatrixHeight, Bitmap.Config.ARGB_4444);
 
+        // Creates the Bitmap and returns.
+        Bitmap bitmap = Bitmap.createBitmap(bitMatrixWidth, bitMatrixHeight, Bitmap.Config.ARGB_4444);
         bitmap.setPixels(pixels, 0, 300, 0, 0, bitMatrixWidth, bitMatrixHeight);
         return bitmap;
     }
