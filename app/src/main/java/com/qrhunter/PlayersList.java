@@ -12,6 +12,9 @@ import androidx.annotation.Nullable;
 
 import java.util.ArrayList;
 
+/**
+ * Custom array adapter for the SearchMenuActivity to display players.
+ */
 public class PlayersList extends ArrayAdapter<Player> {
     private ArrayList<Player> players;
     private Context context;
