@@ -6,6 +6,7 @@ import androidx.annotation.NonNull;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
+import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -126,6 +127,21 @@ public class PlayerDatabse {
                     .update("claimedCollectibleIDs", selected.getClaimedCollectibleIDs())
                     .addOnFailureListener(e -> {throw new RuntimeException("Network Error.");});
         }
+    }
+
+    public void removeClaimedID(String player, String id) {
+        Player selected = MainActivity.allPlayers.getPlayer(player);
+        if (selected != null) {
+            selected.getClaimedCollectibleIDs().remove(id);
+            database.collection("Players")
+                    .document(player)
+                    .update("claimedCollectibleIDs", selected.getClaimedCollectibleIDs())
+                    .addOnFailureListener(e -> {throw new RuntimeException("Network Error.");});
+        }
+    }
+
+    public HashMap<String, Player> getPlayers() {
+        return players;
     }
 
 }

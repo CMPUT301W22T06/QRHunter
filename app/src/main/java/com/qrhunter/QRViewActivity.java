@@ -1,7 +1,9 @@
 package com.qrhunter;
 
+import static com.qrhunter.HomeActivity.collectables;
+import static com.qrhunter.MainActivity.allPlayers;
+
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
@@ -21,12 +23,19 @@ import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
+/**
+ * Class for the QR view activity to view a collectable's comments and players.
+ */
 public class QRViewActivity extends AppCompatActivity {
     private final String TAG = "QRView";
     private FirebaseFirestore db;
     private ArrayList<String> commonPlayers;
+    private ArrayList<String> comments;
     ArrayAdapter<String> commonPlayersAdapter;
+    ArrayAdapter<String> commentsAdapter;
+
     TextView commentsOrPlayers;
     ListView commentsOrPlayersList;
 
@@ -35,14 +44,13 @@ public class QRViewActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_qrview);
 
-        db = FirebaseFirestore.getInstance();
-        commonPlayers = new ArrayList<String>();
-        commonPlayersAdapter = new ArrayAdapter<String>( this, android.R.layout.simple_list_item_1, commonPlayers);
+        // get collectable
+        String collectableID = getIntent().getStringExtra("collectableID");
+        Collectable collectable = collectables.get(collectableID);
 
         // list view for QR image (optional)
         ImageView qrImage = findViewById(R.id.qr_image);
-        // TODO: set image
-        // qrImage.setImageBitmap();
+        if(collectable.getPhoto() != null) qrImage.setImageBitmap(collectable.getPhoto());
 
         // list header textView
         commentsOrPlayers = findViewById(R.id.comments_players);
@@ -54,6 +62,30 @@ public class QRViewActivity extends AppCompatActivity {
         Button commentButton = findViewById(R.id.comment_button);
         EditText commentInput = findViewById(R.id.comment_input);
 
+        // grab players list from Firestore db
+        Map<String,Player> map = allPlayers.getPlayers();
+        List<Player> players = new ArrayList<>(map.values());
+        commonPlayers = new ArrayList<String>();
+        for(int i = 0; i<players.size();i++) {
+            ArrayList<String> playerCollectibleIDs = players.get(i).getClaimedCollectibleIDs();
+            for(int j = 0;j<playerCollectibleIDs.size(); j++) {
+                if (playerCollectibleIDs.get(j).equals(collectableID)) {
+                    commonPlayers.add(players.get(i).getUsername());
+                    break;
+                }
+            }
+        }
+        // grab comments of the collectable
+        db = FirebaseFirestore.getInstance();
+        comments = collectable.getComments();
+
+        // adapters
+        commonPlayersAdapter = new ArrayAdapter<String>( this, android.R.layout.simple_list_item_1, commonPlayers);
+
+        commentsAdapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, comments);
+        commentsOrPlayersList.setAdapter(commentsAdapter);
+
+
         Button changeListButton = findViewById(R.id.change_list_button);
         changeListButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -64,26 +96,8 @@ public class QRViewActivity extends AppCompatActivity {
                     changeListButton.setText("View Comments");
                     commentsOrPlayers.setText("Players");
 
-                    // DUMMY QRCODE (23567bd73b88b311261673dda0856cca8a88b54bc4e338bc586b4eb8f99f4fad) USED FOR NOW, ACTUAL CODE WILL BE PASSED IN INTENT
-                    // show all other players who've scanned the same code
-                    db.collection("Players").get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-                        @Override
-                        public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                            if (task.isSuccessful()) {
-                                for (QueryDocumentSnapshot document : task.getResult()) {
-                                    List<String> claimedCollectibleIDs = (List<String>) document.get("claimedCollectibleIDs");
-                                    if(claimedCollectibleIDs != null) {
-                                        if (claimedCollectibleIDs.contains("23567bd73b88b311261673dda0856cca8a88b54bc4e338bc586b4eb8f99f4fad")) {
-                                            commonPlayers.add(document.getId());
-                                        }
-                                    }
-                                }
-                                commentsOrPlayersList.setAdapter(commonPlayersAdapter);
-                            } else {
-                                Log.d(TAG, "Error getting documents: ", task.getException());
-                            }
-                        }
-                    });
+                    // change list
+                    commentsOrPlayersList.setAdapter(commonPlayersAdapter);
 
                     // make comment section visible
                     commentButton.setVisibility(View.INVISIBLE);
@@ -93,9 +107,26 @@ public class QRViewActivity extends AppCompatActivity {
                     changeListButton.setText("View Players");
                     commentsOrPlayers.setText("Comments");
 
+                    // change list
+                    commentsOrPlayersList.setAdapter(commentsAdapter);
+
                     // make comment section visible
                     commentButton.setVisibility(View.VISIBLE);
                     commentInput.setVisibility(View.VISIBLE);
+                }
+            }
+        });
+        // create comment
+        commentButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                String comment = commentInput.getText().toString();
+                if(!comment.equals("")) {
+                    collectables.addComment(collectableID,comment);
+                    commentsAdapter.notifyDataSetChanged();
+                    commentInput.setText("");
+                } else {
+                    //
                 }
             }
         });

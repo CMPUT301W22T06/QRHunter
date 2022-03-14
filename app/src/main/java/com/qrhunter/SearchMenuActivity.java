@@ -1,7 +1,10 @@
 package com.qrhunter;
 
+import static com.qrhunter.MainActivity.allPlayers;
+
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -13,7 +16,12 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
 
+/**
+ * Activity to search and view other players and their collectibles.
+ */
 public class SearchMenuActivity extends AppCompatActivity {
 
     ListView playersList;
@@ -25,6 +33,7 @@ public class SearchMenuActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_search_menu);
 
+        // for commenting
         String username = getIntent().getStringExtra("username");
 
         // search input editText
@@ -36,27 +45,8 @@ public class SearchMenuActivity extends AppCompatActivity {
         // filter button
         Button filterButton = findViewById(R.id.filter_button);
 
-        // TODO: create XML for searched item list
+        // all players list
         ListView searchedItemList = findViewById(R.id.search_items_list);
-
-        Button QRViewButton = findViewById(R.id.QR_view_button);
-        QRViewButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Intent intent = new Intent(SearchMenuActivity.this, QRViewActivity.class);
-                startActivity(intent);
-            }
-        });
-
-        Button myCollectiblesButton = findViewById(R.id.my_collectibles_button);
-        myCollectiblesButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Intent intent = new Intent(SearchMenuActivity.this, MyCollectiblesList.class);
-                intent.putExtra("username",username);
-                startActivity(intent);
-            }
-        });
 
         filterButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -73,6 +63,17 @@ public class SearchMenuActivity extends AppCompatActivity {
             }
         });
 
+        Button myCollectiblesButton = findViewById(R.id.my_collectibles_button);
+        myCollectiblesButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(SearchMenuActivity.this, MyCollectiblesList.class);
+                intent.putExtra("username",username);
+                startActivity(intent);
+            }
+        });
+
+        // fragment that shows on click of player in the list
         searchedItemList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
@@ -84,23 +85,15 @@ public class SearchMenuActivity extends AppCompatActivity {
             }
         });
 
-        // temp testing list of players
-        /*Player []testPlayersList = new Player[20];
-        for(int i = 0; i<20;i++) {
-            testPlayersList[i] = new Player("Test Player " + Integer.toString(i));
-            String []testCollectiblesIDList = new String[20];
-            for(int j = 0; j < 20; j++) {
-                testCollectiblesIDList[j] = "TestCollectible"+Integer.toString(j);
-            }
-            testPlayersList[i].setClaimedCollectibleIDs(new ArrayList<String>(Arrays.asList(testCollectiblesIDList)));
-        }
         playersList = findViewById(R.id.search_items_list);
         playerDataList = new ArrayList<Player>();
-        // put temp list into list
-        playerDataList.addAll(Arrays.asList(testPlayersList));
+        // grab players list from Firestore db
+        Map<String,Player> map = allPlayers.getPlayers();
+        List<Player> players = new ArrayList<>(map.values());
+        playerDataList.addAll(players);
 
         // set up adapter
-        playerAdapter = new ArrayAdapter<Player>(this,  R.layout.player_content, playerDataList);
+        playerAdapter = new PlayersList(this, playerDataList);
         playersList.setAdapter(playerAdapter);
 
         // set up click function
@@ -108,9 +101,9 @@ public class SearchMenuActivity extends AppCompatActivity {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
                 // create fragment for player collectibles
-                new PlayerCollectiblesFragment(testPlayersList[i]).show(getSupportFragmentManager(),"PLAYER_FRAGMENT");
+                new PlayerCollectiblesFragment(playerDataList.get(i)).show(getSupportFragmentManager(),"PLAYER_FRAGMENT");
             }
-        });*/
+        });
 
     }
 }

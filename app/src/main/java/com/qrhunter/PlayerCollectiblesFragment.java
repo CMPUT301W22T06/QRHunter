@@ -46,6 +46,7 @@ public class PlayerCollectiblesFragment extends DialogFragment {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
                 Intent intent = new Intent(view.getContext(), QRViewActivity.class);
+                intent.putExtra("collectableID", collectiblesDataList.get(i));
                 startActivity(intent);
             }
         });
