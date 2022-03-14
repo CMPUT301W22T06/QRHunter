@@ -20,6 +20,9 @@ import com.google.firebase.firestore.QuerySnapshot;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Activity to view a player's own collectables.
+ */
 public class MyCollectiblesList extends AppCompatActivity {
     private final String TAG = "MyCollectiblesList";
     private FirebaseFirestore db;

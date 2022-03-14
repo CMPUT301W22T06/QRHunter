@@ -25,6 +25,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * Class for the QR view activity to view a collectable's comments and players.
+ */
 public class QRViewActivity extends AppCompatActivity {
     private final String TAG = "QRView";
     private FirebaseFirestore db;
