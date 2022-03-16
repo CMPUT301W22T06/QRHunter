@@ -147,5 +147,10 @@ public class SearchMenuAndQRViewTest {
         solo.clickOnButton("View Players");
         assertTrue(solo.waitForText("MyTestor", 1, 1000));
         assertTrue(solo.waitForText("McTesty", 1, 1000));
+
+        // Checks if the buttons swap properly
+        assertTrue(solo.waitForText("View Comments",1,1000));
+        assertFalse(solo.getView(R.id.comment_button).isShown());
+        assertFalse(solo.getView(R.id.comment_input).isShown());
     }
 }
