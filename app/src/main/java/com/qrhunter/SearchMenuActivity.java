@@ -60,6 +60,8 @@ public class SearchMenuActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 // TODO: set up searching from firebase DB
+                String playerSearchString = searchInput.getText().toString();
+                searchInput.setText("");
             }
         });
 
