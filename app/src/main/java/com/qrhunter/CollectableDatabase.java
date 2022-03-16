@@ -66,7 +66,7 @@ public class CollectableDatabase {
                         Object location_object = document.get("Location");
                         if (location_object != null) {
                             HashMap<String, Object> location = (HashMap<String, Object>) location_object;
-                            current.setLocation(new Pair<>(
+                            current.setLocation(new Geolocation(
                                     (Double) location.get("first"),
                                     (Double) location.get("second"))
                             );
@@ -98,7 +98,7 @@ public class CollectableDatabase {
                         if (comments_object != null) {
                             ArrayList<String> comments = (ArrayList<String>)comments_object;
                             if (current.getComments().size() != comments.size())
-                            current.setComments(comments);
+                                current.setComments(comments);
                         }
                     }
                 }
@@ -170,7 +170,10 @@ public class CollectableDatabase {
 
         // Pack all the rest of the information into the hashmap.
         pack.put("Score", scanned.getScore());
-        pack.put("Location", scanned.getLocation());
+
+        Geolocation location = scanned.getLocation();
+        pack.put("Location", new Pair<>(location.getLatitude(), location.getLongitude()));
+
         pack.put("Comments", scanned.getComments());
 
         // Upload our pack into the Firestore.

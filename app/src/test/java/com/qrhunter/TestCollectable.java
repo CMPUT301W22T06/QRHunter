@@ -2,8 +2,6 @@ package com.qrhunter;
 
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
-import android.util.Pair;
-
 import org.junit.Test;
 
 import java.util.ArrayList;
@@ -103,8 +101,8 @@ public class TestCollectable {
         assert(testing.getLocation() != null);
 
         // Create our values.
-        Pair<Double, Double> empty = new Pair<>(0.0, 0.0);
-        Pair<Double, Double> not = new Pair<>(12.34, 56.78);
+        Geolocation empty = new Geolocation(0.0, 0.0);
+        Geolocation not = new Geolocation(12.34, 56.78);
 
         // Test an empty location.
         testing.setLocation(empty);

@@ -12,7 +12,6 @@ import android.location.Location;
 import android.location.LocationManager;
 import android.os.Bundle;
 import android.provider.MediaStore;
-import android.util.Pair;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -88,7 +87,7 @@ public class HomeActivity extends AppCompatActivity {
         LocationManager locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
         @SuppressLint("MissingPermission") Location locationGPS = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
         if (locationGPS != null)
-            scanned.setLocation(new Pair<>(locationGPS.getLatitude(), locationGPS.getLongitude()));
+            scanned.setLocation(new Geolocation(locationGPS.getLatitude(), locationGPS.getLongitude()));
         else MainActivity.toast(getApplicationContext(), "Unable to find location.");
         collectables.add(scanned, this);
         MainActivity.allPlayers.addClaimedID(player.getUsername(), scanned.getId());

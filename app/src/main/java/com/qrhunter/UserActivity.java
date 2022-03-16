@@ -65,7 +65,9 @@ public class UserActivity extends AppCompatActivity {
             if (selected.getPhoto() != null) selected.viewPhoto(context_view.findViewById(R.id.context_view_image));
             ((TextView)context_view.findViewById(R.id.context_view_id)).setText("ID: " + selected.getId());
             ((TextView)context_view.findViewById(R.id.context_view_score)).setText("Score: " + selected.getScore());
-            ((TextView)context_view.findViewById(R.id.context_view_location)).setText("Location: " + selected.getLocation().first + " " + selected.getLocation().second);
+            ((TextView)context_view.findViewById(R.id.context_view_location)).setText("Location: " +
+                    selected.getLocation().getLatitude() + " " +
+                    selected.getLocation().getLongitude());
 
             // Create and show the dialog.
             alertDialogBuilder.setView(context_view);
