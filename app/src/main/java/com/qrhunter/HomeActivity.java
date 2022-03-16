@@ -155,6 +155,11 @@ public class HomeActivity extends AppCompatActivity {
             }
         });
 
+        findViewById(R.id.home_map).setOnClickListener(view -> {
+            Intent intent = new Intent(HomeActivity.this, QRMap.class);
+            startActivity(intent);
+        });
+
         // Grab the scanner within the activity.
         scanner = findViewById(R.id.home_scanner);
         scanner.decodeContinuous(new BarcodeCallback() {
