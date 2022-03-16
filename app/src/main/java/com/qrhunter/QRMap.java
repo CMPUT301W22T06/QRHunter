@@ -26,7 +26,7 @@ public class QRMap extends FragmentActivity implements OnMapReadyCallback {
 
     private GoogleMap map;
     private ActivityQrmapBinding binding;
-    private Geolocation player_location;
+    private Geolocation player_location = new Geolocation(-113.5380873517, 53.51351351);
 
     private void storeLocation() {
 
@@ -45,14 +45,15 @@ public class QRMap extends FragmentActivity implements OnMapReadyCallback {
             populateMap();
         }
         else MainActivity.toast(getApplicationContext(), "Unable to find location.");
+        populateMap();
     }
 
 
     private void populateMap() {
-        map.moveCamera(CameraUpdateFactory.newLatLng(new LatLng(player_location.getLatitude(), player_location.getLongitude())));
+        map.animateCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(player_location.getLatitude(), player_location.getLongitude()), 15.0f));
         for (Collectable scanned : HomeActivity.collectables.getDatabase().values()) {
             Geolocation current = scanned.getLocation();
-            if (abs(player_location.getLongitude() - current.getLongitude()) > 10 && abs(player_location.getLongitude() - current.getLongitude()) > 10) {
+            if (abs(player_location.getLongitude() - current.getLongitude()) < 0.01 && abs(player_location.getLongitude() - current.getLongitude()) < 0.01) {
                 map.addMarker(new MarkerOptions().position(new LatLng(current.getLatitude(), current.getLongitude())).title(scanned.getId()));
             }
         }
