@@ -41,7 +41,7 @@ public class QRMap extends FragmentActivity implements OnMapReadyCallback {
         LocationManager locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
         @SuppressLint("MissingPermission") Location locationGPS = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
         if (locationGPS != null) {
-            player_location = new Geolocation(locationGPS.getLatitude(), locationGPS.getLongitude());
+            player_location = new Geolocation(locationGPS.getLongitude(), locationGPS.getLatitude());
             populateMap();
         }
         else MainActivity.toast(getApplicationContext(), "Unable to find location.");
@@ -52,9 +52,9 @@ public class QRMap extends FragmentActivity implements OnMapReadyCallback {
         map.animateCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(player_location.getLatitude(), player_location.getLongitude()), 15.0f));
         for (Collectable scanned : HomeActivity.collectables.getDatabase().values()) {
             Geolocation current = scanned.getLocation();
-            if (abs(player_location.getLongitude() - current.getLongitude()) < 0.01 && abs(player_location.getLongitude() - current.getLongitude()) < 0.01) {
+           // if (abs(player_location.getLongitude() - current.getLongitude()) < 0.01 && abs(player_location.getLongitude() - current.getLongitude()) < 0.01) {
                 map.addMarker(new MarkerOptions().position(new LatLng(current.getLatitude(), current.getLongitude())).title(scanned.getId()));
-            }
+            //}
         }
     }
 
