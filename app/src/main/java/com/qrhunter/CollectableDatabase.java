@@ -4,14 +4,17 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.util.Pair;
 
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
+import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 
 import java.io.ByteArrayOutputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Objects;
 
 import javax.annotation.Nullable;
@@ -55,7 +58,20 @@ public class CollectableDatabase {
         // Gets all scanned objects, constructs the collectables.
         database.collection("Scanned").get().addOnCompleteListener(task -> {
             if (task.isSuccessful()) {
-                for (QueryDocumentSnapshot document : Objects.requireNonNull(task.getResult())) {
+
+                QuerySnapshot result = task.getResult();
+                List<DocumentSnapshot> documents = result.getDocuments();
+                for (Collectable current : collectables.values()) {
+                    boolean exists = false;
+                    for (DocumentSnapshot document : documents) {
+                        if (document.getId().equals(current.getId())) {
+                            exists = true;
+                        }
+                    }
+                    if (!exists) collectables.remove(current.getId());
+                }
+
+                for (QueryDocumentSnapshot document : Objects.requireNonNull(result)) {
                     Collectable current = new Collectable();
 
                     // This allows us to not have to re-download the whole thing after each change.
@@ -151,9 +167,6 @@ public class CollectableDatabase {
      *                 which case no callback will be called.
      */
     public void add(Collectable scanned, @Nullable HomeActivity callback) {
-        // Put it into the local database.
-        collectables.put(scanned.getId(), scanned);
-
         // Our hashmap to upload basic information.
         HashMap<String, Object> pack = new HashMap<>();
 
@@ -225,14 +238,18 @@ public class CollectableDatabase {
      * This function deletes a collectable from the database. It does not throw an exception
      * if the element is not present.
      */
-    public void deleteCollectable(String id) {
-        collectables.remove(id);
+    public int deleteCollectable(String id) {
         Collectable selected = collectables.get(id);
         if (selected != null) {
             database.collection("Scanned")
                     .document(id)
                     .delete()
                     .addOnFailureListener(e -> {throw new RuntimeException("Network Error.");});
+            storage.getReference(id).delete();
+            return 0;
+        }
+        else {
+            return -1;
         }
     }
 

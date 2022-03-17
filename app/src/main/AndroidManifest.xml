@@ -23,7 +23,7 @@
             android:value="AIzaSyDhV0JVzhQ90hdgqDxjSj9Q0rcAwFiZhfE" />
 
         <activity
-            android:name=".QRMap"
+            android:name=".QRMapActivity"
             android:exported="false"
             android:label="@string/title_activity_qrmap" />
         <activity

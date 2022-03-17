@@ -18,6 +18,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.CheckBox;
+import android.widget.EditText;
 import android.widget.TextView;
 
 import androidx.activity.result.ActivityResultLauncher;
@@ -105,12 +106,27 @@ public class HomeActivity extends AppCompatActivity {
         View context_view = layoutInflater.inflate(R.layout.context_scanned, null);
         AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(HomeActivity.this);
 
+        TextView name_hint = context_view.findViewById(R.id.context_scanned_name_helper);
+        name_hint.setText("Name:");
+
         // When the dialog is canceled (IE clicked off of it), save our information.
         alertDialogBuilder.setOnCancelListener(dialog -> {
             if (((CheckBox)context_view.findViewById(R.id.context_scanned_save_location)).isChecked())
                 storeLocation();
 
+            EditText name_box = context_view.findViewById(R.id.context_scanned_name);
+            String name = name_box.getText().toString();
+
+            if (name.isEmpty()) {
+                MainActivity.toast(getApplicationContext(), "Please enter a name!");
+                assembleScanned();
+            }
+            else if (name.length() > 24) {
+                MainActivity.toast(getApplicationContext(), "Name to large! Must be 24 characters.");
+                assembleScanned();
+            }
             else {
+                scanned.setName(name);
                 collectables.add(scanned, this);
                 MainActivity.allPlayers.addClaimedID(player.getUsername(), scanned.getId());
             }
@@ -147,17 +163,14 @@ public class HomeActivity extends AppCompatActivity {
         player = MainActivity.allPlayers.getPlayer(username);
 
         Button scoreboardButton = findViewById(R.id.home_scoreboard);
-        scoreboardButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Intent intent = new Intent(HomeActivity.this, SearchMenuActivity.class);
-                intent.putExtra("username",username);
-                startActivity(intent);
-            }
+        scoreboardButton.setOnClickListener(view -> {
+            Intent intent = new Intent(HomeActivity.this, SearchMenuActivity.class);
+            intent.putExtra("username",username);
+            startActivity(intent);
         });
 
         findViewById(R.id.home_map).setOnClickListener(view -> {
-            Intent intent = new Intent(HomeActivity.this, QRMap.class);
+            Intent intent = new Intent(HomeActivity.this, QRMapActivity.class);
             startActivity(intent);
         });
 

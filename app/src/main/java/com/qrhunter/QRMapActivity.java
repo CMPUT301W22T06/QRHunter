@@ -22,7 +22,7 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.qrhunter.databinding.ActivityQrmapBinding;
 
-public class QRMap extends FragmentActivity implements OnMapReadyCallback {
+public class QRMapActivity extends FragmentActivity implements OnMapReadyCallback {
 
     private GoogleMap map;
     private ActivityQrmapBinding binding;
@@ -52,9 +52,9 @@ public class QRMap extends FragmentActivity implements OnMapReadyCallback {
         map.animateCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(player_location.getLatitude(), player_location.getLongitude()), 15.0f));
         for (Collectable scanned : HomeActivity.collectables.getDatabase().values()) {
             Geolocation current = scanned.getLocation();
-           // if (abs(player_location.getLongitude() - current.getLongitude()) < 0.01 && abs(player_location.getLongitude() - current.getLongitude()) < 0.01) {
-                map.addMarker(new MarkerOptions().position(new LatLng(current.getLatitude(), current.getLongitude())).title(scanned.getId()));
-            //}
+            if (abs(player_location.getLongitude() - current.getLongitude()) < 0.01 && abs(player_location.getLongitude() - current.getLongitude()) < 0.01) {
+                map.addMarker(new MarkerOptions().position(new LatLng(current.getLatitude(), current.getLongitude())).title(scanned.getName()));
+            }
         }
     }
 
