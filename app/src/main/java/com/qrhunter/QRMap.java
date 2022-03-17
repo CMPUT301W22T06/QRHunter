@@ -26,7 +26,7 @@ public class QRMap extends FragmentActivity implements OnMapReadyCallback {
 
     private GoogleMap map;
     private ActivityQrmapBinding binding;
-    private Geolocation player_location = new Geolocation(-113.5380873517, 53.51351351);
+    private Geolocation player_location;
 
     private void storeLocation() {
 
@@ -45,7 +45,6 @@ public class QRMap extends FragmentActivity implements OnMapReadyCallback {
             populateMap();
         }
         else MainActivity.toast(getApplicationContext(), "Unable to find location.");
-        populateMap();
     }
 
 
