@@ -41,7 +41,7 @@ public class QRMapActivity extends FragmentActivity implements OnMapReadyCallbac
         LocationManager locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
         @SuppressLint("MissingPermission") Location locationGPS = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
         if (locationGPS != null) {
-            player_location = new Geolocation(locationGPS.getLongitude(), locationGPS.getLongitude());
+            player_location = new Geolocation(locationGPS.getLongitude(), locationGPS.getLatitude());
             populateMap();
         }
         else MainActivity.toast(getApplicationContext(), "Unable to find location.");
