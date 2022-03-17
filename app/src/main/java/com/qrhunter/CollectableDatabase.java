@@ -62,6 +62,11 @@ public class CollectableDatabase {
                     if (!collectables.containsKey(document.getId())) {
                         current.setId(document.getId());
 
+                        Object name_object = document.get("Name");
+                        if (name_object != null) {
+                            current.setName((String)name_object);
+                        }
+
                         // The object will NEVER be null, but it prevents the IDE from complaining.
                         Object location_object = document.get("Location");
                         if (location_object != null) {
@@ -175,6 +180,8 @@ public class CollectableDatabase {
         pack.put("Location", new Pair<>(location.getLatitude(), location.getLongitude()));
 
         pack.put("Comments", scanned.getComments());
+
+        pack.put("Name", scanned.getName());
 
         // Upload our pack into the Firestore.
         database.collection("Scanned")

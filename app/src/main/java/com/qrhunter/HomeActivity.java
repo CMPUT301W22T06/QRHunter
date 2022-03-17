@@ -109,6 +109,7 @@ public class HomeActivity extends AppCompatActivity {
         alertDialogBuilder.setOnCancelListener(dialog -> {
             if (((CheckBox)context_view.findViewById(R.id.context_scanned_save_location)).isChecked())
                 storeLocation();
+
             else {
                 collectables.add(scanned, this);
                 MainActivity.allPlayers.addClaimedID(player.getUsername(), scanned.getId());

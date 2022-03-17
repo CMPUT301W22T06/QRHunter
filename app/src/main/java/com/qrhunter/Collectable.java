@@ -10,6 +10,7 @@ import java.util.ArrayList;
  */
 public class Collectable {
     private String id = "";
+    private String name = "";
     private Long score = 0L;
     private Bitmap photo;
     private Geolocation location = new Geolocation(0.0, 0.0); // lat, long
@@ -50,6 +51,12 @@ public class Collectable {
      */
     public ArrayList<String> getComments() {return comments;}
 
+    /**
+     * Returns the name of the Code.
+     * @return The name.
+     */
+    public String getName() {return name;}
+
 
     /**
      * Sets the score for the collectable.
@@ -86,6 +93,17 @@ public class Collectable {
 
 
     /**
+     * Sets the name of the collectable.
+     * @param new_name The name of the collectable.
+     * @throws AssertionError If the new name exceeds 24 characters.
+     */
+    public void setName(String new_name) {
+        assert(new_name.length() <= 24);
+        name = new_name;
+    }
+
+
+    /**
      * Sets a new arraylist for the comments. Don't use this to update information, as it will
      * only be seen locally, and won't syncronize with the firestore.
      * @param new_comments The comments.
@@ -100,5 +118,6 @@ public class Collectable {
     public void viewPhoto(ImageView view) {
         view.setImageBitmap(photo);
     }
+
 }
 

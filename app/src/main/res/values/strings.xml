@@ -19,6 +19,7 @@
     <string name="user_text">Player Login QR</string>
     <string name="context_view_delete_text">Delete</string>
     <string name="title_activity_qrmap">QRMap</string>
+    <string name="context_scanned_name_text">Name</string>
 
 
 </resources>

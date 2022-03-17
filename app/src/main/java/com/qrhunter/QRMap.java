@@ -76,7 +76,7 @@ public class QRMap extends FragmentActivity implements OnMapReadyCallback {
     }
 
     @Override
-    public void onMapReady(GoogleMap googleMap) {
+    public void onMapReady(@NonNull GoogleMap googleMap) {
         map = googleMap;
         storeLocation();
     }
