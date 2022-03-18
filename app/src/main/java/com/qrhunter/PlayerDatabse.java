@@ -101,6 +101,20 @@ public class PlayerDatabse {
         database.collection("Players").document(playerName).set(player);
     }
 
+    // deletes a player
+    public void deletePlayer(String playerName){
+        // removes the player from the local database
+        players.remove(playerName);
+        // removes player from the firebase collection
+        Player selected = players.get(playerName);
+        if (selected != null){
+            database.collection("Players")
+                    .document(playerName)
+                    .delete()
+                    .addOnFailureListener(e -> {throw new RuntimeException("Network Error.");});
+        }
+    }
+
     public boolean isFinishDownloading(){
         return finishDownloading;
     }
