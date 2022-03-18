@@ -18,7 +18,23 @@
         android:theme="@style/Theme.QRHunter"
         tools:targetApi="31">
         <activity
+            android:name="com.qrhunter.MyCollectiblesList"
+            android:exported="false" />
+        <activity
             android:name=".HomeActivity"
+            android:exported="false"
+            android:theme="@style/Theme.AppCompat.Light.NoActionBar"/>
+        <activity
+            android:name=".QRViewActivity"
+            android:exported="false" />
+        <activity
+            android:name=".SearchMenuActivity"
+            android:exported="false" />
+        <activity
+            android:name=".QRViewActivity"
+            android:exported="false" />
+        <activity
+            android:name=".SearchMenuActivity"
             android:exported="false" />
         <activity
             android:name=".MainActivity"
@@ -29,6 +45,8 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
+        <activity android:name=".UserActivity" android:exported="false"/>
     </application>
 
 </manifest>

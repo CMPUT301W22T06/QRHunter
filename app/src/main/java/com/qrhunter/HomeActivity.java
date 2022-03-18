@@ -14,15 +14,18 @@ import android.os.Bundle;
 import android.provider.MediaStore;
 import android.util.Pair;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
+import android.widget.Button;
 import android.widget.CheckBox;
-import android.widget.MultiAutoCompleteTextView;
 import android.widget.TextView;
 
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
 import androidx.core.app.ActivityCompat;
 
 import com.google.firebase.firestore.DocumentSnapshot;
@@ -31,10 +34,6 @@ import com.journeyapps.barcodescanner.BarcodeCallback;
 import com.journeyapps.barcodescanner.BarcodeResult;
 import com.journeyapps.barcodescanner.DecoratedBarcodeView;
 
-import java.math.BigInteger;
-import java.nio.charset.StandardCharsets;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
 import java.util.List;
 
 public class HomeActivity extends AppCompatActivity {
@@ -42,7 +41,7 @@ public class HomeActivity extends AppCompatActivity {
     DecoratedBarcodeView scanner;
     Collectable scanned;
     Player player;
-    CollectableDatabase collectables = new CollectableDatabase();
+    static CollectableDatabase collectables = new CollectableDatabase();
 
     /*
      * Taking a Photo when a QR is scanned is an intent, which means onResume will be called when
@@ -92,6 +91,7 @@ public class HomeActivity extends AppCompatActivity {
             scanned.setLocation(new Pair<>(locationGPS.getLatitude(), locationGPS.getLongitude()));
         else MainActivity.toast(getApplicationContext(), "Unable to find location.");
         collectables.add(scanned, this);
+        MainActivity.allPlayers.addClaimedID(player.getUsername(), scanned.getId());
     }
 
 
@@ -113,7 +113,6 @@ public class HomeActivity extends AppCompatActivity {
             else {
                 collectables.add(scanned, this);
                 MainActivity.allPlayers.addClaimedID(player.getUsername(), scanned.getId());
-                player.getClaimedCollectibleIDs().add(scanned.getId());
             }
         });
 
@@ -140,10 +139,23 @@ public class HomeActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_home);
 
+        Toolbar toolbar = findViewById(R.id.player_menu);
+        setSupportActionBar(toolbar);
+
         // retrieves the Player username from the intent
         String username = getIntent().getStringExtra("username");
         player = MainActivity.allPlayers.getPlayer(username);
-      
+
+        Button scoreboardButton = findViewById(R.id.home_scoreboard);
+        scoreboardButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(HomeActivity.this, SearchMenuActivity.class);
+                intent.putExtra("username",username);
+                startActivity(intent);
+            }
+        });
+
         // Grab the scanner within the activity.
         scanner = findViewById(R.id.home_scanner);
         scanner.decodeContinuous(new BarcodeCallback() {
@@ -185,6 +197,18 @@ public class HomeActivity extends AppCompatActivity {
             }
             @Override public void possibleResultPoints(List<ResultPoint> resultPoints) {}
         });
+    }
+
+    public void onClickUser(MenuItem mi) {
+        Intent intent = new Intent(HomeActivity.this, UserActivity.class);
+        intent.putExtra("username", player.getUsername());
+        startActivity(intent);
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.menu_home, menu);
+        return true;
     }
 
     @Override protected void onResume() {

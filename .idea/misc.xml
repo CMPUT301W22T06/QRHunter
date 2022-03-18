@@ -3,8 +3,12 @@
   <component name="DesignSurface">
     <option name="filePathToZoomLevelMap">
       <map>
-        <entry key="app/src/main/res/layout/activity_main.xml" value="0.24166666666666667" />
-        <entry key="app/src/main/res/layout/context_scanned.xml" value="0.33" />
+        <entry key="..\:/Users/Leo/Desktop/Latest/QRHunter-main/app/src/main/res/layout/activity_my_collectibles_list.xml" value="0.19933738266151296" />
+        <entry key="..\:/Users/Leo/Desktop/QRHunter-main/app/src/main/res/layout/activity_my_collectibles_list.xml" value="0.5" />
+        <entry key="..\:/Users/Leo/Desktop/QRHunter-main/app/src/main/res/layout/activity_qrview.xml" value="0.18802083333333333" />
+        <entry key="..\:/Users/Leo/Desktop/QRHunter-main/app/src/main/res/layout/activity_search_menu.xml" value="0.5" />
+        <entry key="..\:/Users/Leo/Desktop/QRHunter-main/app/src/main/res/layout/fragment_filter_menu.xml" value="0.36666666666666664" />
+        <entry key="..\:/Users/Leo/Desktop/QRHunter-main/app/src/main/res/layout/fragment_player_collectibles.xml" value="0.18802083333333333" />
       </map>
     </option>
   </component>
