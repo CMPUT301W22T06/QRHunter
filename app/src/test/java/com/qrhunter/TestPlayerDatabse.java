@@ -2,9 +2,17 @@ package com.qrhunter;
 
 import org.junit.jupiter.api.Test;
 
+/**
+ * tests the functionality of the PlayerDatabase class.
+ */
+
 public class TestPlayerDatabse {
 
     PlayerDatabse playerDatabse = new PlayerDatabse();
+
+    /**
+     * tests that the database can add, get, and delete players.
+     */
 
     @Test
     public void testPrimaryFunctions(){
