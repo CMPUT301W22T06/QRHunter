@@ -34,7 +34,7 @@ public class MyCollectiblesList extends AppCompatActivity {
 
         Player current = MainActivity.allPlayers.getPlayer(username);
         for (String id : current.getClaimedCollectibleIDs()) {
-            myCollectibles.add(HomeActivity.collectables.get(id).getName());
+            myCollectibles.add(MainActivity.collectables.get(id).getName());
         }
         myCollectiblesList.setAdapter(myCollectiblesAdapter);
 

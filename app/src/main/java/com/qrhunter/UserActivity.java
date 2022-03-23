@@ -50,7 +50,7 @@ public class UserActivity extends AppCompatActivity {
         // Setup the list of adapters
         ArrayList<String> names = new ArrayList<>();
         for (String id : player.getClaimedCollectibleIDs()) {
-            names.add(HomeActivity.collectables.get(id).getName());
+            names.add(MainActivity.collectables.get(id).getName());
         }
 
         adapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, names);
@@ -60,7 +60,7 @@ public class UserActivity extends AppCompatActivity {
 
         // Setup for what happens when a user clicks a code.
         scanned.setOnItemClickListener((parent, v, position, id) -> {
-            Collectable selected = HomeActivity.collectables.get(player.getClaimedCollectibleIDs().get(position));
+            Collectable selected = MainActivity.collectables.get(player.getClaimedCollectibleIDs().get(position));
 
             // Create the popup.
             LayoutInflater layoutInflater = LayoutInflater.from(UserActivity.this);
@@ -81,7 +81,7 @@ public class UserActivity extends AppCompatActivity {
             dialog.show();
 
             context_view.findViewById(R.id.context_view_delete).setOnClickListener(x -> {
-                if (HomeActivity.collectables.deleteCollectable(selected.getId()) != 0)
+                if (MainActivity.collectables.deleteCollectable(selected.getId()) != 0)
                     MainActivity.toast(getApplicationContext(), "Could not delete (It may not exist within the database)");
                 MainActivity.allPlayers.removeClaimedID(player.getUsername(), selected.getId());
                 refresh();
@@ -122,7 +122,7 @@ public class UserActivity extends AppCompatActivity {
     private Long getTotalScore() {
         long score = 0L;
         for (String scanned : player.getClaimedCollectibleIDs()) {
-            score += HomeActivity.collectables.get(scanned).getScore();
+            score += MainActivity.collectables.get(scanned).getScore();
         }
         return score;
     }

@@ -1,6 +1,6 @@
 package com.qrhunter;
 
-import static com.qrhunter.HomeActivity.collectables;
+import static com.qrhunter.MainActivity.collectables;
 import static com.qrhunter.MainActivity.allPlayers;
 
 import android.os.Bundle;

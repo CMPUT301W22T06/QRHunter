@@ -35,7 +35,7 @@ public class PlayerCollectiblesFragment extends DialogFragment {
         ListView collectiblesList = view.findViewById(R.id.collectibles_list);
         ArrayList<String> collectiblesDataList = new ArrayList<>();
         for (String id : player.getClaimedCollectibleIDs()) {
-            collectiblesDataList.add(HomeActivity.collectables.get(id).getName());
+            collectiblesDataList.add(MainActivity.collectables.get(id).getName());
         }
 
         ArrayAdapter<String> collectibleAdapter = new ArrayAdapter<>(view.getContext(), R.layout.player_content, collectiblesDataList);
