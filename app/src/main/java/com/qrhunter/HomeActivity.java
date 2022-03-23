@@ -41,7 +41,6 @@ public class HomeActivity extends AppCompatActivity {
     DecoratedBarcodeView scanner;
     Collectable scanned;
     Player player;
-    static CollectableDatabase collectables = new CollectableDatabase();
 
     /*
      * Taking a Photo when a QR is scanned is an intent, which means onResume will be called when
@@ -90,7 +89,7 @@ public class HomeActivity extends AppCompatActivity {
         if (locationGPS != null)
             scanned.setLocation(new Geolocation(locationGPS.getLatitude(), locationGPS.getLongitude()));
         else MainActivity.toast(getApplicationContext(), "Unable to find location.");
-        collectables.add(scanned, this);
+        MainActivity.collectables.add(scanned, this);
         MainActivity.allPlayers.addClaimedID(player.getUsername(), scanned.getId());
     }
 
@@ -127,7 +126,7 @@ public class HomeActivity extends AppCompatActivity {
             }
             else {
                 scanned.setName(name);
-                collectables.add(scanned, this);
+                MainActivity.collectables.add(scanned, this);
                 MainActivity.allPlayers.addClaimedID(player.getUsername(), scanned.getId());
             }
         });
@@ -193,7 +192,7 @@ public class HomeActivity extends AppCompatActivity {
 
 
                 // Check if the Code already exists within the Firebase, prompt accordingly.
-                collectables.getStore().collection("Scanned").document(scanned.getId()).get().addOnCompleteListener(task -> {
+                MainActivity.collectables.getStore().collection("Scanned").document(scanned.getId()).get().addOnCompleteListener(task -> {
                     if (task.isSuccessful()) {
                         DocumentSnapshot document = task.getResult();
 
@@ -251,7 +250,7 @@ public class HomeActivity extends AppCompatActivity {
                 if (grantResults[x] == PackageManager.PERMISSION_GRANTED) storeLocation();
                 else {
                     MainActivity.toast(getApplicationContext(), "Location permission is required to save location!");
-                    collectables.add(scanned, this);
+                    MainActivity.collectables.add(scanned, this);
                 }
             }
         }

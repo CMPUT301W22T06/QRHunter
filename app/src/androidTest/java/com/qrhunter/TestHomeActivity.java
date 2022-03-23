@@ -33,6 +33,13 @@ import org.junit.runner.RunWith;
         solo.assertCurrentActivity("Could not switch to Scoreboard", SearchMenuActivity.class);
     }
 
+    @Test public void testQRMapButton() {
+        solo.assertCurrentActivity("Wrong Activity", HomeActivity.class);
+        solo.clickOnButton("QR Map");
+        solo.assertCurrentActivity("Could not switch to QR Map", QRMapActivity.class);
+
+    }
+
     @After
     public void tearDown() {
         solo.finishOpenedActivities();

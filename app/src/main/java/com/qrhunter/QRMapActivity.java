@@ -50,7 +50,7 @@ public class QRMapActivity extends FragmentActivity implements OnMapReadyCallbac
 
     private void populateMap() {
         map.animateCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(player_location.getLatitude(), player_location.getLongitude()), 15.0f));
-        for (Collectable scanned : HomeActivity.collectables.getDatabase().values()) {
+        for (Collectable scanned : MainActivity.collectables.getDatabase().values()) {
             Geolocation current = scanned.getLocation();
             if (abs(player_location.getLongitude() - current.getLongitude()) < 0.01 && abs(player_location.getLongitude() - current.getLongitude()) < 0.01) {
                 map.addMarker(new MarkerOptions().position(new LatLng(current.getLatitude(), current.getLongitude())).title(scanned.getName()));
