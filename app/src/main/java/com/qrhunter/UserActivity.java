@@ -81,8 +81,6 @@ public class UserActivity extends AppCompatActivity {
             dialog.show();
 
             context_view.findViewById(R.id.context_view_delete).setOnClickListener(x -> {
-                if (MainActivity.collectables.deleteCollectable(selected.getId()) != 0)
-                    MainActivity.toast(getApplicationContext(), "Could not delete (It may not exist within the database)");
                 MainActivity.allPlayers.removeClaimedID(player.getUsername(), selected.getId());
                 refresh();
                 dialog.dismiss();

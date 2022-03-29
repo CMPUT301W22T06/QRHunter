@@ -123,6 +123,7 @@ public class PlayerDatabse {
         }
     }
 
+
     public void removeClaimedID(String player, String id) {
         Player selected = MainActivity.allPlayers.getPlayer(player);
         if (selected != null) {
@@ -130,7 +131,10 @@ public class PlayerDatabse {
             database.collection("Players")
                     .document(player)
                     .update("claimedCollectibleIDs", selected.getClaimedCollectibleIDs())
-                    .addOnFailureListener(e -> {throw new RuntimeException("Network Error.");});
+                    .addOnFailureListener(e -> {throw new RuntimeException("Network Error.");})
+                    .addOnCompleteListener(e -> {
+                        MainActivity.collectables.deleteCollectable(id);
+                    });
         }
     }
 
