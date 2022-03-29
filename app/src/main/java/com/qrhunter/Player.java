@@ -8,9 +8,9 @@ public class Player implements Serializable {
     private String username;
     private String password;
     private ArrayList<String> claimedCollectibleIDs = new ArrayList<String>();
-    private Long highestScore;
-    private Long scoreSum;
-    private Long totalCodesScanned;
+    private Long highestScore = 0L;
+    private Long scoreSum = 0L;
+    private Long totalCodesScanned = 0L;
 
     public Player(){
         // Default constructor
