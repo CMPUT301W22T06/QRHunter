@@ -217,6 +217,10 @@ public class HomeActivity extends AppCompatActivity {
     }
 
     public void onClickUser(MenuItem mi) {
+        if (building) {
+            MainActivity.toast(getApplicationContext(), "Uploading... please wait.");
+            return;
+        }
         Intent intent = new Intent(HomeActivity.this, UserActivity.class);
         intent.putExtra("username", player.getUsername());
         startActivity(intent);
