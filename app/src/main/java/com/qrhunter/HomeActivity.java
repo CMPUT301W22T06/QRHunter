@@ -223,6 +223,7 @@ public class HomeActivity extends AppCompatActivity {
         }
         Intent intent = new Intent(HomeActivity.this, UserActivity.class);
         intent.putExtra("username", player.getUsername());
+        intent.putExtra("restricted", false);
         startActivity(intent);
     }
 

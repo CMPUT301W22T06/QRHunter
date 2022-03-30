@@ -30,6 +30,8 @@ public class UserActivity extends AppCompatActivity {
     ArrayAdapter<String> adapter;
     TextView user_score;
 
+    ArrayList<String> names = new ArrayList<>();
+
     @RequiresApi(api = Build.VERSION_CODES.N)
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -40,6 +42,8 @@ public class UserActivity extends AppCompatActivity {
         String username = getIntent().getStringExtra("username");
         player = MainActivity.allPlayers.getPlayer(username);
 
+        boolean restricted = getIntent().getBooleanExtra("restricted", true);
+
         scanned = findViewById(R.id.user_scanned);
         user_score = findViewById(R.id.user_score);
 
@@ -47,8 +51,12 @@ public class UserActivity extends AppCompatActivity {
         ImageView qrcode = findViewById(R.id.user_qr);
         qrcode.setImageBitmap(generatePlayerQR());
 
+        if (restricted) {
+            TextView name = findViewById(R.id.user_text);
+            name.setText(player.getUsername());
+        }
+
         // Setup the list of adapters
-        ArrayList<String> names = new ArrayList<>();
         for (String id : player.getClaimedCollectibleIDs()) {
             names.add(MainActivity.collectables.get(id).getName());
         }
@@ -61,17 +69,33 @@ public class UserActivity extends AppCompatActivity {
         // Setup for what happens when a user clicks a code.
         scanned.setOnItemClickListener((parent, v, position, id) -> {
             Collectable selected = MainActivity.collectables.get(player.getClaimedCollectibleIDs().get(position));
-
+            
+            int view, v_id, v_score, v_location, v_image;
+            if (restricted) {
+                view = R.layout.context_restricted;
+                v_id = R.id.restricted_view_id;
+                v_score = R.id.restricted_view_score; 
+                v_location = R.id.restricted_view_location;
+                v_image = R.id.restricted_view_image;
+            }
+            else {
+                view = R.layout.context_view;
+                v_id = R.id.context_view_id;
+                v_score = R.id.context_view_score;
+                v_location = R.id.context_view_location;
+                v_image = R.id.context_view_image;
+            }
+            
             // Create the popup.
             LayoutInflater layoutInflater = LayoutInflater.from(UserActivity.this);
-            View context_view = layoutInflater.inflate(R.layout.context_view, null);
+            View context_view = layoutInflater.inflate(view, null);
             AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(UserActivity.this);
 
-            // Add the information.
-            if (selected.getPhoto() != null) selected.viewPhoto(context_view.findViewById(R.id.context_view_image));
-            ((TextView)context_view.findViewById(R.id.context_view_id)).setText("Name: " + selected.getName());
-            ((TextView)context_view.findViewById(R.id.context_view_score)).setText("Score: " + selected.getScore());
-            ((TextView)context_view.findViewById(R.id.context_view_location)).setText("Location: " +
+            // Add the information
+            if (selected.getPhoto() != null) selected.viewPhoto(context_view.findViewById(v_image));
+            ((TextView)context_view.findViewById(v_id)).setText("Name: " + selected.getName());
+            ((TextView)context_view.findViewById(v_score)).setText("Score: " + selected.getScore());
+            ((TextView)context_view.findViewById(v_location)).setText("Location: " +
                     selected.getLocation().getLatitude() + " " +
                     selected.getLocation().getLongitude());
 
@@ -80,18 +104,18 @@ public class UserActivity extends AppCompatActivity {
             final AlertDialog dialog = alertDialogBuilder.create();
             dialog.show();
 
-            context_view.findViewById(R.id.context_view_delete).setOnClickListener(x -> {
-                MainActivity.allPlayers.removeClaimedID(player.getUsername(), selected.getId());
-                refresh();
-                dialog.dismiss();
-            });
-
-
+            if (!restricted) {
+                context_view.findViewById(R.id.context_view_delete).setOnClickListener(x -> {
+                    MainActivity.allPlayers.removeClaimedID(player.getUsername(), selected.getId());
+                    refresh();
+                    dialog.dismiss();
+                });
+            }
         });
 
         // Sorting button.
         findViewById(R.id.score_sort).setOnClickListener(v -> {
-            player.getClaimedCollectibleIDs().sort(Comparator.naturalOrder());
+            names.sort(Comparator.naturalOrder());
             refresh();
         });
     }
@@ -102,7 +126,7 @@ public class UserActivity extends AppCompatActivity {
     private void refresh() {
 
         // Setup the adapter.
-        adapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, player.getClaimedCollectibleIDs());
+        adapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, names);
         scanned.setAdapter(adapter);
 
         // Inform everything about the change.

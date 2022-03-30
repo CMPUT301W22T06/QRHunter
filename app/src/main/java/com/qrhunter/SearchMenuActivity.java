@@ -4,7 +4,6 @@ import static com.qrhunter.MainActivity.allPlayers;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -14,8 +13,12 @@ import android.widget.ListView;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.google.zxing.ResultPoint;
+import com.journeyapps.barcodescanner.BarcodeCallback;
+import com.journeyapps.barcodescanner.BarcodeResult;
+import com.journeyapps.barcodescanner.DecoratedBarcodeView;
+
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
@@ -27,6 +30,7 @@ public class SearchMenuActivity extends AppCompatActivity {
     ListView playersList;
     ArrayAdapter<Player> playerAdapter;
     ArrayList<Player> playerDataList;
+    DecoratedBarcodeView scanner;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -47,6 +51,24 @@ public class SearchMenuActivity extends AppCompatActivity {
 
         // all players list
         ListView searchedItemList = findViewById(R.id.search_items_list);
+
+        // Grab the scanner within the activity.
+        scanner = findViewById(R.id.search_menu_scanner);
+        scanner.decodeContinuous(new BarcodeCallback() {
+
+            // When we successfully scan a code.
+            @Override public void barcodeResult(BarcodeResult result) {
+               Player player = allPlayers.getPlayer(result.getText());
+               if (player != null) {
+                   Intent intent = new Intent(SearchMenuActivity.this, UserActivity.class);
+                   intent.putExtra("username",username);
+                   intent.putExtra("restricted", true);
+                   startActivity(intent);
+               }
+            }
+            @Override public void possibleResultPoints(List<ResultPoint> resultPoints) {}
+        });
+
 
         filterButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -106,6 +128,16 @@ public class SearchMenuActivity extends AppCompatActivity {
                 new PlayerCollectiblesFragment(playerDataList.get(i)).show(getSupportFragmentManager(),"PLAYER_FRAGMENT");
             }
         });
+    }
 
+    @Override protected void onResume() {
+        super.onResume();
+        if (!scanner.isActivated()) scanner.resume();
+    }
+
+
+    @Override protected void onPause() {
+        super.onPause();
+        scanner.pause();
     }
 }
