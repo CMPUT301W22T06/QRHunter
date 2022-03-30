@@ -1,7 +1,6 @@
 package com.qrhunter;
 
 import android.graphics.Bitmap;
-import android.util.Pair;
 import android.widget.ImageView;
 
 import java.util.ArrayList;
@@ -11,9 +10,10 @@ import java.util.ArrayList;
  */
 public class Collectable {
     private String id = "";
+    private String name = "";
     private Long score = 0L;
     private Bitmap photo;
-    private Pair<Double, Double> location = new Pair<>(0.0, 0.0);      // lat, long
+    private Geolocation location = new Geolocation(0.0, 0.0); // lat, long
     private ArrayList<String> comments = new ArrayList<>();
 
 
@@ -42,7 +42,7 @@ public class Collectable {
      * Returns the location as a Pair, lat first, long second.
      * @return The location.
      */
-    public Pair<Double, Double> getLocation() {return location;}
+    public Geolocation getLocation() {return location;}
 
 
     /**
@@ -50,6 +50,12 @@ public class Collectable {
      * @return The comments.
      */
     public ArrayList<String> getComments() {return comments;}
+
+    /**
+     * Returns the name of the Code.
+     * @return The name.
+     */
+    public String getName() {return name;}
 
 
     /**
@@ -83,7 +89,18 @@ public class Collectable {
      * Sets the location of the collectable.
      * @param new_location The new location.
      */
-    public void setLocation(Pair<Double, Double> new_location) {location = new_location;}
+    public void setLocation(Geolocation new_location) {location = new_location;}
+
+
+    /**
+     * Sets the name of the collectable.
+     * @param new_name The name of the collectable.
+     * @throws AssertionError If the new name exceeds 24 characters.
+     */
+    public void setName(String new_name) {
+        assert(new_name.length() <= 24);
+        name = new_name;
+    }
 
 
     /**
@@ -101,5 +118,6 @@ public class Collectable {
     public void viewPhoto(ImageView view) {
         view.setImageBitmap(photo);
     }
+
 }
 

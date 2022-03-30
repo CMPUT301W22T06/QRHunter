@@ -17,7 +17,9 @@ import androidx.core.content.ContextCompat;
 public class MainActivity extends AppCompatActivity {
 
     private static final String TAG = "MainActivity";
+
     static PlayerDatabse allPlayers = new PlayerDatabse();
+    static CollectableDatabase collectables = new CollectableDatabase();
 
     /**
      * Creates a short toast, saving some code redundancy
