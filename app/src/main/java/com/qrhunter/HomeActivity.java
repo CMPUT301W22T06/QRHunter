@@ -11,18 +11,15 @@ import android.graphics.Bitmap;
 import android.location.Location;
 import android.location.LocationManager;
 import android.os.Bundle;
-import android.os.Parcelable;
 import android.provider.MediaStore;
 import android.util.Log;
-<<<<<<< Updated upstream
-import android.util.Pair;
-=======
->>>>>>> Stashed changes
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.Button;
 import android.widget.CheckBox;
+import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -39,32 +36,14 @@ import com.journeyapps.barcodescanner.BarcodeCallback;
 import com.journeyapps.barcodescanner.BarcodeResult;
 import com.journeyapps.barcodescanner.DecoratedBarcodeView;
 
-import java.math.BigInteger;
-import java.nio.charset.StandardCharsets;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 
 public class HomeActivity extends AppCompatActivity {
 
-    private static final String TAG = "HomeActivity";
-
     DecoratedBarcodeView scanner;
     Collectable scanned;
-<<<<<<< Updated upstream
-
-    MessageDigest digest;
-    CollectableDatabase collectables = new CollectableDatabase();
-
-    ArrayList<String> scannedIndexList = new ArrayList<>();
-    ArrayList<Long> scannedScoreList = new ArrayList<>();
-    ArrayList<String> scannedLocationList = new ArrayList<>();
-=======
     Player player;
     static CollectableDatabase collectables = new CollectableDatabase();
->>>>>>> Stashed changes
 
     /*
      * Taking a Photo when a QR is scanned is an intent, which means onResume will be called when
@@ -111,13 +90,10 @@ public class HomeActivity extends AppCompatActivity {
         LocationManager locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
         @SuppressLint("MissingPermission") Location locationGPS = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
         if (locationGPS != null)
-            scanned.setLocation(new Pair<>(locationGPS.getLatitude(), locationGPS.getLongitude()));
+            scanned.setLocation(new Geolocation(locationGPS.getLatitude(), locationGPS.getLongitude()));
         else MainActivity.toast(getApplicationContext(), "Unable to find location.");
         collectables.add(scanned, this);
-<<<<<<< Updated upstream
-=======
         MainActivity.allPlayers.addClaimedID(player.getUsername(), scanned.getId());
->>>>>>> Stashed changes
     }
 
 
@@ -132,29 +108,35 @@ public class HomeActivity extends AppCompatActivity {
         View context_view = layoutInflater.inflate(R.layout.context_scanned, null);
         AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(HomeActivity.this);
 
+        TextView name_hint = context_view.findViewById(R.id.context_scanned_name_helper);
+        name_hint.setText("Name:");
+
         // When the dialog is canceled (IE clicked off of it), save our information.
         alertDialogBuilder.setOnCancelListener(dialog -> {
             if (((CheckBox)context_view.findViewById(R.id.context_scanned_save_location)).isChecked())
                 storeLocation();
+
+            EditText name_box = context_view.findViewById(R.id.context_scanned_name);
+            String name = name_box.getText().toString();
+
+            if (name.isEmpty()) {
+                MainActivity.toast(getApplicationContext(), "Please enter a name!");
+                assembleScanned();
+            }
+            else if (name.length() > 24) {
+                MainActivity.toast(getApplicationContext(), "Name to large! Must be 24 characters.");
+                assembleScanned();
+            }
             else {
-<<<<<<< Updated upstream
-                collectables.add(scanned, this);
-=======
                 scanned.setName(name);
                 collectables.add(scanned, this);
                 MainActivity.allPlayers.addClaimedID(player.getUsername(), scanned.getId());
->>>>>>> Stashed changes
             }
         });
 
         // When we hit add picture, spawn a camera instance and get the BitMap taken.
         context_view.findViewById(R.id.context_scanned_add_picture).setOnClickListener(v -> cameraResult.launch(new Intent(MediaStore.ACTION_IMAGE_CAPTURE)));
         ((TextView)context_view.findViewById(R.id.context_scanned_score)).setText("Score of Scanned QR: " + scanned.getScore());
-
-
-        scannedIndexList.add(scanned.getId());
-        scannedScoreList.add(scanned.getScore());
-        scannedLocationList.add(scanned.getLocation().toString());
 
         // Create and show the dialog.
         alertDialogBuilder.setView(context_view);
@@ -174,41 +156,28 @@ public class HomeActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_home);
-        initView();
+
+        Toolbar toolbar = findViewById(R.id.player_menu);
+        setSupportActionBar(toolbar);
+
+        // retrieves the Player username from the intent
+        String username = getIntent().getStringExtra("username");
+        player = MainActivity.allPlayers.getPlayer(username);
+
+        Button scoreboardButton = findViewById(R.id.home_scoreboard);
+        scoreboardButton.setOnClickListener(view -> {
+            Intent intent = new Intent(HomeActivity.this, SearchMenuActivity.class);
+            intent.putExtra("username",username);
+            startActivity(intent);
+        });
+
+        findViewById(R.id.home_map).setOnClickListener(view -> {
+            Intent intent = new Intent(HomeActivity.this, QRMapActivity.class);
+            startActivity(intent);
+        });
 
         // Grab the scanner within the activity.
         scanner = findViewById(R.id.home_scanner);
-<<<<<<< Updated upstream
-        scanner.decodeContinuous(new BarcodeCallback() {
-
-            // When we successfully scan a code.
-            @Override public void barcodeResult(BarcodeResult result) {
-                building = true;
-                scanned = new Collectable();
-
-                // Create the ID, along with the score.
-                String id = ScoringSystem.hashQR(result.getText());
-                scanned.setId(id);
-                scanned.setScore(ScoringSystem.score(id));
-
-                // Pause the scanner so it doesn't make an infinite amount of popups.
-                scanner.pause();
-                // Check if the Code already exists within the Firebase, prompt accordingly.
-                collectables.getStore().collection("Scanned").document(scanned.getId()).get().addOnCompleteListener(task -> {
-                    if (task.isSuccessful()) {
-                        DocumentSnapshot document = task.getResult();
-                        // Not sure why this happens, but we need to check for it.
-                        if (document == null) MainActivity.toast(getApplicationContext(), "Unknown error");
-                        else {
-                            // If it exists, we shouldn't overwrite.
-                            if (document.exists()) {
-                                MainActivity.toast(getApplicationContext(), "Already been scanned!");
-                                scanner.resume();
-                            }
-                            else {
-                                assembleScanned();
-                            }
-=======
         if (player == null){
             Toast.makeText(this, "start scanner after login!", Toast.LENGTH_LONG).show();
         }else {
@@ -244,7 +213,6 @@ public class HomeActivity extends AppCompatActivity {
                                     scanner.resume();
                                 } else assembleScanned();
                             }
->>>>>>> Stashed changes
                         }
 
                         // This happens when the database is empty.
@@ -259,19 +227,7 @@ public class HomeActivity extends AppCompatActivity {
         }
     }
 
-    private void initView() {
-        Toolbar toolbar = findViewById(R.id.player_menu);
-        setSupportActionBar(toolbar);
-    }
-
     public void onClickUser(MenuItem mi) {
-<<<<<<< Updated upstream
-        Intent intent = new Intent(HomeActivity.this, UserActivity.class);
-        intent.putExtra("index_list", scannedIndexList);
-        intent.putExtra("score_list", scannedScoreList);
-        intent.putExtra("location_list", scannedLocationList);
-        startActivity(intent);
-=======
         if (player!=null) {
             Intent intent = new Intent(HomeActivity.this, UserActivity.class);
             intent.putExtra("username", player.getUsername());
@@ -279,7 +235,6 @@ public class HomeActivity extends AppCompatActivity {
         }else{
             Toast.makeText(this, "please login first", Toast.LENGTH_SHORT).show();
         }
->>>>>>> Stashed changes
     }
 
     @Override
@@ -314,6 +269,5 @@ public class HomeActivity extends AppCompatActivity {
                 }
             }
         }
-
     }
 }

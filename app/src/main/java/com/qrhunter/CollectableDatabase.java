@@ -4,15 +4,17 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.util.Pair;
 
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
+import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 
 import java.io.ByteArrayOutputStream;
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Objects;
 
 import javax.annotation.Nullable;
@@ -21,7 +23,7 @@ import javax.annotation.Nullable;
  * A database of all Collectables stored by all users. This also facilitates talking to the
  * Firestore.
  */
-public class CollectableDatabase implements Serializable {
+public class CollectableDatabase {
 
     // The local copy of the database. Updated when new barcodes are scanned.
     private HashMap<String, Collectable> collectables = new HashMap<>();
@@ -56,9 +58,6 @@ public class CollectableDatabase implements Serializable {
         // Gets all scanned objects, constructs the collectables.
         database.collection("Scanned").get().addOnCompleteListener(task -> {
             if (task.isSuccessful()) {
-<<<<<<< Updated upstream
-                for (QueryDocumentSnapshot document : Objects.requireNonNull(task.getResult())) {
-=======
 
                 QuerySnapshot result = task.getResult();
                 List<DocumentSnapshot> documents = result.getDocuments();
@@ -73,18 +72,22 @@ public class CollectableDatabase implements Serializable {
                 }
 
                 for (QueryDocumentSnapshot document : Objects.requireNonNull(result)) {
->>>>>>> Stashed changes
                     Collectable current = new Collectable();
 
                     // This allows us to not have to re-download the whole thing after each change.
                     if (!collectables.containsKey(document.getId())) {
                         current.setId(document.getId());
 
+                        Object name_object = document.get("Name");
+                        if (name_object != null) {
+                            current.setName((String)name_object);
+                        }
+
                         // The object will NEVER be null, but it prevents the IDE from complaining.
                         Object location_object = document.get("Location");
                         if (location_object != null) {
                             HashMap<String, Object> location = (HashMap<String, Object>) location_object;
-                            current.setLocation(new Pair<>(
+                            current.setLocation(new Geolocation(
                                     (Double) location.get("first"),
                                     (Double) location.get("second"))
                             );
@@ -116,7 +119,7 @@ public class CollectableDatabase implements Serializable {
                         if (comments_object != null) {
                             ArrayList<String> comments = (ArrayList<String>)comments_object;
                             if (current.getComments().size() != comments.size())
-                            current.setComments(comments);
+                                current.setComments(comments);
                         }
                     }
                 }
@@ -164,13 +167,6 @@ public class CollectableDatabase implements Serializable {
      *                 which case no callback will be called.
      */
     public void add(Collectable scanned, @Nullable HomeActivity callback) {
-<<<<<<< Updated upstream
-
-        // Put it into the local database.
-        collectables.put(scanned.getId(), scanned);
-
-=======
->>>>>>> Stashed changes
         // Our hashmap to upload basic information.
         HashMap<String, Object> pack = new HashMap<>();
 
@@ -192,11 +188,6 @@ public class CollectableDatabase implements Serializable {
 
         // Pack all the rest of the information into the hashmap.
         pack.put("Score", scanned.getScore());
-<<<<<<< Updated upstream
-        pack.put("Location", scanned.getLocation());
-        pack.put("Comments", scanned.getComments());
-
-=======
 
         Geolocation location = scanned.getLocation();
         pack.put("Location", new Pair<>(location.getLatitude(), location.getLongitude()));
@@ -205,7 +196,6 @@ public class CollectableDatabase implements Serializable {
 
         pack.put("Name", scanned.getName());
 
->>>>>>> Stashed changes
         // Upload our pack into the Firestore.
         database.collection("Scanned")
                 .document(scanned.getId())
@@ -248,26 +238,18 @@ public class CollectableDatabase implements Serializable {
      * This function deletes a collectable from the database. It does not throw an exception
      * if the element is not present.
      */
-<<<<<<< Updated upstream
-    public void deleteCollectable(String id) {
-        collectables.remove(id);
-=======
     public int deleteCollectable(String id) {
->>>>>>> Stashed changes
         Collectable selected = collectables.get(id);
         if (selected != null) {
             database.collection("Scanned")
                     .document(id)
                     .delete()
                     .addOnFailureListener(e -> {throw new RuntimeException("Network Error.");});
-<<<<<<< Updated upstream
-=======
             storage.getReference(id).delete();
             return 0;
         }
         else {
             return -1;
->>>>>>> Stashed changes
         }
     }
 
@@ -292,5 +274,4 @@ public class CollectableDatabase implements Serializable {
         }
         else throw new RuntimeException("ID not in database");
     }
-
 }
