@@ -29,8 +29,6 @@ public class OwnerActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_owner);
 
-        // need to create the database
-        collectables.exists("");
 
         playersList = findViewById(R.id.collectibles_players_list);
         playerDataList = new ArrayList<String>();
