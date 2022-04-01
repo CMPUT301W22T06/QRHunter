@@ -1,7 +1,8 @@
 package com.qrhunter;
 
-import static com.qrhunter.HomeActivity.collectables;
+import static com.qrhunter.MainActivity.collectables;
 import static com.qrhunter.MainActivity.allPlayers;
+import static com.qrhunter.MainActivity.collectables;
 
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
@@ -20,6 +21,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * Activity for OWNERS ONLY. Connects from MainActivity if an owner is logged in.
+ * Lets Owners delete Players/Collectables.
+ */
 public class OwnerActivity extends AppCompatActivity {
     ListView playersList;
     ArrayAdapter<String> playerAdapter;
@@ -37,7 +42,7 @@ public class OwnerActivity extends AppCompatActivity {
         TextView collectiblesPlayers = findViewById(R.id.collectibles_players);
 
 
-        // set up click function
+        // set up click function for deleting from the list of players/collectables.
         playersList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
@@ -52,8 +57,12 @@ public class OwnerActivity extends AppCompatActivity {
                                     allPlayers.deleteUser(playerAdapter.getItem(i));
                                     updatePlayerDataList();
                                 } else {
-                                    collectables.deleteCollectable(getCollectableID(playerAdapter.getItem(i)));
+                                    String collectableName = playerAdapter.getItem(i);
+                                    String collectableID = getCollectableID(playerAdapter.getItem(i));
+                                    collectables.deleteCollectable(collectableID);
+                                    allPlayers.removeCollectable(collectableID);
                                     updateCollectableDataList();
+                                    playerAdapter.remove(collectableName);
                                 }
                             }
                         }).setNegativeButton(android.R.string.no, null)
@@ -61,6 +70,7 @@ public class OwnerActivity extends AppCompatActivity {
             }
         });
 
+        // button to change list to collectables/players
         Button changeListButton = findViewById(R.id.change_list_button);
         changeListButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -75,12 +85,14 @@ public class OwnerActivity extends AppCompatActivity {
                     changeListButton.setText("View Players");
                     updateCollectableDataList();
                     collectiblesPlayers.setText("Collectables");
-
                 }
             }
         });
     }
 
+    /**
+     * Refreshes the ListAdapter to show players.
+     */
     public void updatePlayerDataList() {
         // grab players list from Firestore db
         Map<String,Player> map = allPlayers.getPlayers();
@@ -94,26 +106,31 @@ public class OwnerActivity extends AppCompatActivity {
         playersList.setAdapter(playerAdapter);
     }
 
+    /**
+     * Refreshes the ListAdapter to show collectables.
+     */
     public void updateCollectableDataList() {
         playerDataList = new ArrayList<String>();
         Map<String,Collectable> map = collectables.getCollectables();
         List<Collectable> collectablesList = new ArrayList<>(map.values());
         for(int i = 0; i<collectablesList.size(); i++) {
-            // TODO: change to collectable name (waiting on merge)
-            //playerDataList.add(collectablesList.get(i).getName())
-            playerDataList.add(collectablesList.get(i).toString());
+            playerDataList.add(collectablesList.get(i).getName());
         }
         playerAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, playerDataList);
         playersList.setAdapter(playerAdapter);
+        playerAdapter.notifyDataSetChanged();
     }
 
+    /**
+     * Get a collectable id from a name, returns null if none found.
+     * @param name name of the collectable
+     * @return ID of the corresponding collectable
+     */
     public String getCollectableID(String name) {
         Map<String,Collectable> map = collectables.getCollectables();
         List<Collectable> collectablesList = new ArrayList<>(map.values());
         for(int i = 0; i<collectablesList.size(); i++) {
-            // TODO: CHANGE TO COLLECTABLE NAME (waiting on merge)
-            //if(collectablesList.get(i).getName().equals(name)) {
-            if(true) {
+            if(collectablesList.get(i).getName().equals(name)) {
                 return collectablesList.get(i).getId();
             }
         }

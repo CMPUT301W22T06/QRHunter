@@ -41,7 +41,6 @@ public class PlayerDatabse {
 
                     // put the players into a local hashmap
                     Class<? extends QueryDocumentSnapshot> test = document.getClass();
-                    Log.d("TEST",test.toString());
                     if (!players.containsKey(document.getId())) {
                         // if it is a player
                         if (document.get("highestScore") != null) {
@@ -133,7 +132,7 @@ public class PlayerDatabse {
      */
     public void deletePlayer(String playerName){
         // removes player from the firebase collection
-        Player selected = players.get(playerName);
+        Player selected =(Player) players.get(playerName);
         if (selected != null){
             database.collection("Players")
                     .document(playerName)
@@ -201,6 +200,11 @@ public class PlayerDatabse {
     }
 
 
+    /**
+     * Removes a collectable ID from a player in the database
+     * @param id The collectable to be removed
+     * @param player the player that has the collectable
+     */
     public void removeClaimedID(String player, String id) {
         Player selected = MainActivity.allPlayers.getPlayer(player);
         if (selected != null) {
@@ -215,6 +219,10 @@ public class PlayerDatabse {
         }
     }
 
+    /**
+     * Returns all players (NO USERS/OWNERS)
+     * @return HashMap of all players
+     */
     public HashMap<String, Player> getPlayers() {
         HashMap<String,Player> returner = new HashMap<>();
         Iterator<String> usernames = players.keySet().iterator();
@@ -231,6 +239,11 @@ public class PlayerDatabse {
         return players.get(username);
     }
 
+    /**
+     * Checks if a username matches a player in the database.
+     * @param username The user to be checked
+     * @return Returns true if username matches a player in the database
+     */
     public Boolean isPlayer(String username) {
         try {
             // try to cast to player...
@@ -240,6 +253,10 @@ public class PlayerDatabse {
         }
     }
 
+    /**
+     * Removes a user from the database.
+     * @param username The user to be deleted
+     */
     public void deleteUser(String username) {
         if(players.containsKey(username)) {
             players.remove(username);
@@ -249,6 +266,20 @@ public class PlayerDatabse {
                     .addOnFailureListener(e -> {
                         throw new RuntimeException("Network Error.");
                     });
+        }
+    }
+    /**
+     * Removes a collectible ID from EVERY player in the database
+     * @param id The collectable to be removed
+     */
+    public void removeCollectable(String id) {
+        HashMap<String, Player> allPlayers = this.getPlayers();
+        Iterator<String> usernames = allPlayers.keySet().iterator();
+        while(usernames.hasNext()) {
+            String currentUsername = usernames.next();
+            if(allPlayers.get(currentUsername).getClaimedCollectibleIDs().contains(id)) {
+                removeClaimedID(currentUsername,id);
+            }
         }
     }
 

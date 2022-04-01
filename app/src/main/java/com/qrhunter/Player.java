@@ -3,6 +3,9 @@ package com.qrhunter;
 import java.io.Serializable;
 import java.util.ArrayList;
 
+/**
+ * Player class for all players of the game.
+ */
 public class Player extends User implements Serializable {
 
     private ArrayList<String> claimedCollectibleIDs = new ArrayList<String>();
@@ -58,18 +61,34 @@ public class Player extends User implements Serializable {
         return totalCodesScanned;
     }
 
+    /**
+     * Sets a players claimed collectables ID
+     * @param claimedCollectibleIDs ArrayList<String> of a players collectibles.
+     */
     public void setClaimedCollectibleIDs(ArrayList<String> claimedCollectibleIDs) {
         this.claimedCollectibleIDs = claimedCollectibleIDs;
     }
 
+    /**
+     * Sets a players highest collectible score.
+     * @param highestScore
+     */
     public void setHighestScore(Long highestScore) {
         this.highestScore = highestScore;
     }
 
+    /**
+     * Sets a players total collectible score.
+     * @param scoreSum
+     */
     public void setScoreSum(Long scoreSum) {
         this.scoreSum = scoreSum;
     }
 
+    /**
+     * Sets a players total number of collectibles scanned.
+     * @param totalCodesScanned
+     */
     public void setTotalCodesScanned(Long totalCodesScanned) {
         this.totalCodesScanned = totalCodesScanned;
     }

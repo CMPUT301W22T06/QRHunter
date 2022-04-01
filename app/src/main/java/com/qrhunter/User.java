@@ -1,5 +1,8 @@
 package com.qrhunter;
 
+/**
+ * Base user class.
+ */
 class User {
     private String username;
     private String password;
@@ -30,10 +33,18 @@ class User {
         return password;
     }
 
+    /**
+     * Sets a users username.
+     * @param username
+     */
     public void setUsername(String username) {
         this.username = username;
     }
 
+    /**
+     * Sets a users password.
+     * @param password
+     */
     public void setPassword(String password) {
         this.password = password;
     }

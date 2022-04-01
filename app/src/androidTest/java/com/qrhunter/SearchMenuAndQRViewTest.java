@@ -9,6 +9,7 @@ import android.content.Intent;
 import android.util.Log;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.test.core.app.ActivityScenario;
@@ -70,7 +71,7 @@ public class SearchMenuAndQRViewTest {
         solo.assertCurrentActivity("Wrong Activity", SearchMenuActivity.class);
         solo.clickOnView(solo.getView("my_collectibles_button"));
         solo.assertCurrentActivity("Wrong Activity", MyCollectiblesList.class);
-        assertTrue(solo.waitForText("ea5eaab938554a8fe3fdd286ceb588dfbe63749fbcb41760dcd95a5958d5fa01", 1, 1000));
+        assertTrue(solo.waitForText("test1", 1, 1000));
     }
 
     /**
@@ -91,7 +92,7 @@ public class SearchMenuAndQRViewTest {
         //Selects a player's collectible
         solo.assertCurrentActivity("Wrong Activity", SearchMenuActivity.class);
         solo.clickOnText("McTesty");
-        solo.clickOnText("ea5eaab938554a8fe3fdd286ceb588dfbe63749fbcb41760dcd95a5958d5fa01");
+        solo.clickOnText("test1");
 
         //Adds a comment to the collectible
         solo.assertCurrentActivity("Wrong Activity", QRViewActivity.class);
@@ -140,16 +141,16 @@ public class SearchMenuAndQRViewTest {
         // Selects a player's collectible
         solo.assertCurrentActivity("Wrong Activity", SearchMenuActivity.class);
         solo.clickOnText("McTesty");
-        solo.clickOnText("ea5eaab938554a8fe3fdd286ceb588dfbe63749fbcb41760dcd95a5958d5fa01");
+        solo.clickOnText("test1");
 
         // Checks that the two test players who have this collectible are on the list
         solo.assertCurrentActivity("Wrong Activity", QRViewActivity.class);
-        solo.clickOnButton("View Players");
+        solo.clickOnView(solo.getView("change_list_button"));
         assertTrue(solo.waitForText("MyTestor", 1, 1000));
         assertTrue(solo.waitForText("McTesty", 1, 1000));
 
         // Checks if the buttons swap properly
-        assertTrue(solo.waitForText("View Comments",1,1000));
+        assertTrue(((TextView)solo.getView("change_list_button")).getText().toString().equals("View Comments"));
         assertFalse(solo.getView(R.id.comment_button).isShown());
         assertFalse(solo.getView(R.id.comment_input).isShown());
     }
