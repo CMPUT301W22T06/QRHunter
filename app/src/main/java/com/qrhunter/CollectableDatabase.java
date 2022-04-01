@@ -216,13 +216,14 @@ public class CollectableDatabase {
      * if the element is not present.
      */
     public void deleteCollectable(String id) {
-        collectables.remove(id);
-        Collectable selected = collectables.get(id);
-        if (selected != null) {
+        if(collectables.containsKey(id)) {
+            collectables.remove(id);
             database.collection("Scanned")
                     .document(id)
                     .delete()
-                    .addOnFailureListener(e -> {throw new RuntimeException("Network Error.");});
+                    .addOnFailureListener(e -> {
+                        throw new RuntimeException("Network Error.");
+                    });
         }
     }
 
@@ -246,5 +247,13 @@ public class CollectableDatabase {
             return collectables.get(id);
         }
         else throw new RuntimeException("ID not in database");
+    }
+
+    /**
+     * Returns all collectables.
+     * @return Hashmap of all collectables in the database
+     */
+    public HashMap<String,Collectable> getCollectables() {
+        return collectables;
     }
 }

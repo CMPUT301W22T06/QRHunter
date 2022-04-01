@@ -180,11 +180,15 @@ public class PlayerDatabse {
     }
 
     public void deleteUser(String username) {
-        players.remove(username);
-        database.collection("Players")
-                .document(username)
-                .delete()
-                .addOnFailureListener(e -> {throw new RuntimeException("Network Error.");});
+        if(players.containsKey(username)) {
+            players.remove(username);
+            database.collection("Players")
+                    .document(username)
+                    .delete()
+                    .addOnFailureListener(e -> {
+                        throw new RuntimeException("Network Error.");
+                    });
+        }
     }
 
 }
