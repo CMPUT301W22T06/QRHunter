@@ -17,6 +17,7 @@ import android.widget.Button;
 import android.widget.ListView;
 import android.widget.TextView;
 
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -54,6 +55,13 @@ public class OwnerActivity extends AppCompatActivity {
                             @Override
                             public void onClick(DialogInterface dialogInterface, int j) {
                                 if(collectiblesPlayers.getText().toString().equals("Players")) {
+                                    // get the current player and delete all their collectables
+                                    Player currentPlayer = allPlayers.getPlayer(playerAdapter.getItem(i));
+                                    ArrayList<String> collectiblesToDelete = currentPlayer.getClaimedCollectibleIDs();
+                                    for(int k = 0; k < collectiblesToDelete.size(); k++) {
+                                        collectables.deleteCollectable(collectiblesToDelete.get(k));
+                                    }
+
                                     allPlayers.deleteUser(playerAdapter.getItem(i));
                                     updatePlayerDataList();
                                 } else {
