@@ -56,7 +56,24 @@ public class CollectableDatabase implements Serializable {
         // Gets all scanned objects, constructs the collectables.
         database.collection("Scanned").get().addOnCompleteListener(task -> {
             if (task.isSuccessful()) {
+<<<<<<< Updated upstream
                 for (QueryDocumentSnapshot document : Objects.requireNonNull(task.getResult())) {
+=======
+
+                QuerySnapshot result = task.getResult();
+                List<DocumentSnapshot> documents = result.getDocuments();
+                for (Collectable current : collectables.values()) {
+                    boolean exists = false;
+                    for (DocumentSnapshot document : documents) {
+                        if (document.getId().equals(current.getId())) {
+                            exists = true;
+                        }
+                    }
+                    if (!exists) collectables.remove(current.getId());
+                }
+
+                for (QueryDocumentSnapshot document : Objects.requireNonNull(result)) {
+>>>>>>> Stashed changes
                     Collectable current = new Collectable();
 
                     // This allows us to not have to re-download the whole thing after each change.
@@ -147,10 +164,13 @@ public class CollectableDatabase implements Serializable {
      *                 which case no callback will be called.
      */
     public void add(Collectable scanned, @Nullable HomeActivity callback) {
+<<<<<<< Updated upstream
 
         // Put it into the local database.
         collectables.put(scanned.getId(), scanned);
 
+=======
+>>>>>>> Stashed changes
         // Our hashmap to upload basic information.
         HashMap<String, Object> pack = new HashMap<>();
 
@@ -172,9 +192,20 @@ public class CollectableDatabase implements Serializable {
 
         // Pack all the rest of the information into the hashmap.
         pack.put("Score", scanned.getScore());
+<<<<<<< Updated upstream
         pack.put("Location", scanned.getLocation());
         pack.put("Comments", scanned.getComments());
 
+=======
+
+        Geolocation location = scanned.getLocation();
+        pack.put("Location", new Pair<>(location.getLatitude(), location.getLongitude()));
+
+        pack.put("Comments", scanned.getComments());
+
+        pack.put("Name", scanned.getName());
+
+>>>>>>> Stashed changes
         // Upload our pack into the Firestore.
         database.collection("Scanned")
                 .document(scanned.getId())
@@ -217,14 +248,26 @@ public class CollectableDatabase implements Serializable {
      * This function deletes a collectable from the database. It does not throw an exception
      * if the element is not present.
      */
+<<<<<<< Updated upstream
     public void deleteCollectable(String id) {
         collectables.remove(id);
+=======
+    public int deleteCollectable(String id) {
+>>>>>>> Stashed changes
         Collectable selected = collectables.get(id);
         if (selected != null) {
             database.collection("Scanned")
                     .document(id)
                     .delete()
                     .addOnFailureListener(e -> {throw new RuntimeException("Network Error.");});
+<<<<<<< Updated upstream
+=======
+            storage.getReference(id).delete();
+            return 0;
+        }
+        else {
+            return -1;
+>>>>>>> Stashed changes
         }
     }
 

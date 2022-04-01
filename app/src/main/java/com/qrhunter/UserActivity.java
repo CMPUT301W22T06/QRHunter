@@ -36,6 +36,7 @@ public class UserActivity extends AppCompatActivity {
 
     Bitmap bitmap;
 
+<<<<<<< Updated upstream
     String user_id = "1";
     String user_status = "unknown";
 
@@ -50,6 +51,11 @@ public class UserActivity extends AppCompatActivity {
     ArrayList<String> indexList;
     ArrayList<Long> scoreList;
     ArrayList<String> locationList;
+=======
+    ListView scanned;
+    UserScannedAdapter adapter;
+    TextView user_score;
+>>>>>>> Stashed changes
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -70,15 +76,25 @@ public class UserActivity extends AppCompatActivity {
 
     }
 
+<<<<<<< Updated upstream
     private Long getTotalScore(ArrayList<Long> scoreList) {
         Long ret = 0L;
         for(int i = 0; i < scoreList.size(); i ++) {
             Log.d(TAG, "getTotalScore: " + i);
             ret += scoreList.get(i);
+=======
+        // Setup the list of adapters
+
+
+        ArrayList<Collectable> collectables = new ArrayList<>();
+        for (String id : player.getClaimedCollectibleIDs()) {
+            collectables.add(HomeActivity.collectables.get(id));
+>>>>>>> Stashed changes
         }
         return ret;
     }
 
+<<<<<<< Updated upstream
     private void initView() {
         imgUser = findViewById(R.id.user_qr);
         userScore = findViewById(R.id.user_score);
@@ -105,6 +121,44 @@ public class UserActivity extends AppCompatActivity {
                     e.printStackTrace();
                 }
             }
+=======
+        adapter = new UserScannedAdapter(this,R.layout.item_list_userscanned, collectables);
+        scanned.setAdapter(adapter);
+
+        user_score.setText("Total Score: " + getTotalScore());
+
+        // Setup for what happens when a user clicks a code.
+        scanned.setOnItemClickListener((parent, v, position, id) -> {
+            Collectable selected = HomeActivity.collectables.get(player.getClaimedCollectibleIDs().get(position));
+
+            // Create the popup.
+            LayoutInflater layoutInflater = LayoutInflater.from(UserActivity.this);
+            View context_view = layoutInflater.inflate(R.layout.context_view, null);
+            AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(UserActivity.this);
+
+            // Add the information.
+            if (selected.getPhoto() != null) selected.viewPhoto(context_view.findViewById(R.id.context_view_image));
+            ((TextView)context_view.findViewById(R.id.context_view_id)).setText("Name: " + selected.getName());
+            ((TextView)context_view.findViewById(R.id.context_view_score)).setText("Score: " + selected.getScore());
+            ((TextView)context_view.findViewById(R.id.context_view_location)).setText("Location: " +
+                    selected.getLocation().getLatitude() + " " +
+                    selected.getLocation().getLongitude());
+
+            // Create and show the dialog.
+            alertDialogBuilder.setView(context_view);
+            final AlertDialog dialog = alertDialogBuilder.create();
+            dialog.show();
+
+            context_view.findViewById(R.id.context_view_delete).setOnClickListener(x -> {
+                if (HomeActivity.collectables.deleteCollectable(selected.getId()) != 0)
+                    MainActivity.toast(getApplicationContext(), "Could not delete (It may not exist within the database)");
+                MainActivity.allPlayers.removeClaimedID(player.getUsername(), selected.getId());
+                refresh();
+                dialog.dismiss();
+            });
+
+
+>>>>>>> Stashed changes
         });
 
         btnGenerateUserCode.setOnClickListener(new View.OnClickListener() {
@@ -132,10 +186,22 @@ public class UserActivity extends AppCompatActivity {
             }
         });
 
+<<<<<<< Updated upstream
         scoreView.setText(String.valueOf(totalScore));
+=======
+        ArrayList<Collectable> collectables = new ArrayList<>();
+        for (String id : player.getClaimedCollectibleIDs()) {
+            collectables.add(HomeActivity.collectables.get(id));
+        }
+
+        // Setup the adapter.
+        adapter = new UserScannedAdapter(this,R.layout.item_list_userscanned, collectables);
+        scanned.setAdapter(adapter);
+>>>>>>> Stashed changes
 
     }
 
+<<<<<<< Updated upstream
     private ArrayList<String> SortList(ArrayList<String> currentList, ArrayList<Long> scoreList) {
         ArrayList<String> sorted_list;
         for(int i = 0; i < scoreList.size(); i ++) {
@@ -146,6 +212,17 @@ public class UserActivity extends AppCompatActivity {
                     currentList.set(j, temp);
                 }
             }
+=======
+
+    /**
+     * Gets the total score of all QR's scanned by the player.
+     * @return The score of the player.
+     */
+    private Long getTotalScore() {
+        long score = 0L;
+        for (String scanned : player.getClaimedCollectibleIDs()) {
+            score += HomeActivity.collectables.get(scanned).getScore();
+>>>>>>> Stashed changes
         }
         sorted_list = currentList;
         return sorted_list;

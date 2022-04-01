@@ -14,13 +14,17 @@ import android.os.Bundle;
 import android.os.Parcelable;
 import android.provider.MediaStore;
 import android.util.Log;
+<<<<<<< Updated upstream
 import android.util.Pair;
+=======
+>>>>>>> Stashed changes
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.CheckBox;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
@@ -49,6 +53,7 @@ public class HomeActivity extends AppCompatActivity {
 
     DecoratedBarcodeView scanner;
     Collectable scanned;
+<<<<<<< Updated upstream
 
     MessageDigest digest;
     CollectableDatabase collectables = new CollectableDatabase();
@@ -56,6 +61,10 @@ public class HomeActivity extends AppCompatActivity {
     ArrayList<String> scannedIndexList = new ArrayList<>();
     ArrayList<Long> scannedScoreList = new ArrayList<>();
     ArrayList<String> scannedLocationList = new ArrayList<>();
+=======
+    Player player;
+    static CollectableDatabase collectables = new CollectableDatabase();
+>>>>>>> Stashed changes
 
     /*
      * Taking a Photo when a QR is scanned is an intent, which means onResume will be called when
@@ -105,6 +114,10 @@ public class HomeActivity extends AppCompatActivity {
             scanned.setLocation(new Pair<>(locationGPS.getLatitude(), locationGPS.getLongitude()));
         else MainActivity.toast(getApplicationContext(), "Unable to find location.");
         collectables.add(scanned, this);
+<<<<<<< Updated upstream
+=======
+        MainActivity.allPlayers.addClaimedID(player.getUsername(), scanned.getId());
+>>>>>>> Stashed changes
     }
 
 
@@ -124,7 +137,13 @@ public class HomeActivity extends AppCompatActivity {
             if (((CheckBox)context_view.findViewById(R.id.context_scanned_save_location)).isChecked())
                 storeLocation();
             else {
+<<<<<<< Updated upstream
                 collectables.add(scanned, this);
+=======
+                scanned.setName(name);
+                collectables.add(scanned, this);
+                MainActivity.allPlayers.addClaimedID(player.getUsername(), scanned.getId());
+>>>>>>> Stashed changes
             }
         });
 
@@ -159,6 +178,7 @@ public class HomeActivity extends AppCompatActivity {
 
         // Grab the scanner within the activity.
         scanner = findViewById(R.id.home_scanner);
+<<<<<<< Updated upstream
         scanner.decodeContinuous(new BarcodeCallback() {
 
             // When we successfully scan a code.
@@ -188,15 +208,55 @@ public class HomeActivity extends AppCompatActivity {
                             else {
                                 assembleScanned();
                             }
-                        }
-                    }
+=======
+        if (player == null){
+            Toast.makeText(this, "start scanner after login!", Toast.LENGTH_LONG).show();
+        }else {
+            scanner.decodeContinuous(new BarcodeCallback() {
 
-                    // This happens when the database is empty.
-                    else assembleScanned();
-                });
-            }
-            @Override public void possibleResultPoints(List<ResultPoint> resultPoints) {}
-        });
+                // When we successfully scan a code.
+                @Override
+                public void barcodeResult(BarcodeResult result) {
+                    building = true;
+                    scanned = new Collectable();
+
+                    // Create the ID, along with the score.
+                    String id = ScoringSystem.hashQR(result.getText());
+                    scanned.setId(id);
+                    scanned.setScore(ScoringSystem.score(id));
+
+                    // Pause the scanner so it doesn't make an infinite amount of popups.
+                    scanner.pause();
+
+
+                    // Check if the Code already exists within the Firebase, prompt accordingly.
+                    collectables.getStore().collection("Scanned").document(scanned.getId()).get().addOnCompleteListener(task -> {
+                        if (task.isSuccessful()) {
+                            DocumentSnapshot document = task.getResult();
+
+                            // Not sure why this happens, but we need to check for it.
+                            if (document == null)
+                                MainActivity.toast(getApplicationContext(), "Unknown error");
+                            else {
+                                // If it exists, we shouldn't overwrite.
+                                if (document.exists()) {
+                                    MainActivity.toast(getApplicationContext(), "Already been scanned!");
+                                    scanner.resume();
+                                } else assembleScanned();
+                            }
+>>>>>>> Stashed changes
+                        }
+
+                        // This happens when the database is empty.
+                        else assembleScanned();
+                    });
+                }
+
+                @Override
+                public void possibleResultPoints(List<ResultPoint> resultPoints) {
+                }
+            });
+        }
     }
 
     private void initView() {
@@ -205,11 +265,21 @@ public class HomeActivity extends AppCompatActivity {
     }
 
     public void onClickUser(MenuItem mi) {
+<<<<<<< Updated upstream
         Intent intent = new Intent(HomeActivity.this, UserActivity.class);
         intent.putExtra("index_list", scannedIndexList);
         intent.putExtra("score_list", scannedScoreList);
         intent.putExtra("location_list", scannedLocationList);
         startActivity(intent);
+=======
+        if (player!=null) {
+            Intent intent = new Intent(HomeActivity.this, UserActivity.class);
+            intent.putExtra("username", player.getUsername());
+            startActivity(intent);
+        }else{
+            Toast.makeText(this, "please login first", Toast.LENGTH_SHORT).show();
+        }
+>>>>>>> Stashed changes
     }
 
     @Override
