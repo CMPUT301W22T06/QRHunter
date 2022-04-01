@@ -1,18 +1,8 @@
 package com.qrhunter;
 
-import android.util.Log;
-
-import androidx.annotation.NonNull;
-
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
-import com.google.firebase.firestore.CollectionReference;
-import com.google.firebase.firestore.DocumentReference;
-import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Objects;
@@ -184,13 +174,18 @@ public class PlayerDatabse {
     public void addClaimedID(String player, String id) {
         Player selected = MainActivity.allPlayers.getPlayer(player);
         if (selected != null) {
-            selected.getClaimedCollectibleIDs().add(id);
-            database.collection("Players")
-                    .document(player)
-                    .update("claimedCollectibleIDs", selected.getClaimedCollectibleIDs())
-                    .addOnFailureListener(e -> {throw new RuntimeException("Network Error.");});
+            if (!selected.getClaimedCollectibleIDs().contains(id)) {
+                selected.getClaimedCollectibleIDs().add(id);
+                database.collection("Players")
+                        .document(player)
+                        .update("claimedCollectibleIDs", selected.getClaimedCollectibleIDs())
+                        .addOnFailureListener(e -> {
+                            throw new RuntimeException("Network Error.");
+                        });
+            }
         }
     }
+
 
     public void removeClaimedID(String player, String id) {
         Player selected = MainActivity.allPlayers.getPlayer(player);
@@ -199,7 +194,10 @@ public class PlayerDatabse {
             database.collection("Players")
                     .document(player)
                     .update("claimedCollectibleIDs", selected.getClaimedCollectibleIDs())
-                    .addOnFailureListener(e -> {throw new RuntimeException("Network Error.");});
+                    .addOnFailureListener(e -> {throw new RuntimeException("Network Error.");})
+                    .addOnCompleteListener(e -> {
+                        MainActivity.collectables.deleteCollectable(id);
+                    });
         }
     }
 

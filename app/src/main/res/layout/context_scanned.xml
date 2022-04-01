@@ -21,8 +21,8 @@
         android:id="@+id/context_scanned_total_scanned"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="32dp"
         android:text="@string/context_scanned_total_text"
+        app:layout_constraintBottom_toTopOf="@+id/context_scanned_name"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toStartOf="parent"
@@ -32,24 +32,49 @@
         android:id="@+id/context_scanned_add_picture"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="32dp"
         android:text="@string/context_scanned_add_picture_text"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toStartOf="@+id/context_scanned_save_location"
         app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/context_scanned_total_scanned" />
+        app:layout_constraintTop_toBottomOf="@+id/context_scanned_name" />
 
     <CheckBox
         android:id="@+id/context_scanned_save_location"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="32dp"
         android:checked="false"
         android:text="@string/context_scanned_save_location_text"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toEndOf="@+id/context_scanned_add_picture"
+        app:layout_constraintTop_toBottomOf="@+id/context_scanned_name" />
+
+    <EditText
+        android:id="@+id/context_scanned_name"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:autofillHints="Name"
+        android:ems="10"
+        android:inputType="textPersonName"
+        android:maxLines="20"
+        app:layout_constraintBottom_toTopOf="@+id/context_scanned_add_picture"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toEndOf="@+id/context_scanned_name_helper"
+        app:layout_constraintTop_toBottomOf="@+id/context_scanned_total_scanned"
+        tools:ignore="LabelFor" />
+
+    <TextView
+        android:id="@+id/context_scanned_name_helper"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/context_scanned_name_text"
+        app:layout_constraintBottom_toTopOf="@+id/context_scanned_add_picture"
+        app:layout_constraintEnd_toStartOf="@+id/context_scanned_name"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/context_scanned_total_scanned" />
+
 </androidx.constraintlayout.widget.ConstraintLayout>

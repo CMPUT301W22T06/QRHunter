@@ -4,16 +4,12 @@ import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.Intent;
 import android.os.Bundle;
-
-import androidx.fragment.app.DialogFragment;
-import androidx.fragment.app.Fragment;
-
 import android.view.LayoutInflater;
 import android.view.View;
-import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
-import android.widget.TextView;
+
+import androidx.fragment.app.DialogFragment;
 
 import java.util.ArrayList;
 
@@ -37,18 +33,19 @@ public class PlayerCollectiblesFragment extends DialogFragment {
 
         // get list view and set it
         ListView collectiblesList = view.findViewById(R.id.collectibles_list);
-        ArrayList<String> collectiblesDataList = player.getClaimedCollectibleIDs();
-        ArrayAdapter<String> collectibleAdapter = new ArrayAdapter<String>(view.getContext(), R.layout.player_content,collectiblesDataList);
+        ArrayList<String> collectiblesDataList = new ArrayList<>();
+        for (String id : player.getClaimedCollectibleIDs()) {
+            collectiblesDataList.add(MainActivity.collectables.get(id).getName());
+        }
+
+        ArrayAdapter<String> collectibleAdapter = new ArrayAdapter<>(view.getContext(), R.layout.player_content, collectiblesDataList);
         collectiblesList.setAdapter(collectibleAdapter);
 
         // set up on click listener
-        collectiblesList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-                Intent intent = new Intent(view.getContext(), QRViewActivity.class);
-                intent.putExtra("collectableID", collectiblesDataList.get(i));
-                startActivity(intent);
-            }
+        collectiblesList.setOnItemClickListener((adapterView, view1, i, l) -> {
+            Intent intent = new Intent(view1.getContext(), QRViewActivity.class);
+            intent.putExtra("collectableID", player.getClaimedCollectibleIDs().get(i));
+            startActivity(intent);
         });
 
 
