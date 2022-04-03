@@ -7,6 +7,7 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
@@ -14,11 +15,13 @@ import android.widget.TextView;
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.zxing.BarcodeFormat;
 import com.google.zxing.MultiFormatWriter;
 import com.google.zxing.WriterException;
 import com.google.zxing.common.BitMatrix;
 
+import java.util.ArrayList;
 import java.util.Comparator;
 
 public class UserActivity extends AppCompatActivity {
@@ -47,14 +50,19 @@ public class UserActivity extends AppCompatActivity {
         qrcode.setImageBitmap(generatePlayerQR());
 
         // Setup the list of adapters
-        adapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, player.getClaimedCollectibleIDs());
+        ArrayList<String> names = new ArrayList<>();
+        for (String id : player.getClaimedCollectibleIDs()) {
+            names.add(MainActivity.collectables.get(id).getName());
+        }
+
+        adapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, names);
         scanned.setAdapter(adapter);
 
         user_score.setText("Total Score: " + getTotalScore());
 
         // Setup for what happens when a user clicks a code.
         scanned.setOnItemClickListener((parent, v, position, id) -> {
-            Collectable selected = HomeActivity.collectables.get((String)scanned.getItemAtPosition(position));
+            Collectable selected = MainActivity.collectables.get(player.getClaimedCollectibleIDs().get(position));
 
             // Create the popup.
             LayoutInflater layoutInflater = LayoutInflater.from(UserActivity.this);
@@ -63,18 +71,18 @@ public class UserActivity extends AppCompatActivity {
 
             // Add the information.
             if (selected.getPhoto() != null) selected.viewPhoto(context_view.findViewById(R.id.context_view_image));
-            ((TextView)context_view.findViewById(R.id.context_view_id)).setText("ID: " + selected.getId());
+            ((TextView)context_view.findViewById(R.id.context_view_id)).setText("Name: " + selected.getName());
             ((TextView)context_view.findViewById(R.id.context_view_score)).setText("Score: " + selected.getScore());
-            ((TextView)context_view.findViewById(R.id.context_view_location)).setText("Location: " + selected.getLocation().first + " " + selected.getLocation().second);
+            ((TextView)context_view.findViewById(R.id.context_view_location)).setText("Location: " +
+                    selected.getLocation().getLatitude() + " " +
+                    selected.getLocation().getLongitude());
 
             // Create and show the dialog.
             alertDialogBuilder.setView(context_view);
             final AlertDialog dialog = alertDialogBuilder.create();
             dialog.show();
 
-            // When we hit add picture, spawn a camera instance and get the BitMap taken.
             context_view.findViewById(R.id.context_view_delete).setOnClickListener(x -> {
-                HomeActivity.collectables.deleteCollectable(selected.getId());
                 MainActivity.allPlayers.removeClaimedID(player.getUsername(), selected.getId());
                 refresh();
                 dialog.dismiss();
@@ -114,7 +122,7 @@ public class UserActivity extends AppCompatActivity {
     private Long getTotalScore() {
         long score = 0L;
         for (String scanned : player.getClaimedCollectibleIDs()) {
-            score += HomeActivity.collectables.get(scanned).getScore();
+            score += MainActivity.collectables.get(scanned).getScore();
         }
         return score;
     }

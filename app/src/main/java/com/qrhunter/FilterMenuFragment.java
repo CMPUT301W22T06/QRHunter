@@ -24,6 +24,11 @@ public class FilterMenuFragment extends DialogFragment {
         // Required empty public constructor
     }
 
+    /**
+     * Dialog to be created when requested.
+     * @param savedInstanceState
+     * @return Dialog view.
+     */
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
         // Inflate layout for this fragment

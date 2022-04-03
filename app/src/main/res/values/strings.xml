@@ -18,6 +18,12 @@
     <string name="user_generate_status">Generate Game Status QR</string>
     <string name="user_text">Player Login QR</string>
     <string name="context_view_delete_text">Delete</string>
+    <string name="title_activity_qrmap">QRMap</string>
+    <string name="context_scanned_name_text">Name</string>
 
-
+    <string name="close">Close</string>
+    <string name="setting_saved">Setting Saved</string>
+    <string name="global_preferences">Global Preferences</string>
+    <string name="enable_large_images">Enable large image uploads</string>
+    <string name="disable_large_images">Disable large image uploads</string>
 </resources>

@@ -1,6 +1,6 @@
 package com.qrhunter;
 
-import static com.qrhunter.HomeActivity.collectables;
+import static com.qrhunter.MainActivity.collectables;
 import static com.qrhunter.MainActivity.allPlayers;
 
 import android.os.Bundle;
@@ -12,14 +12,7 @@ import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 
-import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
-
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
-import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.QueryDocumentSnapshot;
-import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -29,8 +22,6 @@ import java.util.Map;
  * Class for the QR view activity to view a collectable's comments and players.
  */
 public class QRViewActivity extends AppCompatActivity {
-    private final String TAG = "QRView";
-    private FirebaseFirestore db;
     private ArrayList<String> commonPlayers;
     private ArrayList<String> comments;
     ArrayAdapter<String> commonPlayersAdapter;
@@ -65,7 +56,7 @@ public class QRViewActivity extends AppCompatActivity {
         // grab players list from Firestore db
         Map<String,Player> map = allPlayers.getPlayers();
         List<Player> players = new ArrayList<>(map.values());
-        commonPlayers = new ArrayList<String>();
+        commonPlayers = new ArrayList<>();
         for(int i = 0; i<players.size();i++) {
             ArrayList<String> playerCollectibleIDs = players.get(i).getClaimedCollectibleIDs();
             for(int j = 0;j<playerCollectibleIDs.size(); j++) {
@@ -76,73 +67,51 @@ public class QRViewActivity extends AppCompatActivity {
             }
         }
         // grab comments of the collectable
-        db = FirebaseFirestore.getInstance();
         comments = collectable.getComments();
 
         // adapters
-        commonPlayersAdapter = new ArrayAdapter<String>( this, android.R.layout.simple_list_item_1, commonPlayers);
+        commonPlayersAdapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, commonPlayers);
 
         commentsAdapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, comments);
         commentsOrPlayersList.setAdapter(commentsAdapter);
 
 
         Button changeListButton = findViewById(R.id.change_list_button);
-        changeListButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                // TODO: change list elements after button click
-                if(changeListButton.getText().toString().equals("View Players")) {
-                    // change button and text of header of list
-                    changeListButton.setText("View Comments");
-                    commentsOrPlayers.setText("Players");
+        changeListButton.setOnClickListener(view -> {
+            if(changeListButton.getText().toString().equals("View Players")) {
+                // change button and text of header of list
+                changeListButton.setText("View Comments");
+                commentsOrPlayers.setText("Players");
 
-                    // change list
-                    commentsOrPlayersList.setAdapter(commonPlayersAdapter);
+                // change list
+                commentsOrPlayersList.setAdapter(commonPlayersAdapter);
 
-                    // make comment section visible
-                    commentButton.setVisibility(View.INVISIBLE);
-                    commentInput.setVisibility(View.INVISIBLE);
-                } else if (changeListButton.getText().toString().equals("View Comments")) {
-                    // change button and text of head of list
-                    changeListButton.setText("View Players");
-                    commentsOrPlayers.setText("Comments");
+                // make comment section visible
+                commentButton.setVisibility(View.INVISIBLE);
+                commentInput.setVisibility(View.INVISIBLE);
+            } else if (changeListButton.getText().toString().equals("View Comments")) {
+                // change button and text of head of list
+                changeListButton.setText("View Players");
+                commentsOrPlayers.setText("Comments");
 
-                    // change list
-                    commentsOrPlayersList.setAdapter(commentsAdapter);
+                // change list
+                commentsOrPlayersList.setAdapter(commentsAdapter);
 
-                    // make comment section visible
-                    commentButton.setVisibility(View.VISIBLE);
-                    commentInput.setVisibility(View.VISIBLE);
+                // make comment section visible
+                commentButton.setVisibility(View.VISIBLE);
+                commentInput.setVisibility(View.VISIBLE);
 
-                }
             }
         });
         // create comment
-        commentButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                String comment = commentInput.getText().toString();
-                if(!comment.equals("")) {
-                    collectables.addComment(collectableID,comment);
-                    commentsAdapter.notifyDataSetChanged();
-                    commentInput.setText("");
-                } else {
-                    //
-                }
-            }
-        });
-        // create comment
-        commentButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                String comment = commentInput.getText().toString();
-                if(!comment.equals("")) {
-                    collectables.addComment(collectableID,comment);
-                    commentsAdapter.notifyDataSetChanged();
-                    commentInput.setText("");
-                } else {
-                    //
-                }
+        commentButton.setOnClickListener(view -> {
+            String comment = commentInput.getText().toString();
+            if(!comment.equals("")) {
+                collectables.addComment(collectableID,comment);
+                commentsAdapter.notifyDataSetChanged();
+                commentInput.setText("");
+            } else {
+                //
             }
         });
     }

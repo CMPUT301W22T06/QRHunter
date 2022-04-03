@@ -3,14 +3,15 @@ package com.qrhunter;
 import java.io.Serializable;
 import java.util.ArrayList;
 
-public class Player implements Serializable {
+/**
+ * Player class for all players of the game.
+ */
+public class Player extends User implements Serializable {
 
-    private String username;
-    private String password;
     private ArrayList<String> claimedCollectibleIDs = new ArrayList<String>();
-    private Long highestScore;
-    private Long scoreSum;
-    private Long totalCodesScanned;
+    private Long highestScore = 0L;
+    private Long scoreSum = 0L;
+    private Long totalCodesScanned = 0L;
 
     public Player(){
         // Default constructor
@@ -19,8 +20,7 @@ public class Player implements Serializable {
     // constructor for the player object
     public Player(String username, String password, ArrayList<String> claimedCollectibleIDs,
                   Long highestScore, Long scoreSum, Long totalCodesScanned) {
-        this.username = username;
-        this.password = password;
+        super(username, password);
         this.claimedCollectibleIDs = claimedCollectibleIDs;
         this.highestScore = highestScore;
         this.scoreSum = scoreSum;
@@ -28,23 +28,6 @@ public class Player implements Serializable {
     }
 
     // getters
-
-    /**
-     * returns the username of the player (same as object ID)
-     * @return the player's username
-     */
-
-    public String getUsername() {
-        return username;
-    }
-
-    /**
-     * returns the password of the player
-     * @return the player's password
-     */
-    public String getPassword() {
-        return password;
-    }
 
     /**
      * returns an array of scannables the player has collected
@@ -78,26 +61,34 @@ public class Player implements Serializable {
         return totalCodesScanned;
     }
 
-    public void setUsername(String username) {
-        this.username = username;
-    }
-
-    public void setPassword(String password) {
-        this.password = password;
-    }
-
+    /**
+     * Sets a players claimed collectables ID
+     * @param claimedCollectibleIDs ArrayList<String> of a players collectibles.
+     */
     public void setClaimedCollectibleIDs(ArrayList<String> claimedCollectibleIDs) {
         this.claimedCollectibleIDs = claimedCollectibleIDs;
     }
 
+    /**
+     * Sets a players highest collectible score.
+     * @param highestScore
+     */
     public void setHighestScore(Long highestScore) {
         this.highestScore = highestScore;
     }
 
+    /**
+     * Sets a players total collectible score.
+     * @param scoreSum
+     */
     public void setScoreSum(Long scoreSum) {
         this.scoreSum = scoreSum;
     }
 
+    /**
+     * Sets a players total number of collectibles scanned.
+     * @param totalCodesScanned
+     */
     public void setTotalCodesScanned(Long totalCodesScanned) {
         this.totalCodesScanned = totalCodesScanned;
     }

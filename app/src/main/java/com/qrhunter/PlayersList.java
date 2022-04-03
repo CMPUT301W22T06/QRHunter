@@ -40,7 +40,8 @@ public class PlayersList extends ArrayAdapter<Player> {
 
         // set score
         TextView playerScore = view.findViewById(R.id.player_score);
-        playerScore.setText(Long.toString(player.getScoreSum()));
+        if (player.getScoreSum() != null)
+            playerScore.setText(Long.toString(player.getScoreSum()));
 
         return view;
     }

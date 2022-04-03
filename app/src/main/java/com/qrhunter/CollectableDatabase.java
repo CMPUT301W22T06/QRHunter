@@ -1,17 +1,31 @@
 package com.qrhunter;
 
+import static android.content.ContentValues.TAG;
+
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.util.Log;
 import android.util.Pair;
+import android.widget.Toast;
 
+import androidx.annotation.NonNull;
+
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
+import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 
+import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.util.ArrayList;
+import java.util.ConcurrentModificationException;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Objects;
 
 import javax.annotation.Nullable;
@@ -28,9 +42,11 @@ public class CollectableDatabase {
     // Firebase related objects
     FirebaseFirestore database;
     FirebaseStorage storage;
+    boolean storeBigImages;
 
     // We need to specific a size, and no image should exceed a megabyte.
     final long ONE_MEGABYTE = 1024 * 1024;
+    final int MAX_COMPRESSED_SIZE = 64000;
 
 
     /**
@@ -55,18 +71,42 @@ public class CollectableDatabase {
         // Gets all scanned objects, constructs the collectables.
         database.collection("Scanned").get().addOnCompleteListener(task -> {
             if (task.isSuccessful()) {
-                for (QueryDocumentSnapshot document : Objects.requireNonNull(task.getResult())) {
+
+                QuerySnapshot result = task.getResult();
+                List<DocumentSnapshot> documents = result.getDocuments();
+                try {
+                    for (Collectable current : collectables.values()) {
+                        boolean exists = false;
+                        for (DocumentSnapshot document : documents) {
+                            if (document.getId().equals(current.getId())) {
+                                exists = true;
+                                break;
+                            }
+                        }
+                        if (!exists && collectables.containsKey(current.getId())) collectables.remove(current.getId());
+                    }
+                }
+                catch (ConcurrentModificationException e) {return;}
+
+
+
+                for (QueryDocumentSnapshot document : Objects.requireNonNull(result)) {
                     Collectable current = new Collectable();
 
                     // This allows us to not have to re-download the whole thing after each change.
                     if (!collectables.containsKey(document.getId())) {
                         current.setId(document.getId());
 
+                        Object name_object = document.get("Name");
+                        if (name_object != null) {
+                            current.setName((String)name_object);
+                        }
+
                         // The object will NEVER be null, but it prevents the IDE from complaining.
                         Object location_object = document.get("Location");
                         if (location_object != null) {
                             HashMap<String, Object> location = (HashMap<String, Object>) location_object;
-                            current.setLocation(new Pair<>(
+                            current.setLocation(new Geolocation(
                                     (Double) location.get("first"),
                                     (Double) location.get("second"))
                             );
@@ -98,7 +138,7 @@ public class CollectableDatabase {
                         if (comments_object != null) {
                             ArrayList<String> comments = (ArrayList<String>)comments_object;
                             if (current.getComments().size() != comments.size())
-                            current.setComments(comments);
+                                current.setComments(comments);
                         }
                     }
                 }
@@ -139,39 +179,19 @@ public class CollectableDatabase {
     public HashMap<String, Collectable> getDatabase() {return collectables;}
 
 
-    /**
-     * Adds the provided collectable into the local and firestore databases.
-     * @param scanned The scanned collectable.
-     * @param callback A callback to the HomeActivity, to resume scanning. This can be null, in
-     *                 which case no callback will be called.
-     */
-    public void add(Collectable scanned, @Nullable HomeActivity callback) {
-        // Put it into the local database.
-        collectables.put(scanned.getId(), scanned);
-
+    private void add_callback(Collectable scanned, @Nullable HomeActivity callback) {
         // Our hashmap to upload basic information.
         HashMap<String, Object> pack = new HashMap<>();
 
-        // Photos are special, we use Storage rather than Firestore
-        if (scanned.getPhoto() != null) {
-            ByteArrayOutputStream output = new ByteArrayOutputStream();
-
-            // TODO We can change the quality attribute to solve US 09.01.01
-            scanned.getPhoto().compress(Bitmap.CompressFormat.JPEG, 100, output);
-
-            // Write it. Since its detached from the main base, use the ID to associate it.
-            storage.getReference(scanned.getId())
-                    .putBytes(output.toByteArray())
-                    .addOnFailureListener(e -> {
-                        if (callback != null)
-                            callback.resume("Could not upload image!");
-                    });
-        }
-
         // Pack all the rest of the information into the hashmap.
         pack.put("Score", scanned.getScore());
-        pack.put("Location", scanned.getLocation());
+
+        Geolocation location = scanned.getLocation();
+        pack.put("Location", new Pair<>(location.getLatitude(), location.getLongitude()));
+
         pack.put("Comments", scanned.getComments());
+
+        pack.put("Name", scanned.getName());
 
         // Upload our pack into the Firestore.
         database.collection("Scanned")
@@ -185,7 +205,64 @@ public class CollectableDatabase {
                     if (callback != null)
                         callback.resume("");
                 });
+    }
 
+    /**
+     * Adds the provided collectable into the local and firestore databases.
+     * @param scanned The scanned collectable.
+     * @param callback A callback to the HomeActivity, to resume scanning. This can be null, in
+     *                 which case no callback will be called.
+     */
+    public void add(Collectable scanned, @Nullable HomeActivity callback) {
+        // Photos are special, we use Storage rather than Firestore
+        if (scanned.getPhoto() != null) {
+            ByteArrayOutputStream output = new ByteArrayOutputStream();
+
+            // Gets the current image size settings
+            database.collection("Preferences")
+                    .document("ImagePrefs")
+                    .get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                @Override
+                public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                    if (task.isSuccessful()) {
+                        DocumentSnapshot document = task.getResult();
+                        if (document.exists()) {
+                            storeBigImages = document.getBoolean("bigImages");
+                        }
+                        else {
+                            Log.d(TAG, "Error getting image preferences", task.getException());
+                        }
+                    }
+                }
+            });
+
+            // If big images aren't allowed, aggressively recompresses the image while it's over 64kb
+            if(storeBigImages==false) {
+                scanned.getPhoto().compress(Bitmap.CompressFormat.JPEG, 70, output);
+                if(scanned.getPhoto().getByteCount()>64000) {
+                    scanned.getPhoto().compress(Bitmap.CompressFormat.JPEG, 30, output);
+                    if(scanned.getPhoto().getByteCount()>64000) {
+                        scanned.getPhoto().compress(Bitmap.CompressFormat.JPEG, 1, output);
+                    }
+                }
+            }
+            else {
+                // Keeps image in high quality
+                scanned.getPhoto().compress(Bitmap.CompressFormat.JPEG, 100, output);
+            }
+
+            // Write it. Since its detached from the main base, use the ID to associate it.
+            storage.getReference(scanned.getId())
+                    .putBytes(output.toByteArray())
+                    .addOnCompleteListener(e -> {
+                        add_callback(scanned, callback);
+                    })
+                    .addOnFailureListener(e -> {
+                        if (callback != null)
+                            callback.resume("Could not upload image!");
+                    });
+        }
+        else add_callback(scanned, callback);
     }
 
     /**
@@ -213,16 +290,20 @@ public class CollectableDatabase {
      * @throws RuntimeException if there was a network error.
      *
      * This function deletes a collectable from the database. It does not throw an exception
-     * if the element is not present.
+     * if the element is not present. This shouldn't be used on its own, as it won't delete
+     * associations with the player who scanned it. Use the PlayerDatabse's removeClaimedID to
+     * delete the player's ownership of the collectable, but also the collectable itself from
+     * both databases.
      */
     public void deleteCollectable(String id) {
-        collectables.remove(id);
         Collectable selected = collectables.get(id);
         if (selected != null) {
             database.collection("Scanned")
                     .document(id)
                     .delete()
-                    .addOnFailureListener(e -> {throw new RuntimeException("Network Error.");});
+                    .addOnFailureListener(e -> {throw new RuntimeException("Network Error.");})
+                    .addOnCompleteListener(e -> {});
+            storage.getReference(id).delete();
         }
     }
 
@@ -246,5 +327,13 @@ public class CollectableDatabase {
             return collectables.get(id);
         }
         else throw new RuntimeException("ID not in database");
+    }
+
+    /**
+     * Returns all collectables.
+     * @return Hashmap of all collectables in the database
+     */
+    public HashMap<String,Collectable> getCollectables() {
+        return collectables;
     }
 }

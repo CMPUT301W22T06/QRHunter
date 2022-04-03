@@ -17,7 +17,9 @@ import androidx.core.content.ContextCompat;
 public class MainActivity extends AppCompatActivity {
 
     private static final String TAG = "MainActivity";
+
     static PlayerDatabse allPlayers = new PlayerDatabse();
+    static CollectableDatabase collectables = new CollectableDatabase();
 
     /**
      * Creates a short toast, saving some code redundancy
@@ -58,7 +60,7 @@ public class MainActivity extends AppCompatActivity {
 
                 // pull the player object with the desired username from database
                 // if the account exists, log them in (pass player into homeActivity)
-                Player thisPlayer = allPlayers.getPlayer(username);
+                User thisPlayer = allPlayers.getUser(username);
 
                 // checks if the player actually exists, if not toast the user to let them know
                 if (thisPlayer == null){
@@ -72,10 +74,16 @@ public class MainActivity extends AppCompatActivity {
                         // logs em into the main activity
                         Toast.makeText(context, "You are now signed in as "+username,
                                 Toast.LENGTH_SHORT).show();
-                        Intent intent = new Intent(this, HomeActivity.class);
 
-                        // passes the player object into the intent
-                        intent.putExtra("username",username);
+                        Intent intent;
+                        // if player is logging in...
+                        if(allPlayers.isPlayer(username)) {
+                            intent = new Intent(this, HomeActivity.class);
+                            // passes the player object into the intent
+                            intent.putExtra("username",username);
+                        } else { // if owner is logging in...
+                            intent = new Intent(this, OwnerActivity.class);
+                        }
                         startActivity(intent);
                     }
                     // otherwise toast and tell them their credentials are not correct

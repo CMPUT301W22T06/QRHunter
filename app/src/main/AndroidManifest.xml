@@ -17,19 +17,32 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.QRHunter"
         tools:targetApi="31">
+
+        <meta-data
+            android:name="com.google.android.geo.API_KEY"
+            android:value="AIzaSyDhV0JVzhQ90hdgqDxjSj9Q0rcAwFiZhfE" />
+
+        <activity
+            android:name="com.qrhunter.OwnerActivity"
+            android:exported="false" />
         <activity
             android:name="com.qrhunter.MyCollectiblesList"
             android:exported="false" />
         <activity
             android:name=".HomeActivity"
             android:exported="false"
-            android:theme="@style/Theme.AppCompat.Light.NoActionBar"/>
+            android:theme="@style/Theme.AppCompat.Light.NoActionBar" />
         <activity
-            android:name=".QRViewActivity"
+            android:name=".QRMapActivity"
+            android:exported="false"
+            android:label="@string/title_activity_qrmap" />
+        <activity
+            android:name=".MyCollectiblesList"
             android:exported="false" />
         <activity
-            android:name=".SearchMenuActivity"
-            android:exported="false" />
+            android:name=".HomeActivity"
+            android:exported="false"
+            android:theme="@style/Theme.AppCompat.Light.NoActionBar" />
         <activity
             android:name=".QRViewActivity"
             android:exported="false" />
@@ -45,8 +58,9 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-
-        <activity android:name=".UserActivity" android:exported="false"/>
+        <activity
+            android:name=".UserActivity"
+            android:exported="false" />
     </application>
 
 </manifest>

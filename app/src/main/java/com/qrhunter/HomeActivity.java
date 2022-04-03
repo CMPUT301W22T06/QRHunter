@@ -12,13 +12,13 @@ import android.location.Location;
 import android.location.LocationManager;
 import android.os.Bundle;
 import android.provider.MediaStore;
-import android.util.Pair;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.CheckBox;
+import android.widget.EditText;
 import android.widget.TextView;
 
 import androidx.activity.result.ActivityResultLauncher;
@@ -41,7 +41,6 @@ public class HomeActivity extends AppCompatActivity {
     DecoratedBarcodeView scanner;
     Collectable scanned;
     Player player;
-    static CollectableDatabase collectables = new CollectableDatabase();
 
     /*
      * Taking a Photo when a QR is scanned is an intent, which means onResume will be called when
@@ -88,9 +87,9 @@ public class HomeActivity extends AppCompatActivity {
         LocationManager locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
         @SuppressLint("MissingPermission") Location locationGPS = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
         if (locationGPS != null)
-            scanned.setLocation(new Pair<>(locationGPS.getLatitude(), locationGPS.getLongitude()));
+            scanned.setLocation(new Geolocation(locationGPS.getLatitude(), locationGPS.getLongitude()));
         else MainActivity.toast(getApplicationContext(), "Unable to find location.");
-        collectables.add(scanned, this);
+        MainActivity.collectables.add(scanned, this);
         MainActivity.allPlayers.addClaimedID(player.getUsername(), scanned.getId());
     }
 
@@ -106,12 +105,28 @@ public class HomeActivity extends AppCompatActivity {
         View context_view = layoutInflater.inflate(R.layout.context_scanned, null);
         AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(HomeActivity.this);
 
+        TextView name_hint = context_view.findViewById(R.id.context_scanned_name_helper);
+        name_hint.setText("Name:");
+
         // When the dialog is canceled (IE clicked off of it), save our information.
         alertDialogBuilder.setOnCancelListener(dialog -> {
             if (((CheckBox)context_view.findViewById(R.id.context_scanned_save_location)).isChecked())
                 storeLocation();
+
+            EditText name_box = context_view.findViewById(R.id.context_scanned_name);
+            String name = name_box.getText().toString();
+
+            if (name.isEmpty()) {
+                MainActivity.toast(getApplicationContext(), "Please enter a name!");
+                assembleScanned();
+            }
+            else if (name.length() > 24) {
+                MainActivity.toast(getApplicationContext(), "Name to large! Must be 24 characters.");
+                assembleScanned();
+            }
             else {
-                collectables.add(scanned, this);
+                scanned.setName(name);
+                MainActivity.collectables.add(scanned, this);
                 MainActivity.allPlayers.addClaimedID(player.getUsername(), scanned.getId());
             }
         });
@@ -147,13 +162,15 @@ public class HomeActivity extends AppCompatActivity {
         player = MainActivity.allPlayers.getPlayer(username);
 
         Button scoreboardButton = findViewById(R.id.home_scoreboard);
-        scoreboardButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Intent intent = new Intent(HomeActivity.this, SearchMenuActivity.class);
-                intent.putExtra("username",username);
-                startActivity(intent);
-            }
+        scoreboardButton.setOnClickListener(view -> {
+            Intent intent = new Intent(HomeActivity.this, SearchMenuActivity.class);
+            intent.putExtra("username",username);
+            startActivity(intent);
+        });
+
+        findViewById(R.id.home_map).setOnClickListener(view -> {
+            Intent intent = new Intent(HomeActivity.this, QRMapActivity.class);
+            startActivity(intent);
         });
 
         // Grab the scanner within the activity.
@@ -175,7 +192,7 @@ public class HomeActivity extends AppCompatActivity {
 
 
                 // Check if the Code already exists within the Firebase, prompt accordingly.
-                collectables.getStore().collection("Scanned").document(scanned.getId()).get().addOnCompleteListener(task -> {
+                MainActivity.collectables.getStore().collection("Scanned").document(scanned.getId()).get().addOnCompleteListener(task -> {
                     if (task.isSuccessful()) {
                         DocumentSnapshot document = task.getResult();
 
@@ -200,6 +217,10 @@ public class HomeActivity extends AppCompatActivity {
     }
 
     public void onClickUser(MenuItem mi) {
+        if (building) {
+            MainActivity.toast(getApplicationContext(), "Uploading... please wait.");
+            return;
+        }
         Intent intent = new Intent(HomeActivity.this, UserActivity.class);
         intent.putExtra("username", player.getUsername());
         startActivity(intent);
@@ -233,10 +254,9 @@ public class HomeActivity extends AppCompatActivity {
                 if (grantResults[x] == PackageManager.PERMISSION_GRANTED) storeLocation();
                 else {
                     MainActivity.toast(getApplicationContext(), "Location permission is required to save location!");
-                    collectables.add(scanned, this);
+                    MainActivity.collectables.add(scanned, this);
                 }
             }
         }
-
     }
 }
