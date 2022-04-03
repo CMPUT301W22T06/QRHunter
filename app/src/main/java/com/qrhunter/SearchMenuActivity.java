@@ -11,6 +11,7 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ListView;
+import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -34,6 +35,8 @@ public class SearchMenuActivity extends AppCompatActivity {
     ArrayAdapter<Player> playerAdapter;
     ArrayList<Player> playerDataList;
     DecoratedBarcodeView scanner;
+
+    int sortType = 0;
     boolean sorted = false; // to prevent the myScore button from working if the list isn't sorted yet
 
     @Override
@@ -43,6 +46,7 @@ public class SearchMenuActivity extends AppCompatActivity {
 
         // for commenting
         String username = getIntent().getStringExtra("username");
+
 
         // search input editText
         EditText searchInput = findViewById(R.id.search_input);
@@ -76,12 +80,33 @@ public class SearchMenuActivity extends AppCompatActivity {
             @Override public void possibleResultPoints(List<ResultPoint> resultPoints) {}
         });
 
-
+        // toggles between the various sorts and toasts the user with what it is sorted by
         filterButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 // TODO: set up item on click for filter menu
-                new FilterMenuFragment().show(getSupportFragmentManager(),"FILTER_MENU");
+
+                if (sortType==0){
+                    sortByHighestScore();
+                    sortType=1;
+                    Toast.makeText(getApplicationContext(),
+                            "Sorted by highest score on a single collectible.", Toast.LENGTH_SHORT)
+                            .show();
+                }
+                else if (sortType==1){
+                    sortByScoreSum();
+                    sortType=2;
+                    Toast.makeText(getApplicationContext(),
+                            "Sorted by highest total score.", Toast.LENGTH_SHORT)
+                            .show();
+                }
+                else if (sortType==2){
+                    sortByScanned();
+                    sortType=0;
+                    Toast.makeText(getApplicationContext(),
+                            "Sorted by total collectibles scanned.", Toast.LENGTH_SHORT)
+                            .show();
+                }
             }
         });
 
@@ -131,8 +156,42 @@ public class SearchMenuActivity extends AppCompatActivity {
         playerDataList.addAll(players);
 
         // set up adapter
-        playerAdapter = new PlayersList(this, playerDataList);
+        // 0 for default displayType
+        // 1 = highest single score
+        // 2 = highest total score
+        // 3 = highest collected number
+        playerAdapter = new PlayersList(this, playerDataList, 0);
         playersList.setAdapter(playerAdapter);
+
+        // toggles between the various sorts and toasts the user with what it is sorted by
+        filterButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                // TODO: set up item on click for filter menu
+
+                if (sortType==0){
+                    sortByHighestScore();
+                    sortType=1;
+                    Toast.makeText(getApplicationContext(),
+                            "Sorted by highest score on a single collectible.", Toast.LENGTH_SHORT)
+                            .show();
+                }
+                else if (sortType==1){
+                    sortByScoreSum();
+                    sortType=2;
+                    Toast.makeText(getApplicationContext(),
+                            "Sorted by highest total score.", Toast.LENGTH_SHORT)
+                            .show();
+                }
+                else if (sortType==2){
+                    sortByScanned();
+                    sortType=0;
+                    Toast.makeText(getApplicationContext(),
+                            "Sorted by total collectibles scanned.", Toast.LENGTH_SHORT)
+                            .show();
+                }
+            }
+        });
 
         // set up click function
         playersList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
@@ -150,8 +209,8 @@ public class SearchMenuActivity extends AppCompatActivity {
             toast(getApplicationContext(),"Please sort the list first!");
         }
         else if (sorted){
-            int rank = 0;
-            toast(getApplicationContext(),"You are rank " + rank + ".");
+            toast(getApplicationContext(),"You are rank " +
+                    (playerDataList.indexOf(allPlayers.getPlayer(username))+1) + ".");
         }
     }
 
@@ -159,10 +218,13 @@ public class SearchMenuActivity extends AppCompatActivity {
         Collections.sort(playerDataList, new Comparator<Player>() {
             @Override
             public int compare(Player p1, Player p2) {
+
                 return p2.getHighestScore().compareTo(p1.getHighestScore());
             }
         });
         sorted = true;
+        playerAdapter = new PlayersList(this, playerDataList, 1);
+        playersList.setAdapter(playerAdapter);
         playerAdapter.notifyDataSetChanged();
     }
 
@@ -174,6 +236,8 @@ public class SearchMenuActivity extends AppCompatActivity {
             }
         });
         sorted = true;
+        playerAdapter = new PlayersList(this, playerDataList, 2);
+        playersList.setAdapter(playerAdapter);
         playerAdapter.notifyDataSetChanged();
     }
 
@@ -185,6 +249,8 @@ public class SearchMenuActivity extends AppCompatActivity {
             }
         });
         sorted = true;
+        playerAdapter = new PlayersList(this, playerDataList, 3);
+        playersList.setAdapter(playerAdapter);
         playerAdapter.notifyDataSetChanged();
     }
 

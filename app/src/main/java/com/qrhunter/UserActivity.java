@@ -136,7 +136,6 @@ public class UserActivity extends AppCompatActivity {
         user_score.setText("Total Score: " + getTotalScore());
     }
 
-
     /**
      * Gets the total score of all QR's scanned by the player.
      * @return The score of the player.

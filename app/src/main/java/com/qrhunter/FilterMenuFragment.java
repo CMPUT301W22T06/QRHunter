@@ -40,7 +40,7 @@ public class FilterMenuFragment extends DialogFragment {
         filterTextView3.setText(FILTER_PARAM3); // total QRs scanned
 
         filterTextView1.setOnClickListener(v -> {
-            SearchMenuActivity.sortByHighestScore();
+
             dismiss();
         });
 
