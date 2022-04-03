@@ -121,7 +121,7 @@ public class HomeActivity extends AppCompatActivity {
                 assembleScanned();
             }
             else if (name.length() > 24) {
-                MainActivity.toast(getApplicationContext(), "Name to large! Must be 24 characters.");
+                MainActivity.toast(getApplicationContext(), "Name too large! Must be 24 characters.");
                 assembleScanned();
             }
             else {

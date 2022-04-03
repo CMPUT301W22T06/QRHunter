@@ -1,6 +1,7 @@
 package com.qrhunter;
 
 import static com.qrhunter.MainActivity.allPlayers;
+import static com.qrhunter.MainActivity.toast;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -21,6 +22,8 @@ import com.journeyapps.barcodescanner.DecoratedBarcodeView;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Collections;
+import java.util.Comparator;
 
 /**
  * Activity to search and view other players and their collectibles.
@@ -31,6 +34,7 @@ public class SearchMenuActivity extends AppCompatActivity {
     ArrayAdapter<Player> playerAdapter;
     ArrayList<Player> playerDataList;
     DecoratedBarcodeView scanner;
+    boolean sorted = false; // to prevent the myScore button from working if the list isn't sorted yet
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -48,6 +52,9 @@ public class SearchMenuActivity extends AppCompatActivity {
 
         // filter button
         Button filterButton = findViewById(R.id.filter_button);
+
+        // get player rank button
+        Button rankButton = findViewById(R.id.rank_button);
 
         // all players list
         ListView searchedItemList = findViewById(R.id.search_items_list);
@@ -84,6 +91,13 @@ public class SearchMenuActivity extends AppCompatActivity {
                 // TODO: set up searching from firebase DB
                 String playerSearchString = searchInput.getText().toString();
                 searchInput.setText("");
+            }
+        });
+
+        rankButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                myRank(username);
             }
         });
 
@@ -130,11 +144,54 @@ public class SearchMenuActivity extends AppCompatActivity {
         });
     }
 
+    // returns the player score
+    void myRank(String username){
+        if (!sorted){
+            toast(getApplicationContext(),"Please sort the list first!");
+        }
+        else if (sorted){
+            int rank = 0;
+            toast(getApplicationContext(),"You are rank " + rank + ".");
+        }
+    }
+
+    public void sortByHighestScore(){
+        Collections.sort(playerDataList, new Comparator<Player>() {
+            @Override
+            public int compare(Player p1, Player p2) {
+                return p2.getHighestScore().compareTo(p1.getHighestScore());
+            }
+        });
+        sorted = true;
+        playerAdapter.notifyDataSetChanged();
+    }
+
+    public void sortByScoreSum(){
+        Collections.sort(playerDataList, new Comparator<Player>() {
+            @Override
+            public int compare(Player p1, Player p2) {
+                return p2.getScoreSum().compareTo(p1.getScoreSum());
+            }
+        });
+        sorted = true;
+        playerAdapter.notifyDataSetChanged();
+    }
+
+    public void sortByScanned(){
+        Collections.sort(playerDataList, new Comparator<Player>() {
+            @Override
+            public int compare(Player p1, Player p2) {
+                return p2.getTotalCodesScanned().compareTo(p1.getTotalCodesScanned());
+            }
+        });
+        sorted = true;
+        playerAdapter.notifyDataSetChanged();
+    }
+
     @Override protected void onResume() {
         super.onResume();
         if (!scanner.isActivated()) scanner.resume();
     }
-
 
     @Override protected void onPause() {
         super.onPause();
