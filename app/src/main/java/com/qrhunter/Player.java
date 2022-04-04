@@ -69,7 +69,7 @@ public class Player extends User implements Serializable {
 
     /**
      * Sets a players claimed collectables ID
-     * @param claimedCollectibleIDs ArrayList<String> of a players collectibles.
+     * @param claimedCollectibleIDs ArrayList of a players collectibles.
      */
     public void setClaimedCollectibleIDs(ArrayList<String> claimedCollectibleIDs) {
         this.claimedCollectibleIDs = claimedCollectibleIDs;
