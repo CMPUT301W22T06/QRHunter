@@ -17,6 +17,8 @@ import android.widget.Button;
 import android.widget.ListView;
 import android.widget.TextView;
 
+import com.google.firebase.firestore.FirebaseFirestore;
+
 import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.List;
@@ -27,6 +29,8 @@ import java.util.Map;
  * Lets Owners delete Players/Collectables.
  */
 public class OwnerActivity extends AppCompatActivity {
+    private static final String TAG = "OwnerActivity";
+
     ListView playersList;
     ArrayAdapter<String> playerAdapter;
     ArrayList<String> playerDataList;
@@ -35,6 +39,15 @@ public class OwnerActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_owner);
 
+        Button prefButton = findViewById(R.id.prefButton);
+
+        prefButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                PrefMenu menu = new PrefMenu();
+                menu.show(getFragmentManager(), "PrefMenu");
+            }
+        });
 
         playersList = findViewById(R.id.collectibles_players_list);
         playerDataList = new ArrayList<String>();
