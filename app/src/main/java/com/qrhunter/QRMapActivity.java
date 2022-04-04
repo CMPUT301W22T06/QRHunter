@@ -70,7 +70,7 @@ public class QRMapActivity extends FragmentActivity implements OnMapReadyCallbac
         for (Collectable scanned : collectables.getDatabase().values()) {
             Geolocation current = scanned.getLocation();
             if (abs(player_location.getLongitude() - current.getLongitude()) < 0.01 && abs(player_location.getLongitude() - current.getLongitude()) < 0.01) {
-                map.addMarker(new MarkerOptions().position(new LatLng(current.getLatitude(), current.getLongitude())).title(scanned.getName()));
+                map.addMarker(new MarkerOptions().position(new LatLng(current.getLatitude(), current.getLongitude())).title(scanned.getName() + " (" + scanned.getScore() + ")"));
             }
         }
     }

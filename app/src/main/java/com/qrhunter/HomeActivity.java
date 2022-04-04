@@ -222,7 +222,13 @@ public class HomeActivity extends AppCompatActivity {
                                 if (player.getClaimedCollectibleIDs().contains(id)) {
                                     toast(getApplicationContext(), "Already been scanned!");
                                     resume("");
-                                } else assembleScanned();
+                                }
+                                else if (collectables.exists(id)) {
+                                    allPlayers.addClaimedID(player.getUsername(), id);
+                                    toast(getApplicationContext(), "Adding " + collectables.get(id).getName());
+                                    resume("");
+                                }
+                                else assembleScanned();
                             }
                         }
 
