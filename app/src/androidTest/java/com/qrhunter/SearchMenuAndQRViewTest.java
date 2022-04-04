@@ -3,17 +3,11 @@ package com.qrhunter;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
-import android.app.Activity;
-import android.content.Context;
-import android.content.Intent;
 import android.util.Log;
-import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
-import androidx.test.core.app.ActivityScenario;
-import androidx.test.ext.junit.rules.ActivityScenarioRule;
 import androidx.test.platform.app.InstrumentationRegistry;
 import androidx.test.rule.ActivityTestRule;
 
@@ -22,14 +16,12 @@ import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firestore.v1.WriteResult;
 import com.robotium.solo.Solo;
 
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -47,16 +39,15 @@ public class SearchMenuAndQRViewTest {
      * Runs before all tests and creates solo instance.
      * @throws Exception
      */
-    @Before
-    public void setUp() throws Exception{
+    @Before public void setUp() throws Exception {
         solo = new Solo(InstrumentationRegistry.getInstrumentation(),rule.getActivity());
     }
+
 
     /**
      * Checks that a player can view his collectibles
      */
-    @Test
-    public void checkMyCollectibles(){
+    @Test public void checkMyCollectibles() {
         // Logs in using the intent testing account
         solo.assertCurrentActivity("Wrong Activity", MainActivity.class);
         solo.enterText((EditText) solo.getView(R.id.username), "MyTestor");
@@ -74,11 +65,11 @@ public class SearchMenuAndQRViewTest {
         assertTrue(solo.waitForText("test1", 1, 1000));
     }
 
+
     /**
      * Checks that a player can add a comment on a collectible and that it persists between runs
      */
-    @Test
-    public void checkAddComment(){
+    @Test public void checkAddComment() {
         // Logs in using the intent testing account
         solo.assertCurrentActivity("Wrong Activity", MainActivity.class);
         solo.enterText((EditText) solo.getView(R.id.username), "MrTester");
@@ -123,11 +114,11 @@ public class SearchMenuAndQRViewTest {
         });
     }
 
+
     /**
      * Checks that other players that have claimed a collectible are shown
      */
-    @Test
-    public void checkCommonPlayers(){
+    @Test public void checkCommonPlayers() {
         // Logs in using the intent testing account
         solo.assertCurrentActivity("Wrong Activity", MainActivity.class);
         solo.enterText((EditText) solo.getView(R.id.username), "MrTester");

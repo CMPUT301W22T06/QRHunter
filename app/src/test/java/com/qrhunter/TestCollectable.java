@@ -14,6 +14,7 @@ public class TestCollectable {
 
     private Collectable testing;
 
+
     /**
      * Tears down the collectable, returning it to the default state.
      */
@@ -23,8 +24,7 @@ public class TestCollectable {
     /**
      * Tests that score is correctly stored, can be overwritten, and handles negatives.
      */
-    @Test
-    public void testScore() {
+    @Test public void testScore() {
         teardown();
 
         // Assert that a new collectable never returns null.
@@ -49,11 +49,11 @@ public class TestCollectable {
 
     }
 
+
     /**
      * Tests that the ID can be stored, overwritten, and handles default values.
      */
-    @Test
-    public void testId() {
+    @Test public void testId() {
         teardown();
 
         // Assert that a new collectable never returns null.
@@ -71,8 +71,7 @@ public class TestCollectable {
     /**
      * Tests that the Comments can be stored, overwritten, and handles default values.
      */
-    @Test
-    public void testComments() {
+    @Test public void testComments() {
         teardown();
 
         // Assert that a new collectable never returns null.
@@ -93,8 +92,7 @@ public class TestCollectable {
     /**
      * Tests that the Location can be stored, overwritten, and handles default values.
      */
-    @Test
-    public void testLocation() {
+    @Test public void testLocation() {
         teardown();
 
         // Assert that a new collectable never returns null.
@@ -112,5 +110,4 @@ public class TestCollectable {
         testing.setLocation(not);
         assert(testing.getLocation() == not);
     }
-
 }

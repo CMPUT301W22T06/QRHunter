@@ -18,8 +18,7 @@ import org.junit.runner.RunWith;
     @Rule
     public ActivityTestRule<HomeActivity> rule = new ActivityTestRule<>(HomeActivity.class, true, true);
 
-    @Before
-    public void setUp() {
+    @Before public void setUp() {
         solo = new Solo(InstrumentationRegistry.getInstrumentation(), rule.getActivity());
     }
 
@@ -33,6 +32,7 @@ import org.junit.runner.RunWith;
         solo.assertCurrentActivity("Could not switch to Scoreboard", SearchMenuActivity.class);
     }
 
+
     @Test public void testQRMapButton() {
         solo.assertCurrentActivity("Wrong Activity", HomeActivity.class);
         solo.clickOnButton("QR Map");
@@ -40,8 +40,8 @@ import org.junit.runner.RunWith;
 
     }
 
-    @After
-    public void tearDown() {
+
+    @After public void tearDown() {
         solo.finishOpenedActivities();
     }
 

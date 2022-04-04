@@ -2,8 +2,6 @@ package com.qrhunter;
 
 import org.junit.jupiter.api.Test;
 
-import java.util.ArrayList;
-
 /**
  * Tests the Owner class.
  */
@@ -11,6 +9,7 @@ import java.util.ArrayList;
 public class TestOwner {
 
     private Owner owner;
+
 
     /**
      * Copying the teardown schematic from the testCollectable code. Returns the owner
@@ -20,11 +19,11 @@ public class TestOwner {
         owner = new Owner();
     }
 
+
     /**
      * Tests that the user info is properly set and can be overwritten.
      */
-    @Test
-    public void testUserInfo(){
+    @Test public void testUserInfo(){
         teardown();
 
         // assert that the username is initially null if nothing is assigned
@@ -49,6 +48,4 @@ public class TestOwner {
         owner.setPassword("passWorD21");
         assert(owner.getPassword().equals("passWorD21"));
     }
-
-
 }

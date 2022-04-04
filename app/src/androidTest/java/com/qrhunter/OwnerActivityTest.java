@@ -26,8 +26,7 @@ public class OwnerActivityTest {
      * Runs before all tests and creates solo instance.
      * @throws Exception
      */
-    @Before
-    public void setUp() {
+    @Before public void setUp() {
         solo = new Solo(InstrumentationRegistry.getInstrumentation(),rule.getActivity());
 
         // navigate to the search menu activity
@@ -40,8 +39,7 @@ public class OwnerActivityTest {
     /**
      * Checks the swap button button.
      */
-    @Test
-    public void checkSwapButton() {
+    @Test public void checkSwapButton() {
         //Checks the filter button
         solo.assertCurrentActivity("Wrong Activity", OwnerActivity.class);
         // make sure players are being shown
