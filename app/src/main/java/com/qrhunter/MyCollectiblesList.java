@@ -1,5 +1,8 @@
 package com.qrhunter;
 
+import static com.qrhunter.MainActivity.allPlayers;
+import static com.qrhunter.MainActivity.collectables;
+
 import android.content.Intent;
 import android.os.Bundle;
 import android.widget.ArrayAdapter;
@@ -19,8 +22,7 @@ public class MyCollectiblesList extends AppCompatActivity {
     ArrayAdapter<String> myCollectiblesAdapter;
     ListView myCollectiblesList;
 
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    @Override protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_my_collectibles_list);
 
@@ -32,9 +34,9 @@ public class MyCollectiblesList extends AppCompatActivity {
         myCollectiblesAdapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, myCollectibles);
 
 
-        Player current = MainActivity.allPlayers.getPlayer(username);
+        Player current = allPlayers.getPlayer(username);
         for (String id : current.getClaimedCollectibleIDs()) {
-            myCollectibles.add(MainActivity.collectables.get(id).getName());
+            myCollectibles.add(collectables.get(id).getName());
         }
         myCollectiblesList.setAdapter(myCollectiblesAdapter);
 

@@ -54,38 +54,32 @@ public class ScoringSystem {
     public static long score(String hashedQR) {
         if(hashedQR == null)
             throw new IllegalArgumentException("Null input");
-        else if(hashedQR == "")
+        else if(hashedQR.equals(""))
             throw new IllegalArgumentException("Empty String");
 
-            //https://stackoverflow.com/questions/5317320/regex-to-check-string-contains-only-hex-characters
-        else if(hashedQR.matches("[0-9a-f]+") == false)
+        //https://stackoverflow.com/questions/5317320/regex-to-check-string-contains-only-hex-characters
+        else if(!hashedQR.matches("[0-9a-f]+"))
             throw new IllegalArgumentException("String contains non-hex characters");
 
         //use a regular expression to find duplicate substrings of characters
         ArrayList<String> dupes = new ArrayList<String>();
         Pattern p = Pattern.compile("([0-9a-f])(\\1+)");
         Matcher m = p.matcher(hashedQR);
-        while(m.find()) {
-            dupes.add(m.group());
-        }
+        while(m.find()) dupes.add(m.group());
 
         //use found substrings to calculate a total score
         long totalScore = 0;
         String dupe;
         int hexValue;
-        for(int i = 0; i < dupes.size(); i++) {
+        for (int i = 0; i < dupes.size(); i++) {
             //obtain value of the duplicated character
             dupe = dupes.get(i);
             String firstChar = dupe.substring(0,1);
             hexValue = Integer.parseInt(firstChar, 16);
 
             //calculate point value for the substring
-            if(hexValue == 0) {
-                totalScore += Math.pow(20, dupe.length() - 1);
-            }
-            else {
-                totalScore += Math.pow(hexValue, dupe.length() - 1);
-            }
+            if (hexValue == 0) totalScore += Math.pow(20, dupe.length() - 1);
+            else totalScore += Math.pow(hexValue, dupe.length() - 1);
         }
         return totalScore;
     }

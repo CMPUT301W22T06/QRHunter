@@ -19,11 +19,11 @@ public class TestPlayerDatabse {
         playerDatabse.deletePlayer(username);
     }
 
+
     /**
      * tests that the database can add, get, and delete players.
      */
-    @Test
-    public void testPrimaryFunctions(){
+    @Test public void testPrimaryFunctions(){
         teardown();
 
         // checks if the player already exists (should not)

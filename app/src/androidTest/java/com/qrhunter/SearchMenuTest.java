@@ -24,8 +24,7 @@ public class SearchMenuTest {
      * Runs before all tests and creates solo instance.
      * @throws Exception
      */
-    @Before
-    public void setUp() {
+    @Before public void setUp() {
         solo = new Solo(InstrumentationRegistry.getInstrumentation(),rule.getActivity());
 
         // navigate to the search menu activity
@@ -37,22 +36,22 @@ public class SearchMenuTest {
         solo.assertCurrentActivity("Wrong Activity", SearchMenuActivity.class);
     }
 
+
     /**
      * Checks the filter button.
      */
-    @Test
-    public void checkFilter() {
+    @Test public void checkFilter() {
         //Checks the filter button
         solo.assertCurrentActivity("Wrong Activity", SearchMenuActivity.class);
         solo.clickOnView(solo.getView("filter_button"));
         solo.waitForText("Sorted by", 1, 2000);
     }
 
+
     /**
      * checks the get rank button
      */
-    @Test
-    public void checkRank() {
+    @Test public void checkRank() {
         solo.assertCurrentActivity("Wrong Activity", SearchMenuActivity.class);
         solo.clickOnView(solo.getView("rank_button"));
         solo.waitForText("Please",1,1000);
@@ -65,8 +64,7 @@ public class SearchMenuTest {
     /**
      * Checks the search button.
      */
-    @Test
-    public void checkSearchButton() {
+    @Test public void checkSearchButton() {
         //Checks the search button
         solo.assertCurrentActivity("Wrong Activity", SearchMenuActivity.class);
 

@@ -1,5 +1,7 @@
 package com.qrhunter;
 
+import static com.qrhunter.MainActivity.collectables;
+
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.Intent;
@@ -9,6 +11,7 @@ import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 
+import androidx.annotation.NonNull;
 import androidx.fragment.app.DialogFragment;
 
 import java.util.ArrayList;
@@ -25,18 +28,16 @@ public class PlayerCollectiblesFragment extends DialogFragment {
         this.player = player;
     }
 
-    @Override
-    public Dialog onCreateDialog(Bundle savedInstanceState) {
+
+    @NonNull @Override public Dialog onCreateDialog(Bundle savedInstanceState) {
         // Inflate layout for this fragment
         View view = LayoutInflater.from(getActivity()).inflate(R.layout.fragment_player_collectibles,null);
-
 
         // get list view and set it
         ListView collectiblesList = view.findViewById(R.id.collectibles_list);
         ArrayList<String> collectiblesDataList = new ArrayList<>();
-        for (String id : player.getClaimedCollectibleIDs()) {
-            collectiblesDataList.add(MainActivity.collectables.get(id).getName());
-        }
+        for (String id : player.getClaimedCollectibleIDs())
+            collectiblesDataList.add(collectables.get(id).getName());
 
         ArrayAdapter<String> collectibleAdapter = new ArrayAdapter<>(view.getContext(), R.layout.player_content, collectiblesDataList);
         collectiblesList.setAdapter(collectibleAdapter);
@@ -47,7 +48,6 @@ public class PlayerCollectiblesFragment extends DialogFragment {
             intent.putExtra("collectableID", player.getClaimedCollectibleIDs().get(i));
             startActivity(intent);
         });
-
 
         AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
         return builder

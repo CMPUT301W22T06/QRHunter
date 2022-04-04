@@ -20,6 +20,7 @@ public class PlayersList extends ArrayAdapter<Player> {
     private Context context;
     private int displayType;
 
+
     public PlayersList(SearchMenuActivity context, ArrayList<Player> players, int displayType) {
         super(context, 0, players);
         this.context = context;
@@ -27,12 +28,11 @@ public class PlayersList extends ArrayAdapter<Player> {
         this.displayType = displayType;
     }
 
-    public View getView(int position, @Nullable View convertView, @NonNull ViewGroup
-            parent) {
+
+    public View getView(int position, @Nullable View convertView, @NonNull ViewGroup parent) {
         View view = convertView;
-        if(view == null){
+        if (view == null)
             view = LayoutInflater.from(context).inflate(R.layout.player_score_content, parent,false);
-        }
 
         Player player = players.get(position);
 
@@ -44,11 +44,9 @@ public class PlayersList extends ArrayAdapter<Player> {
         TextView playerScore = view.findViewById(R.id.player_score);
         if (player.getScoreSum() != null){
             switch (displayType) {
-                case 0:
-                case 2:
-                    playerScore.setText(Long.toString(player.getScoreSum())); break;
+                case 0: playerScore.setText(Long.toString(player.getScoreSum())); break;
                 case 1: playerScore.setText(Long.toString(player.getHighestScore())); break;
-                case 3: playerScore.setText(Long.toString(player.getTotalCodesScanned())); break;
+                case 2: playerScore.setText(Long.toString(player.getTotalCodesScanned())); break;
                 default: throw new RuntimeException();
             }
         }

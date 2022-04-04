@@ -1,5 +1,7 @@
 package com.qrhunter;
 
+import static java.lang.Thread.sleep;
+
 import org.junit.Test;
 
 /**
@@ -13,8 +15,9 @@ public class TestCollectableDatabase {
     /**
      * Tests additions and deletions from the database.
      */
-    @Test
-    public void testAddDeleteCollectable() {
+    @Test public void testAddDeleteCollectable() throws InterruptedException {
+
+        sleep(5000);
 
         // Creates the collectable, adds it to the database.
         Collectable testing = new Collectable();
@@ -27,11 +30,13 @@ public class TestCollectableDatabase {
         assert(!database.exists("TEST"));
     }
 
+
     /**
      * Tests adding comments to the database on a specific ID.
      */
-    @Test
-    public void testAddingComment() {
+    @Test public void testAddingComment() throws InterruptedException {
+
+        sleep(5000);
 
         // Creates the collectable.
         Collectable testing = new Collectable();

@@ -9,8 +9,8 @@ import java.util.ArrayList;
  */
 
 public class TestPlayer {
-
     private Player gamer;
+
 
     /**
      * Copying the teardown schematic from the testCollectable code. Returns the player
@@ -20,11 +20,11 @@ public class TestPlayer {
         gamer = new Player();
     }
 
+
     /**
      * Tests that the user info is properly set and can be overwritten.
      */
-    @Test
-    public void testUserInfo(){
+    @Test public void testUserInfo(){
         teardown();
 
         // assert that the username is initially null if nothing is assigned
@@ -51,34 +51,24 @@ public class TestPlayer {
 
     }
 
+
     /**
      * Tests that the user scores are properly set to the default values and can be overwritten
      */
-    @Test
-    public void testScores(){
+    @Test public void testScores(){
         teardown();
 
         // test the default scores
         assert(gamer.getScoreSum() == 0L);
         assert(gamer.getHighestScore() == 0L);
         assert(gamer.getTotalCodesScanned() == 0L);
-
-        // test overwriting of all the values
-        gamer.setScoreSum(2L);
-        assert(gamer.getScoreSum() == 2L);
-
-        gamer.setHighestScore(3L);
-        assert(gamer.getHighestScore() == 3L);
-
-        gamer.setTotalCodesScanned(4L);
-        assert(gamer.getTotalCodesScanned() == 4L);
     }
+
 
     /**
      * Tests the user collectibles arraylist is properly initialized and can be overwritten
      */
-    @Test
-    public void testCollectedIDs(){
+    @Test public void testCollectedIDs(){
         teardown();
 
         // create a test arrayList
@@ -92,6 +82,4 @@ public class TestPlayer {
         gamer.setClaimedCollectibleIDs(test);
         assert(!gamer.getClaimedCollectibleIDs().isEmpty());
     }
-
-
 }

@@ -6,6 +6,7 @@
     android:layout_height="match_parent"
     tools:context=".MainActivity">
 
+
     <EditText
         android:id="@+id/username"
         android:layout_width="wrap_content"
@@ -13,11 +14,12 @@
         android:layout_marginTop="40dp"
         android:minWidth="300dp"
         android:minHeight="48dp"
-        android:hint="Username"
+        android:hint="@string/main_username_text"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.495"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
+
 
     <EditText
         android:id="@+id/password"
@@ -26,45 +28,47 @@
         android:inputType="textPassword"
         android:minWidth="300dp"
         android:minHeight="48dp"
-        android:hint="Password"
+        android:hint="@string/main_password_text"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.495"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/username" />
+
 
     <Button
         android:id="@+id/login_button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:minWidth="300dp"
-        android:text="Login"
+        android:text="@string/main_login_button_text"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.495"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/password" />
+
 
     <Button
         android:id="@+id/create_account_button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:minWidth="300dp"
-        android:text="Create Account"
+        android:text="@string/main_create_account_button_text"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.495"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/login_button" />
+
 
     <Button
         android:id="@+id/login_without_account"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:minWidth="300dp"
-        android:text="Login without account"
+        android:text="@string/main_login_without_account_text"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.495"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/create_account_button" />
-
 
 
     <Button
@@ -72,7 +76,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:minWidth="300dp"
-        android:text="Login by QR"
+        android:text="@string/main_login_with_QR_text"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.495"
         app:layout_constraintStart_toStartOf="parent"

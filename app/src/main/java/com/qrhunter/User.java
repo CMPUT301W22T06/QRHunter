@@ -7,9 +7,7 @@ class User {
     private String username;
     private String password;
 
-    public User() {
-
-    }
+    public User() {}
 
     public User(String username, String password) {
         this.username = username;
@@ -35,7 +33,7 @@ class User {
 
     /**
      * Sets a users username.
-     * @param username
+     * @param username The new username.
      */
     public void setUsername(String username) {
         this.username = username;
@@ -43,7 +41,7 @@ class User {
 
     /**
      * Sets a users password.
-     * @param password
+     * @param password The new password
      */
     public void setPassword(String password) {
         this.password = password;

@@ -3,7 +3,7 @@ package com.qrhunter;
 
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 /**
  * Tests the Geolocation class.
@@ -19,8 +19,7 @@ public class TestGeolocation {
      *
      * @throws AssertionError if the Geolocation can be constructed with a null value.
      */
-    @Test
-    public void testConstructorNull() {
+    @Test public void testConstructorNull() {
 
         // Tests constructing the latitude with null.
         assertThrows(IllegalArgumentException.class, () -> test = new Geolocation(0.0, null));
@@ -38,8 +37,7 @@ public class TestGeolocation {
      *
      * @throws AssertionError if the Geolocation accepts the null as a setter argument.
      */
-    @Test
-    public void testSetNull() {
+    @Test public void testSetNull() {
 
         // Construct a Geolocation.
         test = new Geolocation(0.0, 0.0);
@@ -57,8 +55,7 @@ public class TestGeolocation {
      *
      * @throws AssertionError if the returned value does not match what is expected.
      */
-    @Test
-    public void testGetLatitude() {
+    @Test public void testGetLatitude() {
 
         // Tests a random number.
         test = new Geolocation(0.0, 4.56);
@@ -80,8 +77,7 @@ public class TestGeolocation {
      *
      * @throws AssertionError if the returned value does not match what is expected.
      */
-    @Test
-    public void testGetLongitude() {
+    @Test public void testGetLongitude() {
 
         // Test a random number.
         test = new Geolocation(1.23, 0.00);

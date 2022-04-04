@@ -1,11 +1,9 @@
 package com.qrhunter;
 
-import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 import android.widget.EditText;
 
-import androidx.fragment.app.FragmentActivity;
 import androidx.test.platform.app.InstrumentationRegistry;
 import androidx.test.rule.ActivityTestRule;
 
@@ -34,24 +32,25 @@ public class TestMainActivity {
         }
     }
 
+
     @Rule
     public ActivityTestRule<MainActivity> rule = new ActivityTestRule<>(MainActivity.class,
             true, true);
+
 
     /**
      * runs before all tests and creates solo instance.
      * @throws Exception
      */
-    @Before
-    public void setUp() throws Exception{
+    @Before public void setUp() throws Exception {
         solo = new Solo(InstrumentationRegistry.getInstrumentation(),rule.getActivity());
     }
+
 
     /**
      * checks the player can login
      */
-    @Test
-    public void checkLogin(){
+    @Test public void checkLogin() {
         // attempts a login using false credentials
         solo.assertCurrentActivity("Wrong Activity", MainActivity.class);
         solo.enterText((EditText) solo.getView(R.id.username),"totallyRealTestAccount");
@@ -72,11 +71,11 @@ public class TestMainActivity {
         solo.assertCurrentActivity("Wrong Activity", HomeActivity.class);
     }
 
+
     /**
      * creates an account in the create account fragment
      */
-    @Test
-    public void checkCreate(){
+    @Test public void checkCreate() {
         // clicks the create account button and checks if we move to the fragment
         solo.clickOnButton("Create Account");
         assertTrue(solo.waitForText("Register Account",1,1000));

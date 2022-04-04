@@ -1,5 +1,9 @@
 package com.qrhunter;
 
+import static com.qrhunter.MainActivity.allPlayers;
+import static com.qrhunter.MainActivity.collectables;
+import static com.qrhunter.MainActivity.toast;
+
 import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.Activity;
@@ -36,11 +40,15 @@ import com.journeyapps.barcodescanner.DecoratedBarcodeView;
 
 import java.util.List;
 
+/**
+ * The HomeActivity is the primary activity after the user has logged in, and allows the user
+ * to view their profile, the QR Map, and the scoreboard..
+ */
 public class HomeActivity extends AppCompatActivity {
-
     DecoratedBarcodeView scanner;
     Collectable scanned;
     Player player;
+
 
     /*
      * Taking a Photo when a QR is scanned is an intent, which means onResume will be called when
@@ -88,9 +96,9 @@ public class HomeActivity extends AppCompatActivity {
         @SuppressLint("MissingPermission") Location locationGPS = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
         if (locationGPS != null)
             scanned.setLocation(new Geolocation(locationGPS.getLatitude(), locationGPS.getLongitude()));
-        else MainActivity.toast(getApplicationContext(), "Unable to find location.");
-        MainActivity.collectables.add(scanned, this);
-        MainActivity.allPlayers.addClaimedID(player.getUsername(), scanned.getId());
+        else toast(getApplicationContext(), "Unable to find location.");
+        collectables.add(scanned, this);
+        allPlayers.addClaimedID(player.getUsername(), scanned.getId());
     }
 
 
@@ -98,8 +106,7 @@ public class HomeActivity extends AppCompatActivity {
      * Assembles a scanned QR code, waiting for the user to enter photo/geolocation, then uploading
      * it.
      */
-    @SuppressLint("SetTextI18n")
-    private void assembleScanned() {
+    @SuppressLint("SetTextI18n") private void assembleScanned() {
         // Create the popup.
         LayoutInflater layoutInflater = LayoutInflater.from(HomeActivity.this);
         View context_view = layoutInflater.inflate(R.layout.context_scanned, null);
@@ -117,17 +124,17 @@ public class HomeActivity extends AppCompatActivity {
             String name = name_box.getText().toString();
 
             if (name.isEmpty()) {
-                MainActivity.toast(getApplicationContext(), "Please enter a name!");
+                toast(getApplicationContext(), "Please enter a name!");
                 assembleScanned();
             }
             else if (name.length() > 24) {
-                MainActivity.toast(getApplicationContext(), "Name too large! Must be 24 characters.");
+                toast(getApplicationContext(), "Name too large! Must be 24 characters.");
                 assembleScanned();
             }
             else {
                 scanned.setName(name);
-                MainActivity.collectables.add(scanned, this);
-                MainActivity.allPlayers.addClaimedID(player.getUsername(), scanned.getId());
+                collectables.add(scanned, this);
+                allPlayers.addClaimedID(player.getUsername(), scanned.getId());
             }
         });
 
@@ -141,26 +148,33 @@ public class HomeActivity extends AppCompatActivity {
     }
 
 
+    /**
+     * Resumes the activity (usually a callback from collectable uploading)
+     * @param error An associated error, if there was one.
+     */
     public void resume(String error) {
-        if (!error.isEmpty()) {
-            MainActivity.toast(getApplicationContext(), "Could not upload QR Code: " + error);
-        }
+        if (!error.isEmpty())
+            toast(getApplicationContext(), "Could not upload QR Code: " + error);
+
+        // Resume the scanner.
         scanner.resume();
         building = false;
     }
 
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
+
+    @Override protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_home);
 
+        // Initialize the toolbar.
         Toolbar toolbar = findViewById(R.id.player_menu);
         setSupportActionBar(toolbar);
 
         // retrieves the Player username from the intent
         String username = getIntent().getStringExtra("username");
-        player = MainActivity.allPlayers.getPlayer(username);
+        player = allPlayers.getPlayer(username);
 
+        // Access the scoreboard.
         Button scoreboardButton = findViewById(R.id.home_scoreboard);
         scoreboardButton.setOnClickListener(view -> {
             Intent intent = new Intent(HomeActivity.this, SearchMenuActivity.class);
@@ -168,6 +182,7 @@ public class HomeActivity extends AppCompatActivity {
             startActivity(intent);
         });
 
+        // Access the QR Map.
         findViewById(R.id.home_map).setOnClickListener(view -> {
             Intent intent = new Intent(HomeActivity.this, QRMapActivity.class);
             startActivity(intent);
@@ -175,13 +190,14 @@ public class HomeActivity extends AppCompatActivity {
 
         // Grab the scanner within the activity.
         scanner = findViewById(R.id.home_scanner);
-        if (player == null) MainActivity.toast(this, "start scanner after login!");
+        if (player == null) toast(this, "start scanner after login!");
         else {
             scanner.decodeContinuous(new BarcodeCallback() {
 
                 // When we successfully scan a code.
-                @Override
-                public void barcodeResult(BarcodeResult result) {
+                @Override public void barcodeResult(BarcodeResult result) {
+
+                    // Turn the building flag on so the scanner doesn't resume.
                     building = true;
                     scanned = new Collectable();
 
@@ -193,21 +209,26 @@ public class HomeActivity extends AppCompatActivity {
                     // Pause the scanner so it doesn't make an infinite amount of popups.
                     scanner.pause();
 
-
                     // Check if the Code already exists within the Firebase, prompt accordingly.
-                    MainActivity.collectables.getStore().collection("Scanned").document(scanned.getId()).get().addOnCompleteListener(task -> {
+                    collectables.getStore().collection("Scanned").document(scanned.getId()).get().addOnCompleteListener(task -> {
                         if (task.isSuccessful()) {
                             DocumentSnapshot document = task.getResult();
 
                             // Not sure why this happens, but we need to check for it.
                             if (document == null)
-                                MainActivity.toast(getApplicationContext(), "Unknown error");
+                                toast(getApplicationContext(), "Unknown error");
                             else {
                                 // If it exists, we shouldn't overwrite.
-                                if (document.exists()) {
-                                    MainActivity.toast(getApplicationContext(), "Already been scanned!");
-                                    scanner.resume();
-                                } else assembleScanned();
+                                if (player.getClaimedCollectibleIDs().contains(id)) {
+                                    toast(getApplicationContext(), "Already been scanned!");
+                                    resume("");
+                                }
+                                else if (collectables.exists(id)) {
+                                    allPlayers.addClaimedID(player.getUsername(), id);
+                                    toast(getApplicationContext(), "Adding " + collectables.get(id).getName());
+                                    resume("");
+                                }
+                                else assembleScanned();
                             }
                         }
 
@@ -215,40 +236,41 @@ public class HomeActivity extends AppCompatActivity {
                         else assembleScanned();
                     });
                 }
-
-                @Override
-                public void possibleResultPoints(List<ResultPoint> resultPoints) {
-                }
+                @Override public void possibleResultPoints(List<ResultPoint> resultPoints) {}
             });
         }
     }
 
+
+    /**
+     * Setups the UserActivity after the user clicks the hot-dog menu on the Toolbar.
+     * @param mi The MenuItem
+     */
     public void onClickUser(MenuItem mi) {
+
+        // If we're building a collectable, don't let them leave.
         if (building) {
-            MainActivity.toast(getApplicationContext(), "Uploading... please wait.");
+            toast(getApplicationContext(), "Uploading... please wait.");
             return;
         }
+
+        // If the player has yet to login, we can't let them go to the activity.
         if (player!=null) {
             Intent intent = new Intent(HomeActivity.this, UserActivity.class);
             intent.putExtra("username", player.getUsername());
+            intent.putExtra("restricted", false);
             startActivity(intent);
         }
-        else{
-            MainActivity.toast(this, "please login first");
-        }
 
-
-        Intent intent = new Intent(HomeActivity.this, UserActivity.class);
-        intent.putExtra("username", player.getUsername());
-        intent.putExtra("restricted", false);
-        startActivity(intent);
+        else toast(this, "Please login first");
     }
 
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
+
+    @Override public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.menu_home, menu);
         return true;
     }
+
 
     @Override protected void onResume() {
         super.onResume();
@@ -257,22 +279,19 @@ public class HomeActivity extends AppCompatActivity {
     }
 
 
-    @Override protected void onPause() {
-        super.onPause();
-        scanner.pause();
-    }
+    @Override protected void onPause() {super.onPause(); scanner.pause();}
 
 
-    @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+    @Override public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         for (int x = 0; x < permissions.length; ++x) {
 
+            // Check if the permission was Location, upload the collectable.
             if (permissions[x].equals(Manifest.permission.ACCESS_COARSE_LOCATION) && requestCode == 1) {
                 if (grantResults[x] == PackageManager.PERMISSION_GRANTED) storeLocation();
                 else {
-                    MainActivity.toast(getApplicationContext(), "Location permission is required to save location!");
-                    MainActivity.collectables.add(scanned, this);
+                    toast(getApplicationContext(), "Location permission is required to save location!");
+                    collectables.add(scanned, this);
                 }
             }
         }

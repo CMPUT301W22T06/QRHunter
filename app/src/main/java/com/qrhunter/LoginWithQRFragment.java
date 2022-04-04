@@ -1,14 +1,16 @@
 package com.qrhunter;
 
+import static com.qrhunter.MainActivity.allPlayers;
+import static com.qrhunter.MainActivity.toast;
+
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.Intent;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.fragment.app.DialogFragment;
 
 import com.google.zxing.ResultPoint;
@@ -18,79 +20,54 @@ import com.journeyapps.barcodescanner.DecoratedBarcodeView;
 
 import java.util.List;
 
+/**
+ * Fragment for logging in with the QR Code on the UserActivity.
+ */
 public class LoginWithQRFragment extends DialogFragment {
-
-    boolean building = false;
-
     DecoratedBarcodeView scanner;
 
 
-    public LoginWithQRFragment() {
-    }
-
-    @Override
-    public void onResume() {
+    @Override public void onResume() {
         super.onResume();
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                while (true) {
-                    if (!scanner.isActivated()) {
-
-                        Log.e("GETRESULT", "is active");
-
-                        getActivity().runOnUiThread(new Runnable() {
-                            @Override
-                            public void run() {
-                                scanner.resume();
-                            }
-                        });
-                        break;
-                    }else{
-                        Log.e("GETRESULT", "not active");
-                    }
+        new Thread(() -> {
+            while (true) {
+                if (!scanner.isActivated()) {
+                    requireActivity().runOnUiThread(() -> scanner.resume());
+                    break;
                 }
             }
         }).start();
-
-
     }
 
-    @Override
-    public Dialog onCreateDialog(Bundle savedInstanceState) {
+
+    @NonNull @Override public Dialog onCreateDialog(Bundle savedInstanceState) {
         // Inflate layout for this fragment
         View view = LayoutInflater.from(getActivity()).inflate(R.layout.fragment_login_qr, null);
 
-
-        // get textViews
+        // Setup the scanner
         scanner = view.findViewById(R.id.scanner);
         scanner.decodeContinuous(new BarcodeCallback() {
             @Override
             public void barcodeResult(BarcodeResult result) {
 
                 String username = result.getText();
-                Player thisPlayer = MainActivity.allPlayers.getPlayer(username);
+                Player thisPlayer = allPlayers.getPlayer(username);
                 scanner.pause();
-                if (thisPlayer==null){
-                    Toast.makeText(getContext(), "try again", Toast.LENGTH_SHORT).show();
+                if (thisPlayer == null) {
+                    toast(getContext(), "Try again");
                     scanner.resume();
-                }else{
+                }
+                else {
                     Intent intent = new Intent(getActivity(), HomeActivity.class);
                     // passes the player object into the intent
                     intent.putExtra("username",username);
                     startActivity(intent);
                 }
             }
-
-            @Override
-            public void possibleResultPoints(List<ResultPoint> resultPoints) {
-
-            }
+            @Override public void possibleResultPoints(List<ResultPoint> resultPoints) {}
         });
 
         AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
-        return builder
-                .setView(view)
-                .create();
+        return builder.setView(view).create();
     }
 }
