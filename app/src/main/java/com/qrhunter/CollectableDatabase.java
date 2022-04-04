@@ -286,4 +286,12 @@ public class CollectableDatabase {
         }
         else throw new RuntimeException("ID not in database");
     }
+
+    /**
+     * Returns all collectables.
+     * @return Hashmap of all collectables in the database
+     */
+    public HashMap<String,Collectable> getCollectables() {
+        return collectables;
+    }
 }

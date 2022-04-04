@@ -23,6 +23,16 @@
             android:value="AIzaSyDhV0JVzhQ90hdgqDxjSj9Q0rcAwFiZhfE" />
 
         <activity
+            android:name="com.qrhunter.OwnerActivity"
+            android:exported="false" />
+        <activity
+            android:name="com.qrhunter.MyCollectiblesList"
+            android:exported="false" />
+        <activity
+            android:name=".HomeActivity"
+            android:exported="false"
+            android:theme="@style/Theme.AppCompat.Light.NoActionBar" />
+        <activity
             android:name=".QRMapActivity"
             android:exported="false"
             android:label="@string/title_activity_qrmap" />

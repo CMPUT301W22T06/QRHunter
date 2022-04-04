@@ -78,7 +78,6 @@ public class QRViewActivity extends AppCompatActivity {
 
         Button changeListButton = findViewById(R.id.change_list_button);
         changeListButton.setOnClickListener(view -> {
-            // TODO: change list elements after button click
             if(changeListButton.getText().toString().equals("View Players")) {
                 // change button and text of header of list
                 changeListButton.setText("View Comments");
