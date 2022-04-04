@@ -30,8 +30,8 @@ public class QRViewActivity extends AppCompatActivity {
     TextView commentsOrPlayers;
     ListView commentsOrPlayersList;
 
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
+
+    @Override protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_qrview);
 
@@ -57,9 +57,9 @@ public class QRViewActivity extends AppCompatActivity {
         Map<String,Player> map = allPlayers.getPlayers();
         List<Player> players = new ArrayList<>(map.values());
         commonPlayers = new ArrayList<>();
-        for(int i = 0; i<players.size();i++) {
+        for (int i = 0; i<players.size(); i++) {
             ArrayList<String> playerCollectibleIDs = players.get(i).getClaimedCollectibleIDs();
-            for(int j = 0;j<playerCollectibleIDs.size(); j++) {
+            for(int j = 0; j < playerCollectibleIDs.size(); j++) {
                 if (playerCollectibleIDs.get(j).equals(collectableID)) {
                     commonPlayers.add(players.get(i).getUsername());
                     break;
@@ -75,7 +75,6 @@ public class QRViewActivity extends AppCompatActivity {
         commentsAdapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, comments);
         commentsOrPlayersList.setAdapter(commentsAdapter);
 
-
         Button changeListButton = findViewById(R.id.change_list_button);
         changeListButton.setOnClickListener(view -> {
             if(changeListButton.getText().toString().equals("View Players")) {
@@ -89,7 +88,8 @@ public class QRViewActivity extends AppCompatActivity {
                 // make comment section visible
                 commentButton.setVisibility(View.INVISIBLE);
                 commentInput.setVisibility(View.INVISIBLE);
-            } else if (changeListButton.getText().toString().equals("View Comments")) {
+            }
+            else if (changeListButton.getText().toString().equals("View Comments")) {
                 // change button and text of head of list
                 changeListButton.setText("View Players");
                 commentsOrPlayers.setText("Comments");
@@ -103,6 +103,7 @@ public class QRViewActivity extends AppCompatActivity {
 
             }
         });
+
         // create comment
         commentButton.setOnClickListener(view -> {
             String comment = commentInput.getText().toString();
@@ -110,8 +111,6 @@ public class QRViewActivity extends AppCompatActivity {
                 collectables.addComment(collectableID,comment);
                 commentsAdapter.notifyDataSetChanged();
                 commentInput.setText("");
-            } else {
-                //
             }
         });
     }

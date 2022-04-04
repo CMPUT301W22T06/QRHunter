@@ -3,7 +3,8 @@ package com.qrhunter;
 /**
  * The Geolocation is a class that represents a latitude and longitude for QR codes and the player.
  *
- * @author Kyle Kernick, Zack Rodgers.
+ * @author Kyle
+ * @author Zack
  */
 public class Geolocation {
     private Double longitude;

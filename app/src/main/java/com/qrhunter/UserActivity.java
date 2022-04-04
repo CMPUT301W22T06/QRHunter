@@ -21,6 +21,12 @@ import com.google.zxing.common.BitMatrix;
 import java.util.ArrayList;
 import java.util.Comparator;
 
+
+/**
+ * The UserActivity shows the player's current QR Codes that they've scanned, and their login
+ * code. The restricted field passed to the activity determines whether the login code is shown
+ * and deletions are enabled.
+ */
 public class UserActivity extends AppCompatActivity {
 
     Player player;
@@ -31,9 +37,8 @@ public class UserActivity extends AppCompatActivity {
 
     ArrayList<String> names = new ArrayList<>();
 
-    @RequiresApi(api = Build.VERSION_CODES.N)
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
+
+    @RequiresApi(api = Build.VERSION_CODES.N) @Override protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_user);
 
@@ -56,15 +61,15 @@ public class UserActivity extends AppCompatActivity {
         }
 
         // Setup the list of adapters
-        for (String id : player.getClaimedCollectibleIDs()) {
+        for (String id : player.getClaimedCollectibleIDs())
             names.add(MainActivity.collectables.get(id).getName());
-        }
 
+        // Setup collectables.
         ArrayList<Collectable> collectables = new ArrayList<>();
-        for (String id : player.getClaimedCollectibleIDs()) {
+        for (String id : player.getClaimedCollectibleIDs())
             collectables.add(MainActivity.collectables.get(id));
-        }
 
+        // Setup the adapter.
         adapter = new UserScannedAdapter(this,R.layout.item_list_userscanned, collectables);
         scanned.setAdapter(adapter);
 
@@ -73,7 +78,8 @@ public class UserActivity extends AppCompatActivity {
         // Setup for what happens when a user clicks a code.
         scanned.setOnItemClickListener((parent, v, position, id) -> {
             Collectable selected = MainActivity.collectables.get(player.getClaimedCollectibleIDs().get(position));
-            
+
+            // Boilerplate to generalize the creation of the view.
             int view, v_id, v_score, v_location, v_image;
             if (restricted) {
                 view = R.layout.context_restricted;
@@ -124,6 +130,7 @@ public class UserActivity extends AppCompatActivity {
         });
     }
 
+
     /**
      * Refreshes the list of QR Codes when a change is made.
      */
@@ -131,13 +138,11 @@ public class UserActivity extends AppCompatActivity {
 
         // Setup the adapter.
         ArrayList<Collectable> collectables = new ArrayList<>();
-        for (String id : player.getClaimedCollectibleIDs()) {
+        for (String id : player.getClaimedCollectibleIDs())
             collectables.add(MainActivity.collectables.get(id));
-        }
 
         // Setup the adapter.
         adapter = new UserScannedAdapter(this,R.layout.item_list_userscanned, collectables);
-
         scanned.setAdapter(adapter);
 
         // Inform everything about the change.
@@ -159,9 +164,8 @@ public class UserActivity extends AppCompatActivity {
         try {
             bitMatrix = new MultiFormatWriter().encode(player.getUsername(), BarcodeFormat.QR_CODE,
                     300, 300, null);
-        } catch (IllegalArgumentException | WriterException e) {
-            return null;
         }
+        catch (IllegalArgumentException | WriterException e) {return null;}
 
         int bitMatrixWidth = bitMatrix.getWidth();
         int bitMatrixHeight = bitMatrix.getHeight();

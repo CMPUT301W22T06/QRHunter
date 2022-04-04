@@ -19,8 +19,7 @@ public class MyCollectiblesList extends AppCompatActivity {
     ArrayAdapter<String> myCollectiblesAdapter;
     ListView myCollectiblesList;
 
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    @Override protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_my_collectibles_list);
 

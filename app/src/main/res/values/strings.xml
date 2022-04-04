@@ -1,5 +1,6 @@
 <resources>
     <string name="app_name">QRHunter</string>
+
     <string name="home_score_text">Total Score: 0</string>
     <string name="home_map_text">QR Map</string>
     <string name="home_scoreboard_text">Scoreboard</string>
@@ -10,6 +11,26 @@
     <string name="context_scanned_save_location_text">Save Location</string>
 
     <string name="main_home_button_text">Home</string>
+    <string name="main_username_text">Username</string>
+    <string name="main_password_text">Password</string>
+    <string name="main_login_button_text">Login</string>
+    <string name="main_create_account_button_text">Create Account</string>
+    <string name="main_login_without_account_text">Login without account</string>
+    <string name="main_login_with_QR_text">Login by QR</string>
+
+    <string name="qrview_comments_players_text">Comments</string>
+    <string name="qrview_comment_button_text">Comment</string>
+    <string name="qrview_change_list_button_text">View Players</string>
+
+    <string name="search_menu_filter_button_text">Filter</string>
+    <string name="search_menu_rank_button_text">My Rank</string>
+    <string name="search_menu_search_button_text">Search</string>
+
+    <string name="create_account_create_username_text">Username</string>
+    <string name="create_account_create_password_text">Enter Password</string>
+    <string name="create_account_confirm_password_text">Confirm Password</string>
+    <string name="create_account_create_account_text">Register Account</string>
+    <string name="create_account_cancel_create_text">Cancel</string>
 
     <string name="my_collectibles">My Collectibles:</string>
 
@@ -17,6 +38,7 @@
     <string name="user_generate_qr">Generate User QR</string>
     <string name="user_generate_status">Generate Game Status QR</string>
     <string name="user_text">Player Login QR</string>
+
     <string name="context_view_delete_text">Delete</string>
     <string name="title_activity_qrmap">QRMap</string>
     <string name="context_scanned_name_text">Name</string>

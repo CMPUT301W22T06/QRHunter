@@ -51,6 +51,7 @@ public class Collectable {
      */
     public ArrayList<String> getComments() {return comments;}
 
+
     /**
      * Returns the name of the Code.
      * @return The name.
@@ -68,6 +69,7 @@ public class Collectable {
         score = new_score;
     }
 
+
     /**
      * Sets the ID for the collectable.
      * @param new_id The new id for the collectable.
@@ -75,6 +77,7 @@ public class Collectable {
     public void setId(String new_id) {
         id = new_id;
     }
+
 
     /**
      * Sets the photo for the collectable.
@@ -105,7 +108,7 @@ public class Collectable {
 
     /**
      * Sets a new arraylist for the comments. Don't use this to update information, as it will
-     * only be seen locally, and won't syncronize with the firestore.
+     * only be seen locally, and won't synchronize with the Firestore.
      * @param new_comments The comments.
      */
     public void setComments(ArrayList<String> new_comments) {comments = new_comments;}
@@ -115,9 +118,6 @@ public class Collectable {
      * Sets an ImageView to the image in the Collectable.
      * @param view the ImageView to add to.
      */
-    public void viewPhoto(ImageView view) {
-        view.setImageBitmap(photo);
-    }
-
+    public void viewPhoto(ImageView view) {view.setImageBitmap(photo);}
 }
 

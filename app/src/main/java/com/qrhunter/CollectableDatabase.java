@@ -7,10 +7,6 @@ import android.graphics.BitmapFactory;
 import android.util.Log;
 import android.util.Pair;
 
-import androidx.annotation.NonNull;
-
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
@@ -79,12 +75,10 @@ public class CollectableDatabase {
                                 break;
                             }
                         }
-                        if (!exists && collectables.containsKey(current.getId())) collectables.remove(current.getId());
+                        if (!exists) collectables.remove(current.getId());
                     }
                 }
                 catch (ConcurrentModificationException e) {return;}
-
-
 
                 for (QueryDocumentSnapshot document : Objects.requireNonNull(result)) {
                     Collectable current = new Collectable();
@@ -128,7 +122,8 @@ public class CollectableDatabase {
                         // Put the collectable into the local database.
                         collectables.put(document.getId(), current);
                     }
-                    // If
+
+                    // Comments need to always be updated, so always do it.
                     else {
                         Object comments_object = document.get("Comments");
                         if (comments_object != null) {
@@ -144,9 +139,6 @@ public class CollectableDatabase {
     }
 
 
-    /**
-     * Constructs the Database, and downloads all data.
-     */
     public CollectableDatabase() {
 
         // Get the instances.
@@ -157,12 +149,13 @@ public class CollectableDatabase {
         updateLocal();
 
         // Hook to update when other people scan codes.
-        database.collection("Scanned").addSnapshotListener((queryDocumentSnapshots, error) -> updateLocal());
+        database.collection("Scanned")
+                .addSnapshotListener((queryDocumentSnapshots, error) -> updateLocal());
     }
 
 
     /**
-     * Returns the firestore database.
+     * Returns the Firestore database.
      * @return The database.
      */
     public FirebaseFirestore getStore() {return database;}
@@ -175,6 +168,15 @@ public class CollectableDatabase {
     public HashMap<String, Collectable> getDatabase() {return collectables;}
 
 
+    /**
+     * Creates a callback to the Home Activity after the code has been uploaded.
+     * @param scanned The collectable that should be uploaded.
+     * @param callback The activity.
+     *
+     * This function exists to prevent asynchronous activity between when a collectable is
+     * being uploaded and when the HomeActivity resumes. This function is run after the
+     * collectable has been fully uploaded, allow synchronous movement back to the HomeActivity.
+     */
     private void add_callback(Collectable scanned, @Nullable HomeActivity callback) {
         // Our hashmap to upload basic information.
         HashMap<String, Object> pack = new HashMap<>();
@@ -203,6 +205,7 @@ public class CollectableDatabase {
                 });
     }
 
+
     /**
      * Adds the provided collectable into the local and firestore databases.
      * @param scanned The scanned collectable.
@@ -217,43 +220,37 @@ public class CollectableDatabase {
             // Gets the current image size settings
             database.collection("Preferences")
                     .document("ImagePrefs")
-                    .get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-                @Override
-                public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                    if (task.isSuccessful()) {
-                        DocumentSnapshot document = task.getResult();
-                        if (document.exists()) {
-                            storeBigImages = document.getBoolean("bigImages");
+                    .get().addOnCompleteListener(task -> {
+                        if (task.isSuccessful()) {
+                            DocumentSnapshot document = task.getResult();
+                            if (document.exists()) {
+                                storeBigImages = Boolean.TRUE.equals(document.getBoolean("bigImages"));
+                            }
+                            else {
+                                Log.d(TAG, "Error getting image preferences", task.getException());
+                            }
                         }
-                        else {
-                            Log.d(TAG, "Error getting image preferences", task.getException());
-                        }
-                    }
-                }
-            });
+                    });
 
             // If big images aren't allowed, aggressively recompresses the image while it's over 64kb
-            if(storeBigImages==false) {
+            if (!storeBigImages) {
                 scanned.getPhoto().compress(Bitmap.CompressFormat.JPEG, 70, output);
-                if(scanned.getPhoto().getByteCount()>MAX_COMPRESSED_SIZE) {
+                if (scanned.getPhoto().getByteCount() > MAX_COMPRESSED_SIZE) {
                     scanned.getPhoto().compress(Bitmap.CompressFormat.JPEG, 30, output);
-                    if(scanned.getPhoto().getByteCount()>MAX_COMPRESSED_SIZE) {
+                    if (scanned.getPhoto().getByteCount() > MAX_COMPRESSED_SIZE) {
                         // At this point, even a 500MB image would be compressed to under 64KB
                         scanned.getPhoto().compress(Bitmap.CompressFormat.JPEG, 1, output);
                     }
                 }
             }
-            else {
-                // Keeps image in high quality
-                scanned.getPhoto().compress(Bitmap.CompressFormat.JPEG, 100, output);
-            }
+
+            // Otherwise, keeps image in high quality
+            else scanned.getPhoto().compress(Bitmap.CompressFormat.JPEG, 100, output);
 
             // Write it. Since its detached from the main base, use the ID to associate it.
             storage.getReference(scanned.getId())
                     .putBytes(output.toByteArray())
-                    .addOnCompleteListener(e -> {
-                        add_callback(scanned, callback);
-                    })
+                    .addOnCompleteListener(e -> add_callback(scanned, callback))
                     .addOnFailureListener(e -> {
                         if (callback != null)
                             callback.resume("Could not upload image!");
@@ -261,6 +258,7 @@ public class CollectableDatabase {
         }
         else add_callback(scanned, callback);
     }
+
 
     /**
      * Adds comments to a collectable, updates firebase.
@@ -280,6 +278,7 @@ public class CollectableDatabase {
                     .addOnFailureListener(e -> {throw new RuntimeException("Network Error.");});
         }
     }
+
 
     /**
      * Deletes a collectable from the database.
@@ -304,14 +303,14 @@ public class CollectableDatabase {
         }
     }
 
+
     /**
      * Checks if a particular QR code exists within the database.
      * @param id The id of the code.
      * @return Whether it is present within the database
      */
-    public boolean exists(String id) {
-        return collectables.containsKey(id);
-    }
+    public boolean exists(String id) {return collectables.containsKey(id);}
+
 
     /**
      * Returns the collectable associated with the provided ID.
@@ -320,17 +319,14 @@ public class CollectableDatabase {
      * @throws RuntimeException If the collectable does not exist.
      */
     public Collectable get(String id) {
-        if (exists(id)) {
-            return collectables.get(id);
-        }
+        if (exists(id)) return collectables.get(id);
         else throw new RuntimeException("ID not in database");
     }
+
 
     /**
      * Returns all collectables.
      * @return Hashmap of all collectables in the database
      */
-    public HashMap<String,Collectable> getCollectables() {
-        return collectables;
-    }
+    public HashMap<String,Collectable> getCollectables() {return collectables;}
 }

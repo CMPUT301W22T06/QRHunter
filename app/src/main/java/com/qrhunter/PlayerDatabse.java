@@ -5,7 +5,6 @@ import com.google.firebase.firestore.QueryDocumentSnapshot;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Objects;
 
 /**
@@ -14,10 +13,12 @@ import java.util.Objects;
 
 public class PlayerDatabse {
 
+
     // initially set to null in order to prevent
     FirebaseFirestore database = FirebaseFirestore.getInstance();
     private boolean finishDownloading = false;
     private HashMap<String, User> players = new HashMap<>();
+
 
     /**
      * @throws RuntimeException if the database cannot be accessed (Network issues)
@@ -39,56 +40,50 @@ public class PlayerDatabse {
                 for (QueryDocumentSnapshot document : Objects.requireNonNull(e.getResult())){
 
                     // put the players into a local hashmap
-                    Class<? extends QueryDocumentSnapshot> test = document.getClass();
                     if (!players.containsKey(document.getId())) {
                         // if it is a player
                         if (document.get("highestScore") != null) {
                             Player current = new Player();
+
                             Object username_object = document.get("username");
-                            if (username_object != null) {
+                            if (username_object != null)
                                 current.setUsername((String) username_object);
-                            }
+
                             Object password_object = document.get("password");
-                            if (password_object != null) {
+                            if (password_object != null)
                                 current.setPassword((String) password_object);
-                            }
+
                             Object claimedIDs_object = document.get("claimedCollectibleIDs");
                             if (claimedIDs_object != null) {
                                 ArrayList<String> claimedIDs = (ArrayList<String>) claimedIDs_object;
                                 current.setClaimedCollectibleIDs(claimedIDs);
                             }
+
                             players.put(document.getId(), current);
-                        } else { // if it is an owner
+                        }
+
+                        // if it is an owner
+                        else {
                             Owner current = new Owner();
+
                             Object username_object = document.get("username");
-                            if (username_object != null) {
+                            if (username_object != null)
                                 current.setUsername((String) username_object);
-                            }
+
                             Object password_object = document.get("password");
-                            if (password_object != null) {
+                            if (password_object != null)
                                 current.setPassword((String) password_object);
-                            }
+
                             players.put(document.getId(), current);
                         }
                     }
-                    // if
-/*                    else {
-                        Object claimedIDs_object = document.get("claimedCollectibleIDs");
-                        if (claimedIDs_object != null){
-                            ArrayList<String> claimedIDs = (ArrayList<String>) claimedIDs_object;
-                            if (current.getClaimedCollectibleIDs() == null || current.getClaimedCollectibleIDs().size() != claimedIDs.size()){
-                                current.setClaimedCollectibleIDs(claimedIDs);
-                            }
-                        }
-                    }*/
                 }
             }
-            else{
-                throw new RuntimeException("Network Error:" + e.getException());
-            }
+            else throw new RuntimeException("Network Error:" + e.getException());
             finishDownloading = true;
         });
     }
+
 
     /**
      * constructs the databse and downloads all the data.
@@ -98,9 +93,10 @@ public class PlayerDatabse {
         importDatabase();
 
         // hook to update
-        database.collection("Players").addSnapshotListener((queryDocumentSnapshots, error) -> importDatabase());
-
+        database.collection("Players").
+                addSnapshotListener((queryDocumentSnapshots, error) -> importDatabase());
     }
+
 
     /**
      * adds the provided player into the firestore database (the addition updates the local database)
@@ -112,6 +108,7 @@ public class PlayerDatabse {
         Player player = new Player(playerName, playerPassword, new ArrayList<>());
         database.collection("Players").document(playerName).set(player);
     }
+
 
     /**
      * removes the provided player from the firestore database as well as the local databse.
@@ -130,6 +127,7 @@ public class PlayerDatabse {
         players.remove(playerName);
     }
 
+
     /**
      * communicates with the code to check if the local database is finished downloading.
      * this prevents some login errors due to firebase's async nature.
@@ -138,6 +136,7 @@ public class PlayerDatabse {
     public boolean isFinishDownloading(){
         return finishDownloading;
     }
+
 
     /**
      * specifically used for testing purposes, checks if a particular player exists within the
@@ -149,11 +148,11 @@ public class PlayerDatabse {
         return players.containsKey(playerName);
     }
 
+
     /**
      * gives a player object if the player exists within the firebase, otherwise returns null
      * @param playerName the player's username
-     * @return the player
-     * @return null
+     * @return the player or null if the player does not exist.
      */
     public Player getPlayer(String playerName) {
         if (!isFinishDownloading()){
@@ -165,11 +164,12 @@ public class PlayerDatabse {
         else return null;
     }
 
+
     /**
      * adds the ID of the claimed object to the player database under the player to show that they
      * possess it
-     * @param player
-     * @param id
+     * @param player The player
+     * @param id The id of the QR Code.
      */
     public void addClaimedID(String player, String id) {
         Player selected = MainActivity.allPlayers.getPlayer(player);
@@ -199,12 +199,10 @@ public class PlayerDatabse {
             database.collection("Players")
                     .document(player)
                     .update("claimedCollectibleIDs", selected.getClaimedCollectibleIDs())
-                    .addOnFailureListener(e -> {throw new RuntimeException("Network Error.");})
-                    .addOnCompleteListener(e -> {
-                        MainActivity.collectables.deleteCollectable(id);
-                    });
+                    .addOnFailureListener(e -> {throw new RuntimeException("Network Error.");});
         }
     }
+
 
     /**
      * Returns all players (NO USERS/OWNERS)
@@ -212,19 +210,17 @@ public class PlayerDatabse {
      */
     public HashMap<String, Player> getPlayers() {
         HashMap<String,Player> returner = new HashMap<>();
-        Iterator<String> usernames = players.keySet().iterator();
-        while(usernames.hasNext()) {
-            String currentUsername = usernames.next();
-            if(players.get(currentUsername).getClass() == Player.class) {
-                returner.put(currentUsername,(Player) players.get(currentUsername));
+        for (String currentUsername : players.keySet()) {
+            if (players.get(currentUsername).getClass() == Player.class) {
+                returner.put(currentUsername, (Player) players.get(currentUsername));
             }
         }
         return returner;
     }
 
-    public User getUser(String username) {
-        return players.get(username);
-    }
+
+    public User getUser(String username) {return players.get(username);}
+
 
     /**
      * Checks if a username matches a player in the database.
@@ -235,10 +231,10 @@ public class PlayerDatabse {
         try {
             // try to cast to player...
             return ((Player) players.get(username)).getHighestScore() != null;
-        } catch (Exception e){
-            return false;
         }
+        catch (Exception e){return false;}
     }
+
 
     /**
      * Removes a user from the database.
@@ -255,19 +251,18 @@ public class PlayerDatabse {
                     });
         }
     }
+
+
     /**
      * Removes a collectible ID from EVERY player in the database
      * @param id The collectable to be removed
      */
     public void removeCollectable(String id) {
         HashMap<String, Player> allPlayers = this.getPlayers();
-        Iterator<String> usernames = allPlayers.keySet().iterator();
-        while(usernames.hasNext()) {
-            String currentUsername = usernames.next();
-            if(allPlayers.get(currentUsername).getClaimedCollectibleIDs().contains(id)) {
-                removeClaimedID(currentUsername,id);
+        for (String currentUsername : allPlayers.keySet()) {
+            if (allPlayers.get(currentUsername).getClaimedCollectibleIDs().contains(id)) {
+                removeClaimedID(currentUsername, id);
             }
         }
     }
-
 }

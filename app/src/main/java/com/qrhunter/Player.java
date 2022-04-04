@@ -7,12 +7,11 @@ import java.util.ArrayList;
  * Player class for all players of the game.
  */
 public class Player extends User implements Serializable {
+    private ArrayList<String> claimedCollectibleIDs = new ArrayList<>();
 
-    private ArrayList<String> claimedCollectibleIDs = new ArrayList<String>();
 
-    public Player(){
-        // Default constructor
-    }
+    public Player() {}
+
 
     // constructor for the player object
     public Player(String username, String password, ArrayList<String> claimedCollectibleIDs) {
@@ -20,15 +19,13 @@ public class Player extends User implements Serializable {
         this.claimedCollectibleIDs = claimedCollectibleIDs;
     }
 
-    // getters
 
     /**
      * returns an array of scannables the player has collected
      * @return array of scannable IDs
      */
-    public ArrayList<String> getClaimedCollectibleIDs() {
-        return claimedCollectibleIDs;
-    }
+    public ArrayList<String> getClaimedCollectibleIDs() {return claimedCollectibleIDs;}
+
 
     /**
      * returns the highest score that the player has gotten on a single collectible
@@ -37,11 +34,15 @@ public class Player extends User implements Serializable {
     public Long getHighestScore(){
         Long highest = 0L;
         for (String id : getClaimedCollectibleIDs()) {
-            Long current = MainActivity.collectables.get(id).getScore();
-            if (current > highest) highest = current;
+            try {
+                Long current = MainActivity.collectables.get(id).getScore();
+                if (current > highest) highest = current;
+            }
+            catch (RuntimeException ignored) {}
         }
         return highest;
     }
+
 
     /**
      * returns the sum of scores that the player has in their lifetime
@@ -50,18 +51,21 @@ public class Player extends User implements Serializable {
     public Long getScoreSum() {
         Long sum = 0L;
         for (String id : getClaimedCollectibleIDs()) {
-            sum +=  MainActivity.collectables.get(id).getScore();
+            try {
+                sum += MainActivity.collectables.get(id).getScore();
+            }
+            catch (RuntimeException ignored) {}
         }
         return sum;
     }
+
 
     /**
      * returns the total number of QR codes that the player has scanned
      * @return the number of QR codes the player has scanned
      */
-    public Long getTotalCodesScanned() {
-        return (long) claimedCollectibleIDs.size();
-    }
+    public Long getTotalCodesScanned() {return (long) claimedCollectibleIDs.size();}
+
 
     /**
      * Sets a players claimed collectables ID

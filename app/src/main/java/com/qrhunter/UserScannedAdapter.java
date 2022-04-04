@@ -12,17 +12,20 @@ import androidx.annotation.Nullable;
 
 import java.util.List;
 
+/**
+ * Adapter to show QR codes scanned by the player in the UserActivity.
+ */
 public class UserScannedAdapter extends ArrayAdapter<Collectable> {
     private int resourceId;
+
+
     public UserScannedAdapter(@NonNull Context context, int resource, List<Collectable> list) {
         super(context, resource,list);
         resourceId = resource;
     }
 
 
-    @NonNull
-    @Override
-    public View getView(int position, @Nullable View convertView, @NonNull ViewGroup parent) {
+    @NonNull @Override public View getView(int position, @Nullable View convertView, @NonNull ViewGroup parent) {
         Collectable collectable = getItem(position);
 
         View view;
@@ -33,7 +36,8 @@ public class UserScannedAdapter extends ArrayAdapter<Collectable> {
             viewHolder.tvName = view.findViewById(R.id.tv_name);
             viewHolder.tvScore = view.findViewById(R.id.tv_score);
             view.setTag(viewHolder);
-        }else{
+        }
+        else {
             view = convertView;
             viewHolder = (ViewHolder) view.getTag();
         }
@@ -44,7 +48,7 @@ public class UserScannedAdapter extends ArrayAdapter<Collectable> {
         return view;
     }
 
-    class ViewHolder{
+    static class ViewHolder{
         TextView tvName;
         TextView tvScore;
     }

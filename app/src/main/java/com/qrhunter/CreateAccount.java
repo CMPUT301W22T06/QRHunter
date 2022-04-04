@@ -6,34 +6,23 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.fragment.app.DialogFragment;
 
 import javax.annotation.Nullable;
 
-public class createAccount extends DialogFragment {
-
-    public createAccount(){
-        // blank constructor
-    }
-
-    public static createAccount newInstance(String title){
-        createAccount frag = new createAccount();
-        Bundle args = new Bundle();
-        args.putString("Register An Account", title);
-        frag.setArguments(args);
-        return frag;
-    }
-
-    @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState){
+/**
+ * Fragment that facilitates creating a new account on the MainActivity.
+ */
+public class CreateAccount extends DialogFragment {
+    @Override public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState){
         super.onCreateView(inflater, container, savedInstanceState);
         return inflater.inflate(R.layout.fragment_create_account,container);
     }
 
-    @Override
-    public void onViewCreated(View view, @Nullable Bundle savedInstanceState){
+
+    @Override public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState){
         super.onViewCreated(view, savedInstanceState);
 
         EditText username = view.findViewById(R.id.create_username);
@@ -42,9 +31,7 @@ public class createAccount extends DialogFragment {
         Button createAcc = view.findViewById(R.id.create_account_button);
         Button cancel = view.findViewById(R.id.cancel_create);
 
-        cancel.setOnClickListener(v -> {
-            dismiss();
-        });
+        cancel.setOnClickListener(v -> dismiss());
 
         createAcc.setOnClickListener(v -> {
             String uName = username.getText().toString();
@@ -59,20 +46,15 @@ public class createAccount extends DialogFragment {
                 // makes sure the player does not already exist in the database
                 if (referencePlayer == null){
                     database.addPlayer(uName, pWord);
-                    Toast.makeText(getActivity(), "Account Created", Toast.LENGTH_SHORT).show();
+                    MainActivity.toast(getActivity(), "Account Created");
                 }
+
                 // if the player does exist, toast the user to tell them the player exists
-                else {
-                    Toast.makeText(getActivity(), "Player already exists!", Toast.LENGTH_SHORT).show();
-                }
+                else MainActivity.toast(getActivity(), "Player already exists!");
             }
+
             // toast user to tell them entered information does not meet all requirements
-            else{
-                Toast.makeText(getActivity(), "Invalid Field!", Toast.LENGTH_SHORT).show();
-            }
-
+            else MainActivity.toast(getActivity(), "Invalid Field!");
         });
-
     }
-
 }

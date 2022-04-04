@@ -36,8 +36,11 @@ import com.journeyapps.barcodescanner.DecoratedBarcodeView;
 
 import java.util.List;
 
+/**
+ * The HomeActivity is the primary activity after the user has logged in, and allows the user
+ * to view their profile, the QR Map, and the scoreboard..
+ */
 public class HomeActivity extends AppCompatActivity {
-
     DecoratedBarcodeView scanner;
     Collectable scanned;
     Player player;
@@ -98,8 +101,7 @@ public class HomeActivity extends AppCompatActivity {
      * Assembles a scanned QR code, waiting for the user to enter photo/geolocation, then uploading
      * it.
      */
-    @SuppressLint("SetTextI18n")
-    private void assembleScanned() {
+    @SuppressLint("SetTextI18n") private void assembleScanned() {
         // Create the popup.
         LayoutInflater layoutInflater = LayoutInflater.from(HomeActivity.this);
         View context_view = layoutInflater.inflate(R.layout.context_scanned, null);
@@ -141,19 +143,25 @@ public class HomeActivity extends AppCompatActivity {
     }
 
 
+    /**
+     * Resumes the activity (usually a callback from collectable uploading)
+     * @param error An associated error, if there was one.
+     */
     public void resume(String error) {
-        if (!error.isEmpty()) {
+        if (!error.isEmpty())
             MainActivity.toast(getApplicationContext(), "Could not upload QR Code: " + error);
-        }
+
+        // Resume the scanner.
         scanner.resume();
         building = false;
     }
 
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
+
+    @Override protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_home);
 
+        // Initialize the toolbar.
         Toolbar toolbar = findViewById(R.id.player_menu);
         setSupportActionBar(toolbar);
 
@@ -161,6 +169,7 @@ public class HomeActivity extends AppCompatActivity {
         String username = getIntent().getStringExtra("username");
         player = MainActivity.allPlayers.getPlayer(username);
 
+        // Access the scoreboard.
         Button scoreboardButton = findViewById(R.id.home_scoreboard);
         scoreboardButton.setOnClickListener(view -> {
             Intent intent = new Intent(HomeActivity.this, SearchMenuActivity.class);
@@ -168,6 +177,7 @@ public class HomeActivity extends AppCompatActivity {
             startActivity(intent);
         });
 
+        // Access the QR Map.
         findViewById(R.id.home_map).setOnClickListener(view -> {
             Intent intent = new Intent(HomeActivity.this, QRMapActivity.class);
             startActivity(intent);
@@ -180,8 +190,9 @@ public class HomeActivity extends AppCompatActivity {
             scanner.decodeContinuous(new BarcodeCallback() {
 
                 // When we successfully scan a code.
-                @Override
-                public void barcodeResult(BarcodeResult result) {
+                @Override public void barcodeResult(BarcodeResult result) {
+
+                    // Turn the building flag on so the scanner doesn't resume.
                     building = true;
                     scanned = new Collectable();
 
@@ -192,7 +203,6 @@ public class HomeActivity extends AppCompatActivity {
 
                     // Pause the scanner so it doesn't make an infinite amount of popups.
                     scanner.pause();
-
 
                     // Check if the Code already exists within the Firebase, prompt accordingly.
                     MainActivity.collectables.getStore().collection("Scanned").document(scanned.getId()).get().addOnCompleteListener(task -> {
@@ -215,35 +225,41 @@ public class HomeActivity extends AppCompatActivity {
                         else assembleScanned();
                     });
                 }
-
-                @Override
-                public void possibleResultPoints(List<ResultPoint> resultPoints) {
-                }
+                @Override public void possibleResultPoints(List<ResultPoint> resultPoints) {}
             });
         }
     }
 
+
+    /**
+     * Setups the UserActivity after the user clicks the hot-dog menu on the Toolbar.
+     * @param mi The MenuItem
+     */
     public void onClickUser(MenuItem mi) {
+
+        // If we're building a collectable, don't let them leave.
         if (building) {
             MainActivity.toast(getApplicationContext(), "Uploading... please wait.");
             return;
         }
+
+        // If the player has yet to login, we can't let them go to the activity.
         if (player!=null) {
             Intent intent = new Intent(HomeActivity.this, UserActivity.class);
             intent.putExtra("username", player.getUsername());
             intent.putExtra("restricted", false);
             startActivity(intent);
         }
-        else{
-            MainActivity.toast(this, "please login first");
-        }
+
+        else MainActivity.toast(this, "Please login first");
     }
 
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
+
+    @Override public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.menu_home, menu);
         return true;
     }
+
 
     @Override protected void onResume() {
         super.onResume();
@@ -252,17 +268,14 @@ public class HomeActivity extends AppCompatActivity {
     }
 
 
-    @Override protected void onPause() {
-        super.onPause();
-        scanner.pause();
-    }
+    @Override protected void onPause() {super.onPause(); scanner.pause();}
 
 
-    @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+    @Override public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         for (int x = 0; x < permissions.length; ++x) {
 
+            // Check if the permission was Location, upload the collectable.
             if (permissions[x].equals(Manifest.permission.ACCESS_COARSE_LOCATION) && requestCode == 1) {
                 if (grantResults[x] == PackageManager.PERMISSION_GRANTED) storeLocation();
                 else {

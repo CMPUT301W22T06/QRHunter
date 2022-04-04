@@ -6,6 +6,7 @@
     android:layout_height="match_parent"
     tools:context=".QRViewActivity">
 
+
     <ImageView
         android:id="@+id/qr_image"
         android:layout_width="345dp"
@@ -19,6 +20,7 @@
         app:layout_constraintTop_toTopOf="parent"
         app:srcCompat="@android:drawable/ic_menu_report_image" />
 
+
     <TextView
         android:id="@+id/comments_players"
         android:layout_width="match_parent"
@@ -26,11 +28,12 @@
         android:layout_marginStart="16dp"
         android:layout_marginTop="32dp"
         android:layout_marginEnd="16dp"
-        android:text="Comments"
+        android:text="@string/qrview_comments_players_text"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/qr_image" />
+
 
     <ListView
         android:id="@+id/comments_players_list"
@@ -43,16 +46,18 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/comments_players" />
 
+
     <Button
         android:id="@+id/comment_button"
         android:layout_width="170dp"
         android:layout_height="wrap_content"
         android:layout_marginEnd="8dp"
-        android:text="Comment"
+        android:text="@string/qrview_comment_button_text"
         app:layout_constraintBottom_toTopOf="@+id/change_list_button"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="1.0"
         app:layout_constraintStart_toEndOf="@+id/comment_input" />
+
 
     <EditText
         android:id="@+id/comment_input"
@@ -71,7 +76,7 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="8dp"
         android:layout_marginEnd="8dp"
-        android:text="View Players"
+        android:text="@string/qrview_change_list_button_text"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent" />

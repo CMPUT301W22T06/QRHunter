@@ -22,12 +22,20 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.qrhunter.databinding.ActivityQrmapBinding;
 
+/**
+ * The QRMapActivity shows the user a map centered at their current location, and highlights
+ * nearby QR Codes.
+ */
 public class QRMapActivity extends FragmentActivity implements OnMapReadyCallback {
 
     private GoogleMap map;
     private ActivityQrmapBinding binding;
     private Geolocation player_location;
 
+
+    /**
+     * Attempts to get the players current location.
+     */
     private void storeLocation() {
 
         // If permission is not granted, we need to ask and then leave
@@ -48,8 +56,15 @@ public class QRMapActivity extends FragmentActivity implements OnMapReadyCallbac
     }
 
 
+    /**
+     * Populates the map with QR codes that are within 0.01 Lng and Lat from the current position.
+     */
     private void populateMap() {
+
+        // Move the camera to the right position.
         map.animateCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(player_location.getLatitude(), player_location.getLongitude()), 15.0f));
+
+        // Go through each collectable, and if they're within range, add a pin.
         for (Collectable scanned : MainActivity.collectables.getDatabase().values()) {
             Geolocation current = scanned.getLocation();
             if (abs(player_location.getLongitude() - current.getLongitude()) < 0.01 && abs(player_location.getLongitude() - current.getLongitude()) < 0.01) {
@@ -59,8 +74,7 @@ public class QRMapActivity extends FragmentActivity implements OnMapReadyCallbac
     }
 
 
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    @Override protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
         binding = ActivityQrmapBinding.inflate(getLayoutInflater());
@@ -74,16 +88,18 @@ public class QRMapActivity extends FragmentActivity implements OnMapReadyCallbac
         mapFragment.getMapAsync(this);
     }
 
-    @Override
-    public void onMapReady(@NonNull GoogleMap googleMap) {
+
+    @Override public void onMapReady(@NonNull GoogleMap googleMap) {
         map = googleMap;
         storeLocation();
     }
 
-    @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+
+    @Override public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         for (int x = 0; x < permissions.length; ++x) {
+
+            // If the user refuses location permission, we can't do anything so exit the activity.
             if (permissions[x].equals(Manifest.permission.ACCESS_COARSE_LOCATION) && requestCode == 1) {
                 if (grantResults[x] == PackageManager.PERMISSION_GRANTED) storeLocation();
                 else {
