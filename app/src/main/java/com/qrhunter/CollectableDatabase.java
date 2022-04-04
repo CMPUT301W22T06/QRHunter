@@ -1,9 +1,16 @@
 package com.qrhunter;
 
+import static android.content.ContentValues.TAG;
+
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.util.Log;
 import android.util.Pair;
 
+import androidx.annotation.NonNull;
+
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
@@ -32,10 +39,11 @@ public class CollectableDatabase {
     // Firebase related objects
     FirebaseFirestore database;
     FirebaseStorage storage;
+    boolean storeBigImages;
 
     // We need to specific a size, and no image should exceed a megabyte.
     final long ONE_MEGABYTE = 1024 * 1024;
-
+    final int MAX_COMPRESSED_SIZE = 64000;
 
     /**
      * @throws RuntimeException if the database cannot be accessed (Network issues)
@@ -206,8 +214,39 @@ public class CollectableDatabase {
         if (scanned.getPhoto() != null) {
             ByteArrayOutputStream output = new ByteArrayOutputStream();
 
-            // TODO We can change the quality attribute to solve US 09.01.01
-            scanned.getPhoto().compress(Bitmap.CompressFormat.JPEG, 100, output);
+            // Gets the current image size settings
+            database.collection("Preferences")
+                    .document("ImagePrefs")
+                    .get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                @Override
+                public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                    if (task.isSuccessful()) {
+                        DocumentSnapshot document = task.getResult();
+                        if (document.exists()) {
+                            storeBigImages = document.getBoolean("bigImages");
+                        }
+                        else {
+                            Log.d(TAG, "Error getting image preferences", task.getException());
+                        }
+                    }
+                }
+            });
+
+            // If big images aren't allowed, aggressively recompresses the image while it's over 64kb
+            if(storeBigImages==false) {
+                scanned.getPhoto().compress(Bitmap.CompressFormat.JPEG, 70, output);
+                if(scanned.getPhoto().getByteCount()>MAX_COMPRESSED_SIZE) {
+                    scanned.getPhoto().compress(Bitmap.CompressFormat.JPEG, 30, output);
+                    if(scanned.getPhoto().getByteCount()>MAX_COMPRESSED_SIZE) {
+                        // At this point, even a 500MB image would be compressed to under 64KB
+                        scanned.getPhoto().compress(Bitmap.CompressFormat.JPEG, 1, output);
+                    }
+                }
+            }
+            else {
+                // Keeps image in high quality
+                scanned.getPhoto().compress(Bitmap.CompressFormat.JPEG, 100, output);
+            }
 
             // Write it. Since its detached from the main base, use the ID to associate it.
             storage.getReference(scanned.getId())
