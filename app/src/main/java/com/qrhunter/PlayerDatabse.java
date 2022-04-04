@@ -7,7 +7,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Objects;
-import java.util.Set;
 
 /**
  * A database of all Players. This also facilitates communicating with the firestore.
@@ -52,18 +51,6 @@ public class PlayerDatabse {
                             Object password_object = document.get("password");
                             if (password_object != null) {
                                 current.setPassword((String) password_object);
-                            }
-                            Object highestScore_object = document.get("highestScore");
-                            if (highestScore_object != null) {
-                                current.setHighestScore((Long) highestScore_object);
-                            }
-                            Object scoreSum_object = document.get("scoreSum");
-                            if (scoreSum_object != null) {
-                                current.setScoreSum((Long) scoreSum_object);
-                            }
-                            Object totalCodesScanned_object = document.get("totalCodesScanned");
-                            if (totalCodesScanned_object != null) {
-                                current.setTotalCodesScanned((Long) totalCodesScanned_object);
                             }
                             Object claimedIDs_object = document.get("claimedCollectibleIDs");
                             if (claimedIDs_object != null) {
@@ -122,7 +109,7 @@ public class PlayerDatabse {
      */
     public void addPlayer(String playerName,String playerPassword) {
         // passes in an initial arraylist of null for claimedCollectibleIDs and default values
-        Player player = new Player(playerName, playerPassword, null,0L,0L,0L);
+        Player player = new Player(playerName, playerPassword, new ArrayList<>());
         database.collection("Players").document(playerName).set(player);
     }
 

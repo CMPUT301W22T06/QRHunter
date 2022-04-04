@@ -68,7 +68,7 @@ public class UserActivity extends AppCompatActivity {
         adapter = new UserScannedAdapter(this,R.layout.item_list_userscanned, collectables);
         scanned.setAdapter(adapter);
 
-        user_score.setText("Total Score: " + getTotalScore());
+        user_score.setText("Total Score: " + player.getScoreSum());
 
         // Setup for what happens when a user clicks a code.
         scanned.setOnItemClickListener((parent, v, position, id) -> {
@@ -144,19 +144,7 @@ public class UserActivity extends AppCompatActivity {
         adapter.notifyDataSetChanged();
         scanned.invalidateViews();
         scanned.refreshDrawableState();
-        user_score.setText("Total Score: " + getTotalScore());
-    }
-
-    /**
-     * Gets the total score of all QR's scanned by the player.
-     * @return The score of the player.
-     */
-    private Long getTotalScore() {
-        long score = 0L;
-        for (String scanned : player.getClaimedCollectibleIDs()) {
-            score += MainActivity.collectables.get(scanned).getScore();
-        }
-        return score;
+        user_score.setText("Total Score: " + player.getScoreSum());
     }
 
 

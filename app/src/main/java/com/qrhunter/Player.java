@@ -1,7 +1,5 @@
 package com.qrhunter;
 
-import android.graphics.Bitmap;
-
 import java.io.Serializable;
 import java.util.ArrayList;
 
@@ -11,23 +9,15 @@ import java.util.ArrayList;
 public class Player extends User implements Serializable {
 
     private ArrayList<String> claimedCollectibleIDs = new ArrayList<String>();
-    private Long highestScore = 0L;
-    private Long scoreSum = 0L;
-    private Long totalCodesScanned = 0L;
-    private Bitmap QRcode;
 
     public Player(){
         // Default constructor
     }
 
     // constructor for the player object
-    public Player(String username, String password, ArrayList<String> claimedCollectibleIDs,
-                  Long highestScore, Long scoreSum, Long totalCodesScanned) {
+    public Player(String username, String password, ArrayList<String> claimedCollectibleIDs) {
         super(username, password);
         this.claimedCollectibleIDs = claimedCollectibleIDs;
-        this.highestScore = highestScore;
-        this.scoreSum = scoreSum;
-        this.totalCodesScanned = totalCodesScanned;
     }
 
     // getters
@@ -45,7 +35,12 @@ public class Player extends User implements Serializable {
      * @return the player's highest score on one QR code
      */
     public Long getHighestScore(){
-        return highestScore;
+        Long highest = 0L;
+        for (String id : getClaimedCollectibleIDs()) {
+            Long current = MainActivity.collectables.get(id).getScore();
+            if (current > highest) highest = current;
+        }
+        return highest;
     }
 
     /**
@@ -53,7 +48,11 @@ public class Player extends User implements Serializable {
      * @return the player's current total score
      */
     public Long getScoreSum() {
-        return scoreSum;
+        Long sum = 0L;
+        for (String id : getClaimedCollectibleIDs()) {
+            sum +=  MainActivity.collectables.get(id).getScore();
+        }
+        return sum;
     }
 
     /**
@@ -61,7 +60,7 @@ public class Player extends User implements Serializable {
      * @return the number of QR codes the player has scanned
      */
     public Long getTotalCodesScanned() {
-        return totalCodesScanned;
+        return (long) claimedCollectibleIDs.size();
     }
 
     /**
@@ -70,37 +69,5 @@ public class Player extends User implements Serializable {
      */
     public void setClaimedCollectibleIDs(ArrayList<String> claimedCollectibleIDs) {
         this.claimedCollectibleIDs = claimedCollectibleIDs;
-    }
-
-    /**
-     * Sets a players highest collectible score.
-     * @param highestScore
-     */
-    public void setHighestScore(Long highestScore) {
-        this.highestScore = highestScore;
-    }
-
-    /**
-     * Sets a players total collectible score.
-     * @param scoreSum
-     */
-    public void setScoreSum(Long scoreSum) {
-        this.scoreSum = scoreSum;
-    }
-
-    /**
-     * Sets a players total number of collectibles scanned.
-     * @param totalCodesScanned
-     */
-    public void setTotalCodesScanned(Long totalCodesScanned) {
-        this.totalCodesScanned = totalCodesScanned;
-    }
-
-    public Bitmap getQRcode() {
-        return QRcode;
-    }
-
-    public void setQRcode(Bitmap QRcode) {
-        this.QRcode = QRcode;
     }
 }

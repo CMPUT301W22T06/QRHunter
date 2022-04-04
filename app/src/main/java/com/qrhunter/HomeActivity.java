@@ -204,9 +204,9 @@ public class HomeActivity extends AppCompatActivity {
                                 MainActivity.toast(getApplicationContext(), "Unknown error");
                             else {
                                 // If it exists, we shouldn't overwrite.
-                                if (document.exists()) {
+                                if (player.getClaimedCollectibleIDs().contains(id)) {
                                     MainActivity.toast(getApplicationContext(), "Already been scanned!");
-                                    scanner.resume();
+                                    resume("");
                                 } else assembleScanned();
                             }
                         }
@@ -231,17 +231,12 @@ public class HomeActivity extends AppCompatActivity {
         if (player!=null) {
             Intent intent = new Intent(HomeActivity.this, UserActivity.class);
             intent.putExtra("username", player.getUsername());
+            intent.putExtra("restricted", false);
             startActivity(intent);
         }
         else{
             MainActivity.toast(this, "please login first");
         }
-
-
-        Intent intent = new Intent(HomeActivity.this, UserActivity.class);
-        intent.putExtra("username", player.getUsername());
-        intent.putExtra("restricted", false);
-        startActivity(intent);
     }
 
     @Override
