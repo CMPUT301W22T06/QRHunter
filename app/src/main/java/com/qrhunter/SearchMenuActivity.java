@@ -35,6 +35,12 @@ public class SearchMenuActivity extends AppCompatActivity {
     DecoratedBarcodeView scanner;
 
     int sortType = 0;
+    String[] sortTypes = {
+            "Sorted by highest total score.",
+            "Sorted by highest score on a single collectible.",
+            "Sorted by total collectibles scanned."
+    };
+
     boolean sorted = false; // to prevent the myScore button from working if the list isn't sorted yet
 
     @Override protected void onCreate(Bundle savedInstanceState) {
@@ -67,21 +73,24 @@ public class SearchMenuActivity extends AppCompatActivity {
 
         // toggles between the various sorts and toasts the user with what it is sorted by
         filterButton.setOnClickListener(view -> {
-            switch (sortType) {
-                case 0:
-                    sortByHighestScore();
-                    sortType=1;
-                    toast(getApplicationContext(), "Sorted by highest score on a single collectible.");
-                    break;
-                case 1:
-                    sortByScoreSum();
-                    sortType=2;
-                    toast(getApplicationContext(), "Sorted by highest total score.");
-                case 2:
-                    sortByScanned();
-                    sortType=0;
-                    toast(getApplicationContext(), "Sorted by total collectibles scanned.");
-            }
+
+            // Set the lambda using a one-line if statement.
+            Collections.sort(playerDataList,
+                    sortType == 0 ? (p1, p2) -> p2.getScoreSum().compareTo(p1.getScoreSum()) :
+                    sortType == 1 ? (p1, p2) -> p2.getHighestScore().compareTo(p1.getHighestScore()) :
+                    (p1, p2) -> p2.getTotalCodesScanned().compareTo(p1.getTotalCodesScanned())
+
+                    );
+
+            // Set sorted, toast the message.
+            sorted = true;
+            toast(getApplicationContext(), sortTypes[sortType]);
+            playerAdapter = new PlayersList(this, playerDataList, sortType);
+
+            // Increment our sortType, mod it by 3 to bind sortType to [0, 2]
+            sortType++; sortType %= 3;
+            playersList.setAdapter(playerAdapter);
+            playerAdapter.notifyDataSetChanged();
         });
 
         searchButton.setOnClickListener(view -> {
@@ -120,40 +129,13 @@ public class SearchMenuActivity extends AppCompatActivity {
 
         playersList = findViewById(R.id.search_items_list);
         playerDataList = new ArrayList<>();
+        playerAdapter = new PlayersList(this, playerDataList, 0);
+        playersList.setAdapter(playerAdapter);
 
         // grab players list from Firestore db
         Map<String,Player> map = allPlayers.getPlayers();
         List<Player> players = new ArrayList<>(map.values());
         playerDataList.addAll(players);
-
-        // set up adapter
-        // 0 for default displayType
-        // 1 = highest single score
-        // 2 = highest total score
-        // 3 = highest collected number
-        playerAdapter = new PlayersList(this, playerDataList, 0);
-        playersList.setAdapter(playerAdapter);
-
-        // toggles between the various sorts and toasts the user with what it is sorted by
-        filterButton.setOnClickListener(view -> {
-            switch (sortType) {
-                case 0:
-                    sortByHighestScore();
-                    sortType=1;
-                    toast(getApplicationContext(), "Sorted by highest score on a single collectible.");
-                    break;
-                case 1:
-                    sortByScoreSum();
-                    sortType=2;
-                    toast(getApplicationContext(), "Sorted by highest total score.");
-                    break;
-                case 2:
-                    sortByScanned();
-                    sortType=0;
-                    toast(getApplicationContext(), "Sorted by total collectibles scanned.");
-                    break;
-            }
-        });
 
         // set up click function
         playersList.setOnItemClickListener((adapterView, view, i, l) -> {
@@ -162,7 +144,6 @@ public class SearchMenuActivity extends AppCompatActivity {
         });
     }
 
-
     /**
      * Returns the player's current rank.
      * @param username The player's username.
@@ -170,33 +151,6 @@ public class SearchMenuActivity extends AppCompatActivity {
     void myRank(String username){
         if (!sorted) toast(getApplicationContext(),"Please sort the list first!");
         else toast(getApplicationContext(),"You are rank " + (playerDataList.indexOf(allPlayers.getPlayer(username))+1) + ".");
-    }
-
-
-    public void sortByHighestScore(){
-        Collections.sort(playerDataList, (p1, p2) -> p2.getHighestScore().compareTo(p1.getHighestScore()));
-        sorted = true;
-        playerAdapter = new PlayersList(this, playerDataList, 1);
-        playersList.setAdapter(playerAdapter);
-        playerAdapter.notifyDataSetChanged();
-    }
-
-
-    public void sortByScoreSum(){
-        Collections.sort(playerDataList, (p1, p2) -> p2.getScoreSum().compareTo(p1.getScoreSum()));
-        sorted = true;
-        playerAdapter = new PlayersList(this, playerDataList, 2);
-        playersList.setAdapter(playerAdapter);
-        playerAdapter.notifyDataSetChanged();
-    }
-
-
-    public void sortByScanned(){
-        Collections.sort(playerDataList, (p1, p2) -> p2.getTotalCodesScanned().compareTo(p1.getTotalCodesScanned()));
-        sorted = true;
-        playerAdapter = new PlayersList(this, playerDataList, 3);
-        playersList.setAdapter(playerAdapter);
-        playerAdapter.notifyDataSetChanged();
     }
 
 

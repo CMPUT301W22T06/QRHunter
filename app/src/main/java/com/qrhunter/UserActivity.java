@@ -1,5 +1,8 @@
 package com.qrhunter;
 
+import static com.qrhunter.MainActivity.allPlayers;
+import static com.qrhunter.MainActivity.collectables;
+
 import android.app.AlertDialog;
 import android.graphics.Bitmap;
 import android.os.Build;
@@ -19,6 +22,7 @@ import com.google.zxing.WriterException;
 import com.google.zxing.common.BitMatrix;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Comparator;
 
 
@@ -35,8 +39,7 @@ public class UserActivity extends AppCompatActivity {
     UserScannedAdapter adapter;
     TextView user_score;
 
-    ArrayList<String> names = new ArrayList<>();
-
+    ArrayList<Collectable> player_collectables = new ArrayList<>();
 
     @RequiresApi(api = Build.VERSION_CODES.N) @Override protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -44,7 +47,7 @@ public class UserActivity extends AppCompatActivity {
 
         // Get the player.
         String username = getIntent().getStringExtra("username");
-        player = MainActivity.allPlayers.getPlayer(username);
+        player = allPlayers.getPlayer(username);
 
         boolean restricted = getIntent().getBooleanExtra("restricted", true);
 
@@ -60,24 +63,19 @@ public class UserActivity extends AppCompatActivity {
             qrcode.setImageBitmap(generatePlayerQR());
         }
 
-        // Setup the list of adapters
-        for (String id : player.getClaimedCollectibleIDs())
-            names.add(MainActivity.collectables.get(id).getName());
-
         // Setup collectables.
-        ArrayList<Collectable> collectables = new ArrayList<>();
         for (String id : player.getClaimedCollectibleIDs())
-            collectables.add(MainActivity.collectables.get(id));
+            player_collectables.add(collectables.get(id));
 
         // Setup the adapter.
-        adapter = new UserScannedAdapter(this,R.layout.item_list_userscanned, collectables);
+        adapter = new UserScannedAdapter(this,R.layout.item_list_userscanned, player_collectables);
         scanned.setAdapter(adapter);
 
         user_score.setText("Total Score: " + player.getScoreSum());
 
         // Setup for what happens when a user clicks a code.
         scanned.setOnItemClickListener((parent, v, position, id) -> {
-            Collectable selected = MainActivity.collectables.get(player.getClaimedCollectibleIDs().get(position));
+            Collectable selected = collectables.get(player.getClaimedCollectibleIDs().get(position));
 
             // Boilerplate to generalize the creation of the view.
             int view, v_id, v_score, v_location, v_image;
@@ -116,7 +114,7 @@ public class UserActivity extends AppCompatActivity {
 
             if (!restricted) {
                 context_view.findViewById(R.id.context_view_delete).setOnClickListener(x -> {
-                    MainActivity.allPlayers.removeClaimedID(player.getUsername(), selected.getId());
+                    allPlayers.removeClaimedID(player.getUsername(), selected.getId());
                     refresh();
                     dialog.dismiss();
                 });
@@ -125,7 +123,7 @@ public class UserActivity extends AppCompatActivity {
 
         // Sorting button.
         findViewById(R.id.score_sort).setOnClickListener(v -> {
-            names.sort(Comparator.naturalOrder());
+            Collections.sort(player_collectables, Comparator.comparing(Collectable::getScore));
             refresh();
         });
     }
@@ -137,12 +135,7 @@ public class UserActivity extends AppCompatActivity {
     private void refresh() {
 
         // Setup the adapter.
-        ArrayList<Collectable> collectables = new ArrayList<>();
-        for (String id : player.getClaimedCollectibleIDs())
-            collectables.add(MainActivity.collectables.get(id));
-
-        // Setup the adapter.
-        adapter = new UserScannedAdapter(this,R.layout.item_list_userscanned, collectables);
+        adapter = new UserScannedAdapter(this,R.layout.item_list_userscanned, player_collectables);
         scanned.setAdapter(adapter);
 
         // Inform everything about the change.

@@ -44,9 +44,9 @@ public class PlayersList extends ArrayAdapter<Player> {
         TextView playerScore = view.findViewById(R.id.player_score);
         if (player.getScoreSum() != null){
             switch (displayType) {
-                case 0: case 2: playerScore.setText(Long.toString(player.getScoreSum())); break;
+                case 0: playerScore.setText(Long.toString(player.getScoreSum())); break;
                 case 1: playerScore.setText(Long.toString(player.getHighestScore())); break;
-                case 3: playerScore.setText(Long.toString(player.getTotalCodesScanned())); break;
+                case 2: playerScore.setText(Long.toString(player.getTotalCodesScanned())); break;
                 default: throw new RuntimeException();
             }
         }

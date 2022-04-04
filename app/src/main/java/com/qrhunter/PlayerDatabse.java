@@ -1,5 +1,7 @@
 package com.qrhunter;
 
+import static com.qrhunter.MainActivity.allPlayers;
+
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 
@@ -172,7 +174,7 @@ public class PlayerDatabse {
      * @param id The id of the QR Code.
      */
     public void addClaimedID(String player, String id) {
-        Player selected = MainActivity.allPlayers.getPlayer(player);
+        Player selected = allPlayers.getPlayer(player);
         if (selected != null) {
             if (!selected.getClaimedCollectibleIDs().contains(id)) {
                 selected.getClaimedCollectibleIDs().add(id);
@@ -193,7 +195,7 @@ public class PlayerDatabse {
      * @param player the player that has the collectable
      */
     public void removeClaimedID(String player, String id) {
-        Player selected = MainActivity.allPlayers.getPlayer(player);
+        Player selected = allPlayers.getPlayer(player);
         if (selected != null) {
             selected.getClaimedCollectibleIDs().remove(id);
             database.collection("Players")

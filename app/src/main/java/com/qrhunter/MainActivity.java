@@ -53,7 +53,7 @@ public class MainActivity extends AppCompatActivity {
             ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.CAMERA}, 0);
 
         loginWithoutAccountButton.setOnClickListener( v ->{
-            MainActivity.toast(context, "You are now signed in without account");
+            toast(context, "You are now signed in without account");
             Intent intent = new Intent(this, HomeActivity.class);
 
             // passes the player object into the intent
@@ -75,7 +75,7 @@ public class MainActivity extends AppCompatActivity {
                 User thisPlayer = allPlayers.getUser(username);
 
                 // checks if the player actually exists, if not toast the user to let them know
-                if (thisPlayer == null) MainActivity.toast(context, "User does not exist!");
+                if (thisPlayer == null) toast(context, "User does not exist!");
 
                 else {
                     String thisPass = thisPlayer.getPassword();
@@ -84,7 +84,7 @@ public class MainActivity extends AppCompatActivity {
                     if (thisPass.equals(password)) {
 
                         // logs em into the main activity
-                        MainActivity.toast(context, "You are now signed in as " + username);
+                        toast(context, "You are now signed in as " + username);
 
                         Intent intent;
                         // if player is logging in...
@@ -101,12 +101,12 @@ public class MainActivity extends AppCompatActivity {
                     }
 
                     // otherwise toast and tell them their credentials are not correct
-                    else MainActivity.toast(context, "Wrong Password!");
+                    else toast(context, "Wrong Password!");
                 }
             }
 
             // toast the user to let them know there are empty fields
-            else MainActivity.toast(context, "Empty Fields!");
+            else toast(context, "Empty Fields!");
         });
       
         // when the create account button is pressed, creates a dialog fragment for the

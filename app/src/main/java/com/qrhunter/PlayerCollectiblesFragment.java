@@ -1,5 +1,7 @@
 package com.qrhunter;
 
+import static com.qrhunter.MainActivity.collectables;
+
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.Intent;
@@ -35,7 +37,7 @@ public class PlayerCollectiblesFragment extends DialogFragment {
         ListView collectiblesList = view.findViewById(R.id.collectibles_list);
         ArrayList<String> collectiblesDataList = new ArrayList<>();
         for (String id : player.getClaimedCollectibleIDs())
-            collectiblesDataList.add(MainActivity.collectables.get(id).getName());
+            collectiblesDataList.add(collectables.get(id).getName());
 
         ArrayAdapter<String> collectibleAdapter = new ArrayAdapter<>(view.getContext(), R.layout.player_content, collectiblesDataList);
         collectiblesList.setAdapter(collectibleAdapter);

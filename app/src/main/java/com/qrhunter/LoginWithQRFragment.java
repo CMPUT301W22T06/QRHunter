@@ -1,12 +1,14 @@
 package com.qrhunter;
 
+import static com.qrhunter.MainActivity.allPlayers;
+import static com.qrhunter.MainActivity.toast;
+
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.DialogFragment;
@@ -24,6 +26,7 @@ import java.util.List;
 public class LoginWithQRFragment extends DialogFragment {
     DecoratedBarcodeView scanner;
 
+
     @Override public void onResume() {
         super.onResume();
         new Thread(() -> {
@@ -36,6 +39,7 @@ public class LoginWithQRFragment extends DialogFragment {
         }).start();
     }
 
+
     @NonNull @Override public Dialog onCreateDialog(Bundle savedInstanceState) {
         // Inflate layout for this fragment
         View view = LayoutInflater.from(getActivity()).inflate(R.layout.fragment_login_qr, null);
@@ -47,10 +51,10 @@ public class LoginWithQRFragment extends DialogFragment {
             public void barcodeResult(BarcodeResult result) {
 
                 String username = result.getText();
-                Player thisPlayer = MainActivity.allPlayers.getPlayer(username);
+                Player thisPlayer = allPlayers.getPlayer(username);
                 scanner.pause();
                 if (thisPlayer == null) {
-                    Toast.makeText(getContext(), "try again", Toast.LENGTH_SHORT).show();
+                    toast(getContext(), "Try again");
                     scanner.resume();
                 }
                 else {

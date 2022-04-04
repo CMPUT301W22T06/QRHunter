@@ -59,7 +59,7 @@ public class QRViewActivity extends AppCompatActivity {
         commonPlayers = new ArrayList<>();
         for (int i = 0; i<players.size(); i++) {
             ArrayList<String> playerCollectibleIDs = players.get(i).getClaimedCollectibleIDs();
-            for(int j = 0; j < playerCollectibleIDs.size(); j++) {
+            for (int j = 0; j < playerCollectibleIDs.size(); j++) {
                 if (playerCollectibleIDs.get(j).equals(collectableID)) {
                     commonPlayers.add(players.get(i).getUsername());
                     break;

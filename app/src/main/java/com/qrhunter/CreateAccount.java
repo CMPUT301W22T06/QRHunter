@@ -1,5 +1,7 @@
 package com.qrhunter;
 
+import static com.qrhunter.MainActivity.toast;
+
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -46,15 +48,15 @@ public class CreateAccount extends DialogFragment {
                 // makes sure the player does not already exist in the database
                 if (referencePlayer == null){
                     database.addPlayer(uName, pWord);
-                    MainActivity.toast(getActivity(), "Account Created");
+                    toast(getActivity(), "Account Created");
                 }
 
                 // if the player does exist, toast the user to tell them the player exists
-                else MainActivity.toast(getActivity(), "Player already exists!");
+                else toast(getActivity(), "Player already exists!");
             }
 
             // toast user to tell them entered information does not meet all requirements
-            else MainActivity.toast(getActivity(), "Invalid Field!");
+            else toast(getActivity(), "Invalid Field!");
         });
     }
 }

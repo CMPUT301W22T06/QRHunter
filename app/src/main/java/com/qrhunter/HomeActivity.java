@@ -1,5 +1,9 @@
 package com.qrhunter;
 
+import static com.qrhunter.MainActivity.allPlayers;
+import static com.qrhunter.MainActivity.collectables;
+import static com.qrhunter.MainActivity.toast;
+
 import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.Activity;
@@ -44,6 +48,7 @@ public class HomeActivity extends AppCompatActivity {
     DecoratedBarcodeView scanner;
     Collectable scanned;
     Player player;
+
 
     /*
      * Taking a Photo when a QR is scanned is an intent, which means onResume will be called when
@@ -91,9 +96,9 @@ public class HomeActivity extends AppCompatActivity {
         @SuppressLint("MissingPermission") Location locationGPS = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
         if (locationGPS != null)
             scanned.setLocation(new Geolocation(locationGPS.getLatitude(), locationGPS.getLongitude()));
-        else MainActivity.toast(getApplicationContext(), "Unable to find location.");
-        MainActivity.collectables.add(scanned, this);
-        MainActivity.allPlayers.addClaimedID(player.getUsername(), scanned.getId());
+        else toast(getApplicationContext(), "Unable to find location.");
+        collectables.add(scanned, this);
+        allPlayers.addClaimedID(player.getUsername(), scanned.getId());
     }
 
 
@@ -119,17 +124,17 @@ public class HomeActivity extends AppCompatActivity {
             String name = name_box.getText().toString();
 
             if (name.isEmpty()) {
-                MainActivity.toast(getApplicationContext(), "Please enter a name!");
+                toast(getApplicationContext(), "Please enter a name!");
                 assembleScanned();
             }
             else if (name.length() > 24) {
-                MainActivity.toast(getApplicationContext(), "Name too large! Must be 24 characters.");
+                toast(getApplicationContext(), "Name too large! Must be 24 characters.");
                 assembleScanned();
             }
             else {
                 scanned.setName(name);
-                MainActivity.collectables.add(scanned, this);
-                MainActivity.allPlayers.addClaimedID(player.getUsername(), scanned.getId());
+                collectables.add(scanned, this);
+                allPlayers.addClaimedID(player.getUsername(), scanned.getId());
             }
         });
 
@@ -149,7 +154,7 @@ public class HomeActivity extends AppCompatActivity {
      */
     public void resume(String error) {
         if (!error.isEmpty())
-            MainActivity.toast(getApplicationContext(), "Could not upload QR Code: " + error);
+            toast(getApplicationContext(), "Could not upload QR Code: " + error);
 
         // Resume the scanner.
         scanner.resume();
@@ -167,7 +172,7 @@ public class HomeActivity extends AppCompatActivity {
 
         // retrieves the Player username from the intent
         String username = getIntent().getStringExtra("username");
-        player = MainActivity.allPlayers.getPlayer(username);
+        player = allPlayers.getPlayer(username);
 
         // Access the scoreboard.
         Button scoreboardButton = findViewById(R.id.home_scoreboard);
@@ -185,7 +190,7 @@ public class HomeActivity extends AppCompatActivity {
 
         // Grab the scanner within the activity.
         scanner = findViewById(R.id.home_scanner);
-        if (player == null) MainActivity.toast(this, "start scanner after login!");
+        if (player == null) toast(this, "start scanner after login!");
         else {
             scanner.decodeContinuous(new BarcodeCallback() {
 
@@ -205,17 +210,17 @@ public class HomeActivity extends AppCompatActivity {
                     scanner.pause();
 
                     // Check if the Code already exists within the Firebase, prompt accordingly.
-                    MainActivity.collectables.getStore().collection("Scanned").document(scanned.getId()).get().addOnCompleteListener(task -> {
+                    collectables.getStore().collection("Scanned").document(scanned.getId()).get().addOnCompleteListener(task -> {
                         if (task.isSuccessful()) {
                             DocumentSnapshot document = task.getResult();
 
                             // Not sure why this happens, but we need to check for it.
                             if (document == null)
-                                MainActivity.toast(getApplicationContext(), "Unknown error");
+                                toast(getApplicationContext(), "Unknown error");
                             else {
                                 // If it exists, we shouldn't overwrite.
                                 if (player.getClaimedCollectibleIDs().contains(id)) {
-                                    MainActivity.toast(getApplicationContext(), "Already been scanned!");
+                                    toast(getApplicationContext(), "Already been scanned!");
                                     resume("");
                                 } else assembleScanned();
                             }
@@ -239,7 +244,7 @@ public class HomeActivity extends AppCompatActivity {
 
         // If we're building a collectable, don't let them leave.
         if (building) {
-            MainActivity.toast(getApplicationContext(), "Uploading... please wait.");
+            toast(getApplicationContext(), "Uploading... please wait.");
             return;
         }
 
@@ -251,7 +256,7 @@ public class HomeActivity extends AppCompatActivity {
             startActivity(intent);
         }
 
-        else MainActivity.toast(this, "Please login first");
+        else toast(this, "Please login first");
     }
 
 
@@ -279,8 +284,8 @@ public class HomeActivity extends AppCompatActivity {
             if (permissions[x].equals(Manifest.permission.ACCESS_COARSE_LOCATION) && requestCode == 1) {
                 if (grantResults[x] == PackageManager.PERMISSION_GRANTED) storeLocation();
                 else {
-                    MainActivity.toast(getApplicationContext(), "Location permission is required to save location!");
-                    MainActivity.collectables.add(scanned, this);
+                    toast(getApplicationContext(), "Location permission is required to save location!");
+                    collectables.add(scanned, this);
                 }
             }
         }

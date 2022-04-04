@@ -1,5 +1,7 @@
 package com.qrhunter;
 
+import static com.qrhunter.MainActivity.collectables;
+import static com.qrhunter.MainActivity.toast;
 import static java.lang.Math.abs;
 
 import android.Manifest;
@@ -52,7 +54,7 @@ public class QRMapActivity extends FragmentActivity implements OnMapReadyCallbac
             player_location = new Geolocation(locationGPS.getLongitude(), locationGPS.getLatitude());
             populateMap();
         }
-        else MainActivity.toast(getApplicationContext(), "Unable to find location.");
+        else toast(getApplicationContext(), "Unable to find location.");
     }
 
 
@@ -65,7 +67,7 @@ public class QRMapActivity extends FragmentActivity implements OnMapReadyCallbac
         map.animateCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(player_location.getLatitude(), player_location.getLongitude()), 15.0f));
 
         // Go through each collectable, and if they're within range, add a pin.
-        for (Collectable scanned : MainActivity.collectables.getDatabase().values()) {
+        for (Collectable scanned : collectables.getDatabase().values()) {
             Geolocation current = scanned.getLocation();
             if (abs(player_location.getLongitude() - current.getLongitude()) < 0.01 && abs(player_location.getLongitude() - current.getLongitude()) < 0.01) {
                 map.addMarker(new MarkerOptions().position(new LatLng(current.getLatitude(), current.getLongitude())).title(scanned.getName()));
@@ -103,7 +105,7 @@ public class QRMapActivity extends FragmentActivity implements OnMapReadyCallbac
             if (permissions[x].equals(Manifest.permission.ACCESS_COARSE_LOCATION) && requestCode == 1) {
                 if (grantResults[x] == PackageManager.PERMISSION_GRANTED) storeLocation();
                 else {
-                    MainActivity.toast(getApplicationContext(), "Location permission is required to use QR Map");
+                    toast(getApplicationContext(), "Location permission is required to use QR Map");
                     finish();
                 }
             }
