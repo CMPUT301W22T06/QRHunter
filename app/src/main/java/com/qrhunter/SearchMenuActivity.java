@@ -5,6 +5,7 @@ import static com.qrhunter.MainActivity.toast;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.text.TextUtils;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -21,10 +22,10 @@ import com.journeyapps.barcodescanner.BarcodeResult;
 import com.journeyapps.barcodescanner.DecoratedBarcodeView;
 
 import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Activity to search and view other players and their collectibles.
@@ -113,9 +114,18 @@ public class SearchMenuActivity extends AppCompatActivity {
         searchButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                // TODO: set up searching from firebase DB
-                String playerSearchString = searchInput.getText().toString();
-                searchInput.setText("");
+                if (!TextUtils.isEmpty(searchInput.getText().toString())){
+                    Player p = allPlayers.getPlayer(searchInput.getText().toString());
+                    if (p==null){
+                        Toast.makeText(SearchMenuActivity.this, "player not found", Toast.LENGTH_SHORT).show();
+                    }else{
+                        Intent intent = new Intent(SearchMenuActivity.this,OtherUserActivity.class);
+                        intent.putExtra("username",p.getUsername());
+                        startActivity(intent);
+                    }
+                }else{
+                    Toast.makeText(SearchMenuActivity.this, "input username cannot be empty", Toast.LENGTH_SHORT).show();
+                }
             }
         });
 
@@ -130,9 +140,13 @@ public class SearchMenuActivity extends AppCompatActivity {
         myCollectiblesButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent intent = new Intent(SearchMenuActivity.this, MyCollectiblesList.class);
-                intent.putExtra("username",username);
-                startActivity(intent);
+                if (!TextUtils.isEmpty(username)){
+                    Intent intent = new Intent(SearchMenuActivity.this, MyCollectiblesList.class);
+                    intent.putExtra("username",username);
+                    startActivity(intent);
+                }else{
+                    Toast.makeText(SearchMenuActivity.this, "please login first", Toast.LENGTH_SHORT).show();
+                }
             }
         });
 

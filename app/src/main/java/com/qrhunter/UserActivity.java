@@ -6,7 +6,6 @@ import android.os.Build;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
@@ -27,7 +26,7 @@ public class UserActivity extends AppCompatActivity {
     Player player;
 
     ListView scanned;
-    ArrayAdapter<String> adapter;
+    UserScannedAdapter adapter;
     TextView user_score;
 
     ArrayList<String> names = new ArrayList<>();
@@ -61,7 +60,12 @@ public class UserActivity extends AppCompatActivity {
             names.add(MainActivity.collectables.get(id).getName());
         }
 
-        adapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, names);
+        ArrayList<Collectable> collectables = new ArrayList<>();
+        for (String id : player.getClaimedCollectibleIDs()) {
+            collectables.add(MainActivity.collectables.get(id));
+        }
+
+        adapter = new UserScannedAdapter(this,R.layout.item_list_userscanned, collectables);
         scanned.setAdapter(adapter);
 
         user_score.setText("Total Score: " + getTotalScore());
@@ -126,7 +130,14 @@ public class UserActivity extends AppCompatActivity {
     private void refresh() {
 
         // Setup the adapter.
-        adapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, names);
+        ArrayList<Collectable> collectables = new ArrayList<>();
+        for (String id : player.getClaimedCollectibleIDs()) {
+            collectables.add(MainActivity.collectables.get(id));
+        }
+
+        // Setup the adapter.
+        adapter = new UserScannedAdapter(this,R.layout.item_list_userscanned, collectables);
+
         scanned.setAdapter(adapter);
 
         // Inform everything about the change.

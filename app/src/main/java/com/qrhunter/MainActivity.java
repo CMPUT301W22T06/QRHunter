@@ -42,10 +42,25 @@ public class MainActivity extends AppCompatActivity {
         EditText passwordText = findViewById(R.id.password);
         Button loginButton = findViewById(R.id.login_button);
         Button createAccountButton = findViewById(R.id.create_account_button);
+        Button loginWithoutAccountButton = findViewById(R.id.login_without_account);
+        Button loginWithQR = findViewById(R.id.login_with_QR);
 
         // Request Camera Permission (Needed for the scanner)
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED)
             ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.CAMERA}, 0);
+
+        loginWithoutAccountButton.setOnClickListener( v ->{
+            Toast.makeText(context, "You are now signed in without account",
+                    Toast.LENGTH_SHORT).show();
+            Intent intent = new Intent(this, HomeActivity.class);
+            // passes the player object into the intent
+            intent.putExtra("username","");
+            startActivity(intent);
+        });
+
+        loginWithQR.setOnClickListener( v ->{
+            new LoginWithQRFragment().show(getSupportFragmentManager(),"LOGIN_WITH_QR");
+        });
 
         // Quick & dirty implementation of a login button, just confirming stuff is in the DB before
         // going into the home activity.

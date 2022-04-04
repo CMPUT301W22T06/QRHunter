@@ -175,45 +175,52 @@ public class HomeActivity extends AppCompatActivity {
 
         // Grab the scanner within the activity.
         scanner = findViewById(R.id.home_scanner);
-        scanner.decodeContinuous(new BarcodeCallback() {
+        if (player == null) MainActivity.toast(this, "start scanner after login!");
+        else {
+            scanner.decodeContinuous(new BarcodeCallback() {
 
-            // When we successfully scan a code.
-            @Override public void barcodeResult(BarcodeResult result) {
-                building = true;
-                scanned = new Collectable();
+                // When we successfully scan a code.
+                @Override
+                public void barcodeResult(BarcodeResult result) {
+                    building = true;
+                    scanned = new Collectable();
 
-                // Create the ID, along with the score.
-                String id = ScoringSystem.hashQR(result.getText());
-                scanned.setId(id);
-                scanned.setScore(ScoringSystem.score(id));
+                    // Create the ID, along with the score.
+                    String id = ScoringSystem.hashQR(result.getText());
+                    scanned.setId(id);
+                    scanned.setScore(ScoringSystem.score(id));
 
-                // Pause the scanner so it doesn't make an infinite amount of popups.
-                scanner.pause();
+                    // Pause the scanner so it doesn't make an infinite amount of popups.
+                    scanner.pause();
 
 
-                // Check if the Code already exists within the Firebase, prompt accordingly.
-                MainActivity.collectables.getStore().collection("Scanned").document(scanned.getId()).get().addOnCompleteListener(task -> {
-                    if (task.isSuccessful()) {
-                        DocumentSnapshot document = task.getResult();
+                    // Check if the Code already exists within the Firebase, prompt accordingly.
+                    MainActivity.collectables.getStore().collection("Scanned").document(scanned.getId()).get().addOnCompleteListener(task -> {
+                        if (task.isSuccessful()) {
+                            DocumentSnapshot document = task.getResult();
 
-                        // Not sure why this happens, but we need to check for it.
-                        if (document == null) MainActivity.toast(getApplicationContext(), "Unknown error");
-                        else {
-                            // If it exists, we shouldn't overwrite.
-                            if (document.exists()) {
-                                MainActivity.toast(getApplicationContext(), "Already been scanned!");
-                                scanner.resume();
+                            // Not sure why this happens, but we need to check for it.
+                            if (document == null)
+                                MainActivity.toast(getApplicationContext(), "Unknown error");
+                            else {
+                                // If it exists, we shouldn't overwrite.
+                                if (document.exists()) {
+                                    MainActivity.toast(getApplicationContext(), "Already been scanned!");
+                                    scanner.resume();
+                                } else assembleScanned();
                             }
-                            else assembleScanned();
                         }
-                    }
 
-                    // This happens when the database is empty.
-                    else assembleScanned();
-                });
-            }
-            @Override public void possibleResultPoints(List<ResultPoint> resultPoints) {}
-        });
+                        // This happens when the database is empty.
+                        else assembleScanned();
+                    });
+                }
+
+                @Override
+                public void possibleResultPoints(List<ResultPoint> resultPoints) {
+                }
+            });
+        }
     }
 
     public void onClickUser(MenuItem mi) {
@@ -221,6 +228,16 @@ public class HomeActivity extends AppCompatActivity {
             MainActivity.toast(getApplicationContext(), "Uploading... please wait.");
             return;
         }
+        if (player!=null) {
+            Intent intent = new Intent(HomeActivity.this, UserActivity.class);
+            intent.putExtra("username", player.getUsername());
+            startActivity(intent);
+        }
+        else{
+            MainActivity.toast(this, "please login first");
+        }
+
+
         Intent intent = new Intent(HomeActivity.this, UserActivity.class);
         intent.putExtra("username", player.getUsername());
         intent.putExtra("restricted", false);
