@@ -18,11 +18,13 @@ import java.util.ArrayList;
 public class PlayersList extends ArrayAdapter<Player> {
     private ArrayList<Player> players;
     private Context context;
+    private int displayType;
 
-    public PlayersList(SearchMenuActivity context, ArrayList<Player> players) {
+    public PlayersList(SearchMenuActivity context, ArrayList<Player> players, int displayType) {
         super(context, 0, players);
         this.context = context;
         this.players = players;
+        this.displayType = displayType;
     }
 
     public View getView(int position, @Nullable View convertView, @NonNull ViewGroup
@@ -40,8 +42,16 @@ public class PlayersList extends ArrayAdapter<Player> {
 
         // set score
         TextView playerScore = view.findViewById(R.id.player_score);
-        if (player.getScoreSum() != null)
-            playerScore.setText(Long.toString(player.getScoreSum()));
+        if (player.getScoreSum() != null){
+            switch (displayType) {
+                case 0:
+                case 2:
+                    playerScore.setText(Long.toString(player.getScoreSum())); break;
+                case 1: playerScore.setText(Long.toString(player.getHighestScore())); break;
+                case 3: playerScore.setText(Long.toString(player.getTotalCodesScanned())); break;
+                default: throw new RuntimeException();
+            }
+        }
 
         return view;
     }
