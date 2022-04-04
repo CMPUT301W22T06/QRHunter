@@ -119,8 +119,9 @@ public class SearchMenuActivity extends AppCompatActivity {
                     if (p==null){
                         Toast.makeText(SearchMenuActivity.this, "player not found", Toast.LENGTH_SHORT).show();
                     }else{
-                        Intent intent = new Intent(SearchMenuActivity.this,OtherUserActivity.class);
-                        intent.putExtra("username",p.getUsername());
+                        Intent intent = new Intent(SearchMenuActivity.this, UserActivity.class);
+                        intent.putExtra("username",username);
+                        intent.putExtra("restricted", true);
                         startActivity(intent);
                     }
                 }else{

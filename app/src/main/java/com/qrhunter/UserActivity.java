@@ -46,13 +46,13 @@ public class UserActivity extends AppCompatActivity {
         scanned = findViewById(R.id.user_scanned);
         user_score = findViewById(R.id.user_score);
 
-        // The Player QR Code.
-        ImageView qrcode = findViewById(R.id.user_qr);
-        qrcode.setImageBitmap(generatePlayerQR());
-
         if (restricted) {
             TextView name = findViewById(R.id.user_text);
             name.setText(player.getUsername());
+        }
+        else {
+            ImageView qrcode = findViewById(R.id.user_qr);
+            qrcode.setImageBitmap(generatePlayerQR());
         }
 
         // Setup the list of adapters
