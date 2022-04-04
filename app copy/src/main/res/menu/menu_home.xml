@@ -1,8 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<menu xmlns:android="http://schemas.android.com/apk/res/android">
-<item
-    android:icon="@mipmap/user"
-    android:id="@+id/user_menu_img"
-    android:onClick="onClickUser"
-    android:title="User Profile" />
-</menu>
