@@ -7,6 +7,19 @@
     android:orientation="vertical"
     tools:context=".SearchMenuActivity">
 
+    <com.journeyapps.barcodescanner.DecoratedBarcodeView
+        android:id="@+id/search_menu_scanner"
+        android:layout_width="300dp"
+        android:layout_height="300dp"
+        android:layout_centerHorizontal="true"
+        android:layout_marginStart="32dp"
+        android:layout_marginTop="92dp"
+        android:layout_marginEnd="32dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.489"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
     <Button
         android:id="@+id/filter_button"
         android:layout_width="wrap_content"
@@ -14,18 +27,31 @@
         android:layout_marginTop="10dp"
         android:layout_marginEnd="30dp"
         android:text="Filter"
-        app:layout_constraintBottom_toTopOf="@+id/search_items_list"
+        app:layout_constraintBottom_toTopOf="@+id/search_menu_scanner"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <Button
+        android:id="@+id/rank_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:layout_marginEnd="5dp"
+        android:text="My Rank"
+        app:layout_constraintBottom_toTopOf="@+id/search_menu_scanner"
+        app:layout_constraintEnd_toStartOf="@+id/filter_button"
         app:layout_constraintTop_toTopOf="parent" />
 
     <ListView
         android:id="@+id/search_items_list"
         android:layout_width="0dp"
         android:layout_height="0dp"
+        android:layout_marginTop="32dp"
+        android:layout_marginBottom="32dp"
         app:layout_constraintBottom_toTopOf="@+id/search_button"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/filter_button" />
+        app:layout_constraintTop_toBottomOf="@+id/search_menu_scanner" />
 
     <Button
         android:id="@+id/search_button"
@@ -53,6 +79,7 @@
         android:layout_marginStart="16dp"
         android:layout_marginTop="8dp"
         app:icon="@android:drawable/ic_menu_myplaces"
+        app:layout_constraintBottom_toTopOf="@+id/search_menu_scanner"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 

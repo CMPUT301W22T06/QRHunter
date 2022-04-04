@@ -45,8 +45,23 @@ public class SearchMenuTest {
         //Checks the filter button
         solo.assertCurrentActivity("Wrong Activity", SearchMenuActivity.class);
         solo.clickOnView(solo.getView("filter_button"));
-        assertTrue(solo.waitForText("Filter", 2, 1000)); 
+        solo.waitForText("Sorted by", 1, 2000);
     }
+
+    /**
+     * checks the get rank button
+     */
+    @Test
+    public void checkRank() {
+        solo.assertCurrentActivity("Wrong Activity", SearchMenuActivity.class);
+        solo.clickOnView(solo.getView("rank_button"));
+        solo.waitForText("Please",1,1000);
+        solo.clickOnView(solo.getView("filter_button"));
+        solo.clickOnView(solo.getView("rank_button"));
+        solo.waitForText("You are",1,1000);
+    }
+
+
     /**
      * Checks the search button.
      */

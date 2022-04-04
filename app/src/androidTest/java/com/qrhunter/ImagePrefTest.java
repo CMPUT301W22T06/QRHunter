@@ -1,13 +1,9 @@
 package com.qrhunter;
 
-import static android.content.ContentValues.TAG;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
-import android.util.Log;
 import android.widget.EditText;
-import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.test.platform.app.InstrumentationRegistry;
@@ -15,7 +11,6 @@ import androidx.test.rule.ActivityTestRule;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
-import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.robotium.solo.Solo;
@@ -23,8 +18,6 @@ import com.robotium.solo.Solo;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
-
-import java.util.List;
 
 public class ImagePrefTest {
     private final String TAG = "ImagePrefTest";
@@ -62,6 +55,7 @@ public class ImagePrefTest {
         if(solo.waitForText("Enable large image uploads", 1, 1000)) {
             solo.clickOnText("Enable large image uploads");
             //Make sure the change is reflected firebase
+            solo.sleep(5000);
             db = FirebaseFirestore.getInstance();
             db.collection("Preferences").document("ImagePrefs").get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
                 @Override
@@ -76,6 +70,7 @@ public class ImagePrefTest {
         }
         else if(solo.waitForText("Disable large image uploads", 1, 1000)) {
             solo.clickOnText("Disable large image uploads");
+            solo.sleep(5000);
             //Make sure the change is reflected firebase
             db = FirebaseFirestore.getInstance();
             db.collection("Preferences").document("ImagePrefs").get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {

@@ -6,13 +6,11 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.util.Log;
 import android.util.Pair;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
-import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
@@ -20,7 +18,6 @@ import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 
-import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.util.ArrayList;
 import java.util.ConcurrentModificationException;
@@ -47,7 +44,6 @@ public class CollectableDatabase {
     // We need to specific a size, and no image should exceed a megabyte.
     final long ONE_MEGABYTE = 1024 * 1024;
     final int MAX_COMPRESSED_SIZE = 64000;
-
 
     /**
      * @throws RuntimeException if the database cannot be accessed (Network issues)
@@ -239,9 +235,10 @@ public class CollectableDatabase {
             // If big images aren't allowed, aggressively recompresses the image while it's over 64kb
             if(storeBigImages==false) {
                 scanned.getPhoto().compress(Bitmap.CompressFormat.JPEG, 70, output);
-                if(scanned.getPhoto().getByteCount()>64000) {
+                if(scanned.getPhoto().getByteCount()>MAX_COMPRESSED_SIZE) {
                     scanned.getPhoto().compress(Bitmap.CompressFormat.JPEG, 30, output);
-                    if(scanned.getPhoto().getByteCount()>64000) {
+                    if(scanned.getPhoto().getByteCount()>MAX_COMPRESSED_SIZE) {
+                        // At this point, even a 500MB image would be compressed to under 64KB
                         scanned.getPhoto().compress(Bitmap.CompressFormat.JPEG, 1, output);
                     }
                 }

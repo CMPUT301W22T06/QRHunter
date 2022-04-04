@@ -16,7 +16,6 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ListView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.google.firebase.firestore.FirebaseFirestore;
 
@@ -31,18 +30,14 @@ import java.util.Map;
  */
 public class OwnerActivity extends AppCompatActivity {
     private static final String TAG = "OwnerActivity";
-    private FirebaseFirestore db;
 
     ListView playersList;
     ArrayAdapter<String> playerAdapter;
     ArrayList<String> playerDataList;
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_owner);
-
-        db = FirebaseFirestore.getInstance();
 
         Button prefButton = findViewById(R.id.prefButton);
 
