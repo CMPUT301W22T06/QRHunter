@@ -52,12 +52,6 @@ public class OwnerActivity extends AppCompatActivity {
                     .setMessage("Are you sure you want to delete " + playerAdapter.getItem(i) + "?")
                     .setPositiveButton(android.R.string.yes, (dialogInterface, j) -> {
                         if (collectiblesPlayers.getText().toString().equals("Players")) {
-                            // get the current player and delete all their collectables
-                            Player currentPlayer = allPlayers.getPlayer(playerAdapter.getItem(i));
-                            ArrayList<String> collectiblesToDelete = currentPlayer.getClaimedCollectibleIDs();
-                            for (int k = 0; k < collectiblesToDelete.size(); k++)
-                                collectables.deleteCollectable(collectiblesToDelete.get(k));
-
                             allPlayers.deleteUser(playerAdapter.getItem(i));
                             updatePlayerDataList();
                         }
