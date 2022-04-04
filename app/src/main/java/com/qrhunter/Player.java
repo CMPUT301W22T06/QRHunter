@@ -14,7 +14,6 @@ public class Player extends User implements Serializable {
     private Long highestScore = 0L;
     private Long scoreSum = 0L;
     private Long totalCodesScanned = 0L;
-    private Bitmap QRcode;
 
     public Player(){
         // Default constructor
@@ -94,13 +93,5 @@ public class Player extends User implements Serializable {
      */
     public void setTotalCodesScanned(Long totalCodesScanned) {
         this.totalCodesScanned = totalCodesScanned;
-    }
-
-    public Bitmap getQRcode() {
-        return QRcode;
-    }
-
-    public void setQRcode(Bitmap QRcode) {
-        this.QRcode = QRcode;
     }
 }
